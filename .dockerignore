@@ -1,0 +1,14 @@
+.git
+
+node_modules
+**/node_modules
+
+Dockerfile
+.dockerignore
+
+.github
+.vscode
+.wrangler
+
+dist
+docs

@@ -1,0 +1,137 @@
+{
+  "language": {
+    "name": "English"
+  },
+  "metadata": {
+    "description": "Open-source tool focused on AI image generation. Transform your creative ideas into stunning visuals through natural conversation with advanced AI models."
+  },
+  "nav": {
+    "features": "Features",
+    "gallery": "Gallery",
+    "pricing": "Pricing",
+    "github": "GitHub",
+    "slogan": "Type To Pixels"
+  },
+  "hero": {
+    "title": "Chat Your Way to Amazing Images",
+    "subtitle": "Simply describe what you want to see, and watch as Typix transforms your words into stunning AI-generated images through natural conversation.",
+    "primaryBtn": "TRY NOW",
+    "stats": {
+      "images": "Images Created",
+      "users": "Happy Users",
+      "uptime": "Uptime"
+    },
+    "chatPlaceholder": "Describe the image you want to create..."
+  },
+  "features": {
+    "title": "Core Features",
+    "subtitle": "Focused on AI image generation, turning your ideas into visual art instantly",
+    "items": {
+      "selfHosted": {
+        "title": "Self-hosted",
+        "subtitle": "Complete control over your data and privacy"
+      },
+      "localFirst": {
+        "title": "Local-first",
+        "subtitle": "Prioritizes local storage and offline functionality"
+      },
+      "oneClickDeploy": {
+        "title": "One-click Deploy",
+        "subtitle": "Deploy instantly with Docker or Cloudflare Workers"
+      },
+      "multiModel": {
+        "title": "Multi-Model Support",
+        "subtitle": "Support for multiple AI models and providers"
+      },
+      "cloudSync": {
+        "title": "Cloud Sync",
+        "subtitle": "Seamless synchronization across all your devices"
+      },
+      "freeGeneration": {
+        "title": "Free Generation",
+        "subtitle": "Powered by Cloudflare Workers AI for zero-cost image creation"
+      },
+      "speed": {
+        "title": "Lightning Fast",
+        "description": "Generate high-quality images in seconds with our optimized AI models."
+      },
+      "quality": {
+        "title": "Premium Quality",
+        "description": "Create stunning 4K images with exceptional detail and clarity."
+      },
+      "styles": {
+        "title": "Multiple Styles",
+        "description": "Choose from dozens of artistic styles and customize every aspect."
+      },
+      "creative": {
+        "title": "Creative Control",
+        "description": "Fine-tune parameters and prompts for perfect results every time."
+      },
+      "ai": {
+        "title": "Advanced AI",
+        "description": "Powered by state-of-the-art machine learning models and algorithms."
+      },
+      "formats": {
+        "title": "Multiple Formats",
+        "description": "Export in various formats including PNG, JPG, SVG, and more."
+      }
+    }
+  },
+  "gallery": {
+    "title": "Explore Creative Possibilities",
+    "subtitle": "Discover the endless potential of AI-generated art across different styles and themes.",
+    "version": "Model",
+    "size": "Resolution",
+    "styles": {
+      "photorealistic": "Photorealistic",
+      "artistic": "Artistic",
+      "abstract": "Abstract",
+      "anime": "Anime",
+      "digital": "Digital Art"
+    }
+  },
+  "preview": {
+    "title": "Create Anywhere",
+    "subtitle": "Experience Typix's powerful AI image generation across all your devices."
+  },
+  "keyFeatures": {
+    "title": "Why Choose Typix?",
+    "subtitle": "Built with privacy, performance, and cost-efficiency in mind"
+  },
+  "providers": {
+    "title": "Powered by Leading AI Models",
+    "subtitle": "Integrated with the most advanced AI models and services for the best image generation experience",
+    "footer": "More providers and models are being added regularly"
+  },
+  "footer": {
+    "subtitle": "AI Image Generator",
+    "description": "Transform your words into stunning visuals with our advanced AI image generation technology.",
+    "copyright": "© {year} Typix AI. All rights reserved.",
+    "categories": {
+      "product": "Product",
+      "community": "Community",
+      "support": "Support"
+    },
+    "links": {
+      "product": {
+        "features": "Features",
+        "gallery": "Gallery",
+        "pricing": "Pricing"
+      },
+      "community": {
+        "github": "GitHub",
+        "discord": "Discord",
+        "twitter": "Twitter"
+      },
+      "support": {
+        "docs": "Documentation",
+        "faq": "FAQ",
+        "contact": "Contact Us"
+      }
+    },
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    }
+  }
+}

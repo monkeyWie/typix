@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Typix - Type To Pixels</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div
+      id="loading"
+      style="
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--background, #fff);
+        z-index: 9999;
+        transition: opacity 0.3s;
+      "
+    >
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+        "
+      >
+        <span class="dot-bounce-loader">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </span>
+      </div>
+    </div>
+    <style>
+      .dot-bounce-loader {
+        display: flex;
+        gap: 0.5em;
+        align-items: flex-end;
+        height: 2.5em;
+      }
+      .dot-bounce-loader .dot {
+        width: 0.8em;
+        height: 0.8em;
+        background: #000;
+        border-radius: 50%;
+        display: inline-block;
+        animation: dot-bounce 1s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      }
+      .dot-bounce-loader .dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .dot-bounce-loader .dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes dot-bounce {
+        0%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-1em);
+        }
+      }
+    </style>
+    <script type="module" src="/src/app/main.tsx"></script>
+  </body>
+</html>

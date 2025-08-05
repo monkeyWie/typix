@@ -1,0 +1,199 @@
+{
+	"common": {
+		"save": "保存",
+		"cancel": "取消",
+		"delete": "删除",
+		"edit": "编辑",
+		"create": "创建",
+		"loading": "加载中...",
+		"error": "错误",
+		"success": "成功",
+		"unknown": "未知",
+		"yesterday": "昨天",
+		"daysAgo": "天前"
+	},
+	"app": {
+		"initializing": "初始化中",
+		"initializingDescription": "请稍候，正在设置应用程序...",
+		"initializationFailed": "初始化失败",
+		"retry": "重试"
+	},
+	"chat": {
+		"newChat": "新建创作",
+		"newChatTitle": "新创作",
+		"typeMessage": "输入生成图片，按 Enter 发送 • Shift+Enter 换行",
+		"sendMessage": "发送消息",
+		"uploadImage": "上传图片",
+		"generateImage": "生成图片",
+		"chatHistory": "创作历史",
+		"noChats": "暂无创作记录",
+		"chatWith": "开始创作",
+		"imageGenerated": "图片生成成功",
+		"thinking": "AI思考中...",
+		"generating": "生成图片中...",
+		"selectModel": "选择AI模型",
+		"welcomeMessage": "描述您想要创建的图片，或开始对话！让您的想象力尽情发挥。",
+		"generatedImage": "生成的图片",
+		"generatedOrUploaded": "生成或上传的图片",
+		"ai": "AI",
+		"clickToEnlarge": "点击放大图片",
+		"error": {
+			"title": "错误",
+			"default": "发送消息时发生错误",
+			"createChat": "创建对话失败 - 没有可用的AI模型",
+			"noModel": "没有可用的AI模型 - 请先配置提供商",
+			"createNewChat": "创建新对话失败 - 请选择提供商和模型"
+		}
+	},
+	"navigation": {
+		"chat": "对话",
+		"settings": "设置"
+	},
+	"settings": {
+		"title": "设置",
+		"description": "管理你的应用偏好",
+		"language": "语言",
+		"theme": "主题",
+		"themeColor": "主题色",
+		"themeColorDescription": "自定义应用的主色调",
+		"model": "AI模型",
+		"general": "通用",
+		"appearance": "外观",
+		"advanced": "高级",
+		"selectLanguage": "选择语言",
+		"sections": {
+			"common": "通用设置",
+			"provider": "AI提供商"
+		},
+		"provider": {
+			"title": "AI 提供商",
+			"description": "管理你的AI服务配置",
+			"selectOption": "请选择一个选项",
+			"selectPlaceholder": "请选择...",
+			"settingsSaved": "设置已保存",
+			"saveFailed": "保存失败",
+			"saveError": "保存配置时发生错误",
+			"enabled": "已启用",
+			"disabled": "未启用",
+			"selectProvider": "选择提供商",
+			"selectProviderDescription": "请从左侧列表中选择一个AI提供商来配置其设置",
+			"configureToStart": "配置AI提供商以开始使用服务"
+		},
+		"validation": {
+			"required": "此字段为必填项",
+			"selectOption": "请选择一个选项",
+			"validUrl": "请输入有效的URL",
+			"validNumber": "请输入有效的数字",
+			"minValue": "最小值为 {{min}}",
+			"maxValue": "最大值为 {{max}}"
+		}
+	},
+	"auth": {
+		"welcomeBack": "欢迎回来",
+		"createAccount": "创建账户",
+		"loginDescription": "登录您的账户以继续使用",
+		"registerDescription": "注册新账户开始您的创作之旅",
+		"username": "用户名",
+		"email": "邮箱",
+		"password": "密码",
+		"enterUsername": "请输入用户名",
+		"enterEmail": "请输入邮箱地址",
+		"enterPassword": "请输入密码",
+		"login": "登录",
+		"register": "注册",
+		"processing": "处理中...",
+		"loginFailed": "登录失败",
+		"registerFailed": "注册失败",
+		"networkError": "网络错误，请稍后重试",
+		"or": "或者",
+		"noAccount": "还没有账户？",
+		"hasAccount": "已经有账户了？",
+		"signUpNow": "立即注册",
+		"goToLogin": "去登录",
+		"welcomeMessage": "欢迎使用 AI 助手",
+		"loginToSave": "登录以保存您的聊天记录"
+	},
+	"user": {
+		"avatar": "用户头像",
+		"nickname": "昵称",
+		"signOut": "登出",
+		"online": "在线",
+		"defaultName": "用户"
+	},
+	"theme": {
+		"auto": "自动",
+		"light": "浅色",
+		"dark": "深色"
+	},
+	"language": {
+		"label": "简体中文",
+		"followSystem": "跟随系统"
+	},
+	"providers": {
+		"cloudflare": {
+			"description": "由Cloudflare Workers AI驱动的AI服务",
+			"settings": {
+				"builtin": {
+					"title": "内置AI服务",
+					"description": "使用Cloudflare内置AI服务，无需额外配置",
+					"placeholder": "使用Cloudflare内置AI服务"
+				},
+				"accountId": {
+					"title": "账户ID",
+					"description": "您的Cloudflare账户标识符",
+					"placeholder": "输入您的Cloudflare账户ID"
+				},
+				"apiKey": {
+					"title": "API密钥",
+					"description": "用于身份验证的Cloudflare API密钥",
+					"placeholder": "输入您的Cloudflare API密钥"
+				}
+			},
+			"models": {
+				"@cf/black-forest-labs/flux-1-schnell": {
+					"description": "FLUX.1 [schnell] 是一个120亿参数的修正流变换器，能够根据文本描述生成图像。"
+				},
+				"@cf/bytedance/stable-diffusion-xl-lightning": {
+					"description": "SDXL-Lightning是一个闪电般快速的文本到图像生成模型。它可以在几个步骤内生成高质量的1024px图像。"
+				},
+				"@cf/lykon/dreamshaper-8-lcm": {
+					"description": "经过微调的Stable Diffusion模型，在不牺牲范围的情况下更擅长照片真实感。"
+				},
+				"@cf/runwayml/stable-diffusion-v1-5-img2img": {
+					"description": "Stable Diffusion是一个潜在的文本到图像扩散模型，能够生成照片级真实图像。图像到图像功能可以基于输入图像用Stable Diffusion生成新图像。"
+				},
+				"@cf/runwayml/stable-diffusion-v1-5-inpainting": {
+					"description": "Stable Diffusion修复是一个潜在的文本到图像扩散模型，能够根据任何文本输入生成照片级真实图像，还具有使用遮罩修复图片的额外功能。"
+				},
+				"@cf/stabilityai/stable-diffusion-xl-base-1.0": {
+					"description": "基于扩散的文本到图像生成模型，由Stability AI开发。可以根据文本提示生成和修改图像。"
+				}
+			}
+		},
+		"openai": {
+			"description": "由OpenAI驱动的AI服务",
+			"settings": {
+				"apiKey": {
+					"title": "OpenAI API密钥",
+					"description": "用于身份验证的OpenAI API密钥",
+					"placeholder": "输入您的OpenAI API密钥"
+				},
+				"baseURL": {
+					"title": "基础URL",
+					"description": "OpenAI API端点的基础URL",
+					"placeholder": "https://api.openai.com/v1"
+				},
+				"model": {
+					"title": "模型",
+					"description": "用于图像生成的AI模型",
+					"placeholder": "用于图像生成的模型"
+				}
+			},
+			"models": {
+				"gpt-image-1": {
+					"description": "Gpt-image-1是一个多模态模型，可以从文本或图像输入创建图像，具有各种样式、指导和应用。"
+				}
+			}
+		}
+	}
+}

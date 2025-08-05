@@ -1,0 +1,29 @@
+# Top-level configuration
+name = "typix"
+main = "src/server/worker.ts"
+compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2025-05-25"
+
+[assets]
+directory = "dist"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "typix"
+database_id = "DATABASE_ID"           # Replace with your actual database ID
+migrations_dir = "drizzle/migrations"
+
+[ai]
+binding = "AI"
+
+[vars]
+# Application mode: client | mixed
+# client: Pure client-side mode without server user system and cloud data synchronization
+# mixed: Supports both client-side mode and server user system with cloud data synchronization
+MODE = "mixed"
+
+# Enable Cloudflare built-in AI binding
+# When set to true, uses Cloudflare Workers AI for image generation without requiring additional API keys
+PROVIDER_CLOUDFLARE_BUILTIN = true

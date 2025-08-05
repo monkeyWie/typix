@@ -1,0 +1,199 @@
+{
+	"common": {
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"create": "Create",
+		"loading": "Loading...",
+		"error": "Error",
+		"success": "Success",
+		"unknown": "Unknown",
+		"yesterday": "Yesterday",
+		"daysAgo": "days ago"
+	},
+	"app": {
+		"initializing": "Initializing",
+		"initializingDescription": "Please wait while we set up the application...",
+		"initializationFailed": "Initialization Failed",
+		"retry": "Retry"
+	},
+	"chat": {
+		"newChat": "New Creation",
+		"newChatTitle": "New Creation",
+		"typeMessage": "Type to generate, press Enter to send • Shift+Enter for new line",
+		"sendMessage": "Send message",
+		"uploadImage": "Upload image",
+		"generateImage": "Generate image",
+		"chatHistory": "Creation History",
+		"noChats": "No creation sessions yet",
+		"chatWith": "Start creating",
+		"imageGenerated": "Image generated successfully",
+		"thinking": "AI is thinking...",
+		"generating": "Generating image...",
+		"selectModel": "Select AI Model",
+		"welcomeMessage": "Describe the image you'd like me to create, or start a conversation! Let your imagination run wild.",
+		"generatedImage": "Generated image",
+		"generatedOrUploaded": "Generated or uploaded",
+		"ai": "AI",
+		"clickToEnlarge": "Click to enlarge image",
+		"error": {
+			"title": "Error",
+			"default": "An error occurred while sending the message",
+			"createChat": "Failed to create chat - no available AI models",
+			"noModel": "No available AI models - please configure providers first",
+			"createNewChat": "Failed to create new chat - please select a provider and model"
+		}
+	},
+	"navigation": {
+		"chat": "Chat",
+		"settings": "Settings"
+	},
+	"settings": {
+		"title": "Settings",
+		"description": "Manage your application preferences",
+		"language": "Language",
+		"theme": "Theme",
+		"themeColor": "Theme Color",
+		"themeColorDescription": "Customize the application's primary color",
+		"model": "AI Model",
+		"general": "General",
+		"appearance": "Appearance",
+		"advanced": "Advanced",
+		"selectLanguage": "Select Language",
+		"sections": {
+			"common": "General Settings",
+			"provider": "AI Providers"
+		},
+		"provider": {
+			"title": "AI Providers",
+			"description": "Manage your AI service configurations",
+			"selectOption": "Please select an option",
+			"selectPlaceholder": "Please select...",
+			"settingsSaved": "Settings saved",
+			"saveFailed": "Save failed",
+			"saveError": "An error occurred while saving settings",
+			"enabled": "Enabled",
+			"disabled": "Disabled",
+			"selectProvider": "Select Provider",
+			"selectProviderDescription": "Please select an AI provider from the left list to configure its settings",
+			"configureToStart": "Configure AI providers to start using services"
+		},
+		"validation": {
+			"required": "This field is required",
+			"selectOption": "Please select an option",
+			"validUrl": "Please enter a valid URL",
+			"validNumber": "Please enter a valid number",
+			"minValue": "Minimum value is {{min}}",
+			"maxValue": "Maximum value is {{max}}"
+		}
+	},
+	"auth": {
+		"welcomeBack": "Welcome Back",
+		"createAccount": "Create Account",
+		"loginDescription": "Login to your account to continue",
+		"registerDescription": "Register a new account to start your creative journey",
+		"username": "Username",
+		"email": "Email",
+		"password": "Password",
+		"enterUsername": "Please enter username",
+		"enterEmail": "Please enter email address",
+		"enterPassword": "Please enter password",
+		"login": "Login",
+		"register": "Register",
+		"processing": "Processing...",
+		"loginFailed": "Login failed",
+		"registerFailed": "Registration failed",
+		"networkError": "Network error, please try again later",
+		"or": "or",
+		"noAccount": "Don't have an account?",
+		"hasAccount": "Already have an account?",
+		"signUpNow": "Sign up now",
+		"goToLogin": "Go to login",
+		"welcomeMessage": "Welcome to AI Assistant",
+		"loginToSave": "Login to save your chat history"
+	},
+	"user": {
+		"avatar": "User avatar",
+		"nickname": "Nickname",
+		"signOut": "Sign out",
+		"online": "Online",
+		"defaultName": "User"
+	},
+	"theme": {
+		"auto": "Auto",
+		"light": "Light",
+		"dark": "Dark"
+	},
+	"language": {
+		"label": "English",
+		"followSystem": "Follow System"
+	},
+	"providers": {
+		"cloudflare": {
+			"description": "AI services powered by Cloudflare Workers AI",
+			"settings": {
+				"builtin": {
+					"title": "Built-in AI Services",
+					"description": "Use Cloudflare's built-in AI services without additional configuration",
+					"placeholder": "Use Cloudflare built-in AI services"
+				},
+				"accountId": {
+					"title": "Account ID",
+					"description": "Your Cloudflare account identifier",
+					"placeholder": "Enter your Cloudflare account ID"
+				},
+				"apiKey": {
+					"title": "API Key",
+					"description": "Your Cloudflare API key for authentication",
+					"placeholder": "Enter your Cloudflare API key"
+				}
+			},
+			"models": {
+				"@cf/black-forest-labs/flux-1-schnell": {
+					"description": "FLUX.1 [schnell] is a 12 billion parameter rectified flow transformer capable of generating images from text descriptions."
+				},
+				"@cf/bytedance/stable-diffusion-xl-lightning": {
+					"description": "SDXL-Lightning is a lightning-fast text-to-image generation model. It can generate high-quality 1024px images in a few steps."
+				},
+				"@cf/lykon/dreamshaper-8-lcm": {
+					"description": "Stable Diffusion model that has been fine-tuned to be better at photorealism without sacrificing range."
+				},
+				"@cf/runwayml/stable-diffusion-v1-5-img2img": {
+					"description": "Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images. Img2img generate a new image from an input image with Stable Diffusion."
+				},
+				"@cf/runwayml/stable-diffusion-v1-5-inpainting": {
+					"description": "Stable Diffusion Inpainting is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input, with the extra capability of inpainting the pictures by using a mask."
+				},
+				"@cf/stabilityai/stable-diffusion-xl-base-1.0": {
+					"description": "Diffusion-based text-to-image generative model by Stability AI. Generates and modify images based on text prompts."
+				}
+			}
+		},
+		"openai": {
+			"description": "AI services powered by OpenAI",
+			"settings": {
+				"apiKey": {
+					"title": "OpenAI API Key",
+					"description": "Your OpenAI API key for authentication",
+					"placeholder": "Enter your OpenAI API key"
+				},
+				"baseURL": {
+					"title": "Base URL",
+					"description": "The base URL for OpenAI API endpoint",
+					"placeholder": "https://api.openai.com/v1"
+				},
+				"model": {
+					"title": "Model",
+					"description": "The AI model to use for image generation",
+					"placeholder": "The model to use for image generation"
+				}
+			},
+			"models": {
+				"gpt-image-1": {
+					"description": "Gpt-image-1 is a multimodal model that can create images from text or image inputs, with various styles, guidelines, and applications."
+				}
+			}
+		}
+	}
+}

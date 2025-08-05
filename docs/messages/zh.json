@@ -1,0 +1,137 @@
+{
+  "language": {
+    "name": "中文"
+  },
+  "metadata": {
+    "description": "专注AI图像生成的开源工具，通过自然对话与先进AI模型交互，轻松将创意想法转化为精美视觉作品。"
+  },
+  "nav": {
+    "features": "功能特色",
+    "gallery": "作品画廊",
+    "pricing": "价格方案",
+    "github": "GitHub",
+    "slogan": "输入即图像"
+  },
+  "hero": {
+    "title": "通过聊天创造精美图像",
+    "subtitle": "只需描述您想要看到的内容，观看 Typix 如何通过自然对话将您的文字转化为令人惊叹的 AI 生成图像。",
+    "primaryBtn": "开始使用",
+    "stats": {
+      "images": "创建图像",
+      "users": "满意用户",
+      "uptime": "正常运行时间"
+    },
+    "chatPlaceholder": "描述您想要创建的图像..."
+  },
+  "features": {
+    "title": "核心特性",
+    "subtitle": "专注AI图像生成，让创意瞬间成为视觉艺术",
+    "items": {
+      "selfHosted": {
+        "title": "自托管部署",
+        "subtitle": "完全掌控您的数据和隐私"
+      },
+      "localFirst": {
+        "title": "本地优先",
+        "subtitle": "优先使用本地存储和离线功能"
+      },
+      "oneClickDeploy": {
+        "title": "一键部署",
+        "subtitle": "Docker 和 Cloudflare Workers 快速上线"
+      },
+      "multiModel": {
+        "title": "多模型支持",
+        "subtitle": "支持多种 AI 模型和服务提供商"
+      },
+      "cloudSync": {
+        "title": "云同步",
+        "subtitle": "在所有设备间无缝同步您的内容"
+      },
+      "freeGeneration": {
+        "title": "免费生图",
+        "subtitle": "免费使用 Cloudflare Workers AI 生图"
+      },
+      "speed": {
+        "title": "闪电般快速",
+        "description": "使用我们优化的 AI 模型在几秒钟内生成高质量图像。"
+      },
+      "quality": {
+        "title": "顶级质量",
+        "description": "创建具有卓越细节和清晰度的精美 4K 图像。"
+      },
+      "styles": {
+        "title": "多种风格",
+        "description": "从数十种艺术风格中选择并自定义每个方面。"
+      },
+      "creative": {
+        "title": "创意控制",
+        "description": "微调参数和提示，每次都能获得完美的结果。"
+      },
+      "ai": {
+        "title": "先进 AI",
+        "description": "由最先进的机器学习模型和算法驱动。"
+      },
+      "formats": {
+        "title": "多种格式",
+        "description": "支持导出 PNG、JPG、SVG 等多种格式。"
+      }
+    }
+  },
+  "gallery": {
+    "title": "探索创意可能性",
+    "subtitle": "发现AI生成艺术在不同风格和主题下的无限潜力。",
+    "version": "模型",
+    "size": "分辨率",
+    "styles": {
+      "photorealistic": "写实风格",
+      "artistic": "艺术风格",
+      "abstract": "抽象风格",
+      "anime": "动漫风格",
+      "digital": "数字艺术"
+    }
+  },
+  "preview": {
+    "title": "随时随地创作",
+    "subtitle": "在您的所有设备上体验 Typix 强大的AI图像生成功能。"
+  },
+  "keyFeatures": {
+    "title": "为什么选择 Typix？",
+    "subtitle": "专注隐私保护、性能优化和成本效益"
+  },
+  "providers": {
+    "title": "领先AI模型驱动",
+    "subtitle": "集成最先进的AI模型和服务，为您提供最佳的图像生成体验",
+    "footer": "更多服务商和模型正在持续接入中"
+  },
+  "footer": {
+    "subtitle": "AI 图像生成器",
+    "description": "使用我们先进的AI图像生成技术，将您的文字转化为惊艳的视觉效果。",
+    "copyright": "© {year} Typix AI. 保留所有权利。",
+    "categories": {
+      "product": "产品",
+      "community": "社区",
+      "support": "支持"
+    },
+    "links": {
+      "product": {
+        "features": "功能特色",
+        "gallery": "作品画廊",
+        "pricing": "价格方案"
+      },
+      "community": {
+        "github": "GitHub",
+        "discord": "Discord",
+        "twitter": "Twitter"
+      },
+      "support": {
+        "docs": "文档",
+        "faq": "常见问题",
+        "contact": "联系我们"
+      }
+    },
+    "legal": {
+      "privacy": "隐私政策",
+      "terms": "服务条款"
+    }
+  }
+}
