@@ -18,13 +18,13 @@ interface NavItem {
 const navigationItems: NavItem[] = [
 	{
 		key: "github",
-		href: "https://github.com",
+		href: "https://github.com/monkeyWie/typix",
 		icon: Github,
 		external: true,
 	},
 	{
 		key: "docs",
-		href: "#",
+		href: "https://github.com/monkeyWie/typix#%EF%B8%8F-development-documentation",
 		icon: ExternalLink,
 		external: true,
 	},
