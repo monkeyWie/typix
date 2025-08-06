@@ -22,7 +22,7 @@ Focus on AI image generation, turning creativity into visual art instantly
 - 🤖 **Multi-model Support** - Support multiple AI models and service providers
 - 🔄 **Cloud Sync** - Seamlessly sync your content across all devices
 
-## 🚀 Powered by Leading AI Models
+## ⚡ Powered by Leading AI Models
 
 Integrated with cutting-edge AI models and services to provide the best image generation experience:
 
