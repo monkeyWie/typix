@@ -119,7 +119,7 @@ pnpm install
 2. **Configure environment variables**
 
 ```bash
-cp .env.example .env
+cp .env.node.example .env
 # Edit .env file to configure necessary parameters
 ```
 

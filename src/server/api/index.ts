@@ -20,7 +20,7 @@ const factory = createFactory<Env>({
 			initContext({
 				db,
 				AI: c.env.AI,
-				PROVIDER_CLOUDFLARE_BUILTIN: c.env.PROVIDER_CLOUDFLARE_BUILTIN || false,
+				PROVIDER_CLOUDFLARE_BUILTIN: c.env.PROVIDER_CLOUDFLARE_BUILTIN === "true" || false,
 			});
 			await next();
 		});

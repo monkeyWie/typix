@@ -10,7 +10,7 @@ export type Env = {
 	Bindings: {
 		DB: D1Database;
 		AI: Ai;
-		PROVIDER_CLOUDFLARE_BUILTIN?: boolean;
+		PROVIDER_CLOUDFLARE_BUILTIN?: "true" | "false";
 	};
 	Variables: {
 		db: DrizzleDb;

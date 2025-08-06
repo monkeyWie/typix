@@ -15,7 +15,7 @@ const config = {
       name: "typix-preview",
       vars: {
         MODE: "client",
-        PROVIDER_CLOUDFLARE_BUILTIN: true,
+        PROVIDER_CLOUDFLARE_BUILTIN: "true",
       },
     },
   },
@@ -24,7 +24,7 @@ const config = {
     override: {
       vars: {
         MODE: "mixed",
-        PROVIDER_CLOUDFLARE_BUILTIN: false,
+        PROVIDER_CLOUDFLARE_BUILTIN: "false",
       },
     },
   },

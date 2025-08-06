@@ -119,7 +119,7 @@ pnpm install
 2. **配置环境变量**
 
 ```bash
-cp .env.example .env
+cp .env.node.example .env
 # 编辑 .env 文件配置必要参数
 ```
 

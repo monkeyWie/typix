@@ -26,4 +26,4 @@ MODE = "mixed"
 
 # Enable Cloudflare built-in AI binding
 # When set to true, uses Cloudflare Workers AI for image generation without requiring additional API keys
-PROVIDER_CLOUDFLARE_BUILTIN = true
+PROVIDER_CLOUDFLARE_BUILTIN = "true"

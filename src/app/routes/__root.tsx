@@ -135,7 +135,7 @@ function RootComponent() {
 				if (db) {
 					initContext({
 						db: db,
-						PROVIDER_CLOUDFLARE_BUILTIN: import.meta.env.PROVIDER_CLOUDFLARE_BUILTIN === true,
+						PROVIDER_CLOUDFLARE_BUILTIN: import.meta.env.PROVIDER_CLOUDFLARE_BUILTIN === "true",
 					});
 					await initSettings();
 					isMobileCleanup = initIsMobile();
