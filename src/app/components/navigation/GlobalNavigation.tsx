@@ -1,7 +1,7 @@
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { Compass, MessageSquare, Settings } from "lucide-react";
+import { Compass, Github, MessageSquare, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface GlobalNavigationProps {
@@ -58,7 +58,7 @@ export function GlobalNavigation({ className }: GlobalNavigationProps) {
 			)}
 		>
 			{/* Desktop: vertical layout */}
-			<div className="hidden flex-col items-center gap-2 pt-2 pb-6 md:flex">
+			<div className="hidden h-full flex-col items-center pt-2 pb-4 md:flex">
 				{/* App logo/brand */}
 				<a
 					href="https://typix.art/home"
@@ -96,6 +96,18 @@ export function GlobalNavigation({ className }: GlobalNavigationProps) {
 							</Button>
 						);
 					})}
+				</div>
+
+				{/* GitHub link at bottom */}
+				<div className="mt-auto">
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-10 w-10 text-muted-foreground transition-all duration-200 hover:scale-105 hover:bg-accent hover:text-foreground"
+						onClick={() => window.open("https://github.com/monkeyWie/typix", "_blank")}
+					>
+						<Github className="size-6" />
+					</Button>
 				</div>
 			</div>
 
