@@ -80,7 +80,6 @@ const storageHandlers: Record<
 export const saveFiles = async (fileDatas: string[], userId: string) => {
 	const { db } = getContext();
 
-	const now = new Date().toISOString();
 	const filesSave = await db
 		.insert(files)
 		.values(
@@ -89,8 +88,6 @@ export const saveFiles = async (fileDatas: string[], userId: string) => {
 					userId,
 					storage: fileStorage,
 					url: await storageHandlers[fileStorage].save(file, userId),
-					createdAt: now,
-					updatedAt: now,
 				})),
 			),
 		)

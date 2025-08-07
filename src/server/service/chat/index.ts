@@ -180,7 +180,6 @@ const updateChat = async (req: UpdateChat, ctx: RequestContext) => {
 			...(req.provider && { provider: req.provider }),
 			...(req.model && { model: req.model }),
 			...(req.title && { title: req.title }),
-			updatedAt: new Date().toISOString(),
 		})
 		.where(eq(chats.id, req.id));
 

@@ -53,9 +53,9 @@ CREATE TABLE `settings` (
 	`user_id` text NOT NULL,
 	`theme` text DEFAULT 'system',
 	`theme_color` text DEFAULT 'default',
-	`language` text DEFAULT 'en',
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`language` text DEFAULT 'system',
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -67,8 +67,8 @@ CREATE TABLE `chats` (
 	`provider` text NOT NULL,
 	`model` text NOT NULL,
 	`deleted` integer DEFAULT false,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `generations` (
@@ -84,8 +84,8 @@ CREATE TABLE `generations` (
 	`error_message` text,
 	`generation_time` integer,
 	`cost` real,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `messages` (
@@ -97,8 +97,8 @@ CREATE TABLE `messages` (
 	`type` text DEFAULT 'text' NOT NULL,
 	`generation_id` text,
 	`metadata` text,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
 	FOREIGN KEY (`chat_id`) REFERENCES `chats`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`generation_id`) REFERENCES `generations`(`id`) ON UPDATE no action ON DELETE set null
 );
@@ -109,8 +109,8 @@ CREATE TABLE `ai_models` (
 	`model_id` text NOT NULL,
 	`enabled` integer DEFAULT true NOT NULL,
 	`user_id` text NOT NULL,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
 	FOREIGN KEY (`provider_id`) REFERENCES `ai_providers`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -121,8 +121,8 @@ CREATE TABLE `ai_providers` (
 	`user_id` text NOT NULL,
 	`enabled` integer DEFAULT true NOT NULL,
 	`settings` text,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `ai_providers_providerId_unique` ON `ai_providers` (`provider_id`);--> statement-breakpoint
@@ -131,6 +131,6 @@ CREATE TABLE `files` (
 	`user_id` text NOT NULL,
 	`storage` text NOT NULL,
 	`url` text NOT NULL,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL
 );

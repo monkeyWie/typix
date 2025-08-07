@@ -132,7 +132,6 @@ const updateAiProvider = async (req: UpdateAiProvider, ctx: RequestContext) => {
 	}
 
 	// insert or update in database
-	const now = new Date().toISOString();
 	const existingProvider = await db.query.aiProviders.findFirst({
 		where: and(eq(aiProviders.providerId, req.providerId), eq(aiProviders.userId, userId)),
 	});
@@ -142,8 +141,6 @@ const updateAiProvider = async (req: UpdateAiProvider, ctx: RequestContext) => {
 			providerId: providerInstance.id,
 			userId: userId,
 			settings: req.settings,
-			createdAt: now,
-			updatedAt: now,
 		});
 		return;
 	}
@@ -154,7 +151,6 @@ const updateAiProvider = async (req: UpdateAiProvider, ctx: RequestContext) => {
 		.set({
 			enabled: req.enabled,
 			settings: req.settings,
-			updatedAt: now,
 		})
 		.where(eq(aiProviders.id, existingProvider.id));
 
@@ -202,7 +198,6 @@ const updateAiModel = async (req: UpdateAiModel, ctx: RequestContext) => {
 	}
 
 	// Insert or update in database
-	const now = new Date().toISOString();
 	const existingModel = await db.query.aiModels.findFirst({
 		where: and(
 			eq(aiModels.providerId, providerInstance.id),
@@ -217,8 +212,6 @@ const updateAiModel = async (req: UpdateAiModel, ctx: RequestContext) => {
 			modelId: req.modelId,
 			userId: userId,
 			enabled: req.enabled,
-			createdAt: now,
-			updatedAt: now,
 		});
 		return;
 	}
@@ -228,7 +221,6 @@ const updateAiModel = async (req: UpdateAiModel, ctx: RequestContext) => {
 		.update(aiModels)
 		.set({
 			enabled: req.enabled,
-			updatedAt: now,
 		})
 		.where(eq(aiModels.id, existingModel.id));
 
