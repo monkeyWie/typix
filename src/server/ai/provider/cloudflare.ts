@@ -1,5 +1,5 @@
 import { inCfWorker } from "@/server/lib/env";
-import { buildDataURI } from "@/server/lib/util";
+import { base64ToDataURI, readableStreamToDataURI } from "@/server/lib/util";
 import { getContext } from "@/server/service/context";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
 import { type ProviderSettingsType, doParseSettings, getProviderSettingsSchema } from "../types/provider";
@@ -55,23 +55,23 @@ const Cloudflare: AiProvider = {
 			enabledByDefault: true,
 		},
 		{
-			id: "@cf/bytedance/stable-diffusion-xl-lightning",
-			name: "Stable Diffusion XL Lightning",
-			ability: "t2i",
-			enabledByDefault: true,
-		},
-		{
 			id: "@cf/lykon/dreamshaper-8-lcm",
 			name: "DreamShaper 8 LCM",
 			ability: "t2i",
 			enabledByDefault: true,
 		},
 		{
-			id: "@cf/runwayml/stable-diffusion-v1-5-img2img",
-			name: "Stable Diffusion v1.5 Img2Img",
-			ability: "i2i",
+			id: "@cf/bytedance/stable-diffusion-xl-lightning",
+			name: "Stable Diffusion XL Lightning",
+			ability: "t2i",
 			enabledByDefault: true,
 		},
+		// {
+		// 	id: "@cf/runwayml/stable-diffusion-v1-5-img2img",
+		// 	name: "Stable Diffusion v1.5 Img2Img",
+		// 	ability: "i2i",
+		// 	enabledByDefault: true,
+		// },
 		{
 			id: "@cf/stabilityai/stable-diffusion-xl-base-1.0",
 			name: "Stable Diffusion XL Base 1.0",
@@ -92,8 +92,14 @@ const Cloudflare: AiProvider = {
 				prompt: request.prompt,
 			});
 
+			if (resp instanceof ReadableStream) {
+				return {
+					images: [await readableStreamToDataURI(resp)],
+				};
+			}
+
 			return {
-				images: [buildDataURI(resp.image)],
+				images: [base64ToDataURI(resp.image)],
 			};
 		}
 
@@ -116,13 +122,13 @@ const Cloudflare: AiProvider = {
 		if (contentType?.includes("image/png") === true) {
 			const imageBuffer = await resp.arrayBuffer();
 			return {
-				images: [buildDataURI(Buffer.from(imageBuffer).toString("base64"))],
+				images: [base64ToDataURI(Buffer.from(imageBuffer).toString("base64"))],
 			};
 		}
 
 		const result = (await resp.json()) as unknown as any;
 		return {
-			images: [buildDataURI(result.result.image)],
+			images: [base64ToDataURI(result.result.image)],
 		};
 	},
 };
