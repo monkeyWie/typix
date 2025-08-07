@@ -44,18 +44,26 @@ function createValidationSchema(
 							})
 						: z.enum(setting.options as [string, ...string[]]).optional();
 				} else {
-					fieldSchema = setting.required ? z.string().min(1, t("settings.validation.required")) : z.string().optional();
+					fieldSchema = setting.required
+						? z.string({ required_error: t("settings.validation.required") }).min(1, t("settings.validation.required"))
+						: z.string().optional();
 				}
 				break;
 
 			case "url":
 				fieldSchema = setting.required
-					? z.string().url(t("settings.validation.validUrl")).min(1, t("settings.validation.required"))
+					? z
+							.string({ required_error: t("settings.validation.required") })
+							.url(t("settings.validation.validUrl"))
+							.min(1, t("settings.validation.required"))
 					: z.string().url(t("settings.validation.validUrl")).optional();
 				break;
 
 			case "number": {
-				let numberSchema = z.number({ invalid_type_error: t("settings.validation.validNumber") });
+				let numberSchema = z.number({
+					invalid_type_error: t("settings.validation.validNumber"),
+					required_error: t("settings.validation.required"),
+				});
 				if (setting.min !== undefined) {
 					numberSchema = numberSchema.min(setting.min, t("settings.validation.minValue", { min: setting.min }));
 				}
@@ -67,7 +75,9 @@ function createValidationSchema(
 			}
 
 			case "boolean":
-				fieldSchema = setting.required ? z.boolean() : z.boolean().optional();
+				fieldSchema = setting.required
+					? z.boolean({ required_error: t("settings.validation.required") })
+					: z.boolean().optional();
 				break;
 
 			default:

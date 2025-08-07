@@ -25,7 +25,6 @@ const updateSettings = async (req: UpdateSettings, ctx: RequestContext) => {
 				...(theme && { theme }),
 				...(themeColor && { themeColor }),
 				...(language && { language }),
-				updatedAt: new Date().toISOString(),
 			})
 			.where(eq(settings.userId, userId));
 	} else {
@@ -35,7 +34,6 @@ const updateSettings = async (req: UpdateSettings, ctx: RequestContext) => {
 			theme: theme || "system",
 			themeColor: themeColor || "default",
 			language: language || "system",
-			updatedAt: new Date().toISOString(),
 		});
 	}
 };
