@@ -1,5 +1,6 @@
+import { ServiceException } from "@/server/lib/exception";
 import type { TypixChatApiResponse, TypixGenerateRequest } from "./api";
-import type { AiModel } from "./model";
+import type { Ability, AiModel } from "./model";
 
 export type ApiProviderSettingsItemValue = string | number | boolean;
 
@@ -131,4 +132,26 @@ export function getProviderSettingsSchema(provider: AiProvider): ApiProviderSett
 	}
 
 	return typeof provider.settings === "function" ? provider.settings() : provider.settings;
+}
+
+export function findModel(provider: AiProvider, modelId: string): AiModel {
+	const model = provider.models.find((model) => model.id === modelId);
+	if (!model) {
+		throw new ServiceException("not_found", `Model ${modelId} not found for provider ${provider.id}`);
+	}
+	return model;
+}
+
+export function chooseAblility(request: TypixGenerateRequest, ability: Ability): Ability {
+	if (ability === "t2i") {
+		return ability;
+	}
+
+	if (!request.images || request.images.length === 0) {
+		return "t2i";
+	}
+	if (request.images.length === 1) {
+		return "i2i";
+	}
+	return "mi2i";
 }

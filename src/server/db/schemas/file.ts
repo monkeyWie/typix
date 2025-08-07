@@ -9,6 +9,6 @@ export const files = sqliteTable("files", {
 	id: text().$defaultFn(generateId).primaryKey(),
 	userId: text().notNull(), // User ID who owns the file
 	storage: text({ enum: storage }).notNull(), // Storage type
-	url: text().notNull(), // URL or path to the file
+	url: text().notNull(), // URI or path to the file
 	...metaFields,
 });

@@ -174,7 +174,7 @@
 			"description": "由OpenAI驱动的AI服务",
 			"settings": {
 				"apiKey": {
-					"title": "OpenAI API密钥",
+					"title": "API密钥",
 					"description": "用于身份验证的OpenAI API密钥",
 					"placeholder": "输入您的OpenAI API密钥"
 				},
@@ -192,6 +192,24 @@
 			"models": {
 				"gpt-image-1": {
 					"description": "Gpt-image-1是一个多模态模型，可以从文本或图像输入创建图像，具有各种样式、指导和应用。"
+				}
+			}
+		},
+		"fal": {
+			"description": "为开发人员提供的媒体生成平台",
+			"settings": {
+				"apiKey": {
+					"title": "API密钥",
+					"description": "用于身份验证的Fal API密钥",
+					"placeholder": "输入您的Fal API密钥"
+				}
+			},
+			"models": {
+				"fal-ai/flux-pro/kontext/max": {
+					"description": "FLUX.1 Kontext [max] 是一个具有极大改进的提示遵循和排版生成的模型，提供卓越的一致性以供编辑，同时不牺牲速度。"
+				},
+				"fal-ai/flux-pro/kontext": {
+					"description": "FLUX.1 Kontext [pro] 将文本和参考图像作为输入进行处理，无缝地实现了对整个场景的有针对性的局部编辑和复杂转换。"
 				}
 			}
 		}

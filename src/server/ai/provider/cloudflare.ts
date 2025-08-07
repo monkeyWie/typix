@@ -1,4 +1,5 @@
 import { inCfWorker } from "@/server/lib/env";
+import { buildDataURI } from "@/server/lib/util";
 import { getContext } from "@/server/service/context";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
 import { type ProviderSettingsType, doParseSettings, getProviderSettingsSchema } from "../types/provider";
@@ -50,38 +51,32 @@ const Cloudflare: AiProvider = {
 		{
 			id: "@cf/black-forest-labs/flux-1-schnell",
 			name: "FLUX.1-schnell",
-			supportImageEdit: false,
+			ability: "t2i",
 			enabledByDefault: true,
 		},
 		{
 			id: "@cf/bytedance/stable-diffusion-xl-lightning",
 			name: "Stable Diffusion XL Lightning",
+			ability: "t2i",
 			enabledByDefault: true,
-			supportImageEdit: false,
 		},
 		{
 			id: "@cf/lykon/dreamshaper-8-lcm",
 			name: "DreamShaper 8 LCM",
+			ability: "t2i",
 			enabledByDefault: true,
-			supportImageEdit: false,
 		},
 		{
 			id: "@cf/runwayml/stable-diffusion-v1-5-img2img",
 			name: "Stable Diffusion v1.5 Img2Img",
+			ability: "i2i",
 			enabledByDefault: true,
-			supportImageEdit: true,
-		},
-		{
-			id: "@cf/runwayml/stable-diffusion-v1-5-inpainting",
-			name: "Stable Diffusion v1.5 Inpainting",
-			enabledByDefault: true,
-			supportImageEdit: false,
 		},
 		{
 			id: "@cf/stabilityai/stable-diffusion-xl-base-1.0",
 			name: "Stable Diffusion XL Base 1.0",
+			ability: "t2i",
 			enabledByDefault: true,
-			supportImageEdit: false,
 		},
 	],
 	parseSettings: <CloudflareSettings>(settings: ApiProviderSettings) => {
@@ -98,7 +93,7 @@ const Cloudflare: AiProvider = {
 			});
 
 			return {
-				images: [resp.image],
+				images: [buildDataURI(resp.image)],
 			};
 		}
 
@@ -121,13 +116,13 @@ const Cloudflare: AiProvider = {
 		if (contentType?.includes("image/png") === true) {
 			const imageBuffer = await resp.arrayBuffer();
 			return {
-				images: [Buffer.from(imageBuffer).toString("base64")],
+				images: [buildDataURI(Buffer.from(imageBuffer).toString("base64"))],
 			};
 		}
 
 		const result = (await resp.json()) as unknown as any;
 		return {
-			images: [result.result.image],
+			images: [buildDataURI(result.result.image)],
 		};
 	},
 };

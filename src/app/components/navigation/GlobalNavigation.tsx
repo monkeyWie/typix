@@ -61,7 +61,7 @@ export function GlobalNavigation({ className }: GlobalNavigationProps) {
 			<div className="hidden flex-col items-center gap-2 pt-2 pb-6 md:flex">
 				{/* App logo/brand */}
 				<a
-					href="/home"
+					href="https://typix.art/home"
 					// biome-ignore lint/a11y/noBlankTarget: <explanation>
 					target="_blank"
 					className="mb-2 flex h-14 w-14 items-center justify-center transition-all duration-200 hover:scale-105"

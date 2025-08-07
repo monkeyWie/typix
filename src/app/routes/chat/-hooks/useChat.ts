@@ -232,7 +232,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 		async (content: string, imageFiles?: File[], targetChatId?: string): Promise<string | null> => {
 			const chatId = targetChatId || currentChatId;
 
-			// Convert image files to base64 if provided (do this early since we might need it for createChat)
+			// Convert image files to base64 data URLs
 			let images: string[] | undefined;
 			if (imageFiles && imageFiles.length > 0) {
 				images = await Promise.all(
@@ -241,14 +241,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 							const reader = new FileReader();
 							reader.onload = () => {
 								if (typeof reader.result === "string") {
-									// Remove the data URL prefix to get just the base64 data
-									const parts = reader.result.split(",");
-									const base64 = parts[1];
-									if (base64) {
-										resolve(base64);
-									} else {
-										reject(new Error("Invalid base64 data format"));
-									}
+									resolve(reader.result)
 								} else {
 									reject(new Error("Failed to read file as base64"));
 								}

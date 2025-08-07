@@ -174,7 +174,7 @@
 			"description": "AI services powered by OpenAI",
 			"settings": {
 				"apiKey": {
-					"title": "OpenAI API Key",
+					"title": "API Key",
 					"description": "Your OpenAI API key for authentication",
 					"placeholder": "Enter your OpenAI API key"
 				},
@@ -192,6 +192,24 @@
 			"models": {
 				"gpt-image-1": {
 					"description": "Gpt-image-1 is a multimodal model that can create images from text or image inputs, with various styles, guidelines, and applications."
+				}
+			}
+		},
+		"fal": {
+			"description": "Generative media platform for developers",
+			"settings": {
+				"apiKey": {
+					"title": "API Key",
+					"description": "Your FAL API key for authentication",
+					"placeholder": "Enter your FAL API key"
+				}
+			},
+			"models": {
+				"fal-ai/flux-pro/kontext/max": {
+					"description": "FLUX.1 Kontext [max] is a model with greatly improved prompt adherence and typography generation meet premium consistency for editing without compromise on speed."
+				},
+				"fal-ai/flux-pro/kontext": {
+					"description": "FLUX.1 Kontext [pro] handles both text and reference images as inputs, seamlessly enabling targeted, local edits and complex transformations of entire scenes."
 				}
 			}
 		}

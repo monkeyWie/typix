@@ -1,18 +1,28 @@
-import { fetchUrlToBase64 } from "@/server/lib/util";
+import { fetchUrlToDataURI } from "@/server/lib/util";
 import openai from "openai";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
-import { type ProviderSettingsType, doParseSettings } from "../types/provider";
+import { type ProviderSettingsType, chooseAblility, doParseSettings, findModel } from "../types/provider";
 
-// Convert base64 string to FsReadStream compatible format
-function createImageStreamFromBase64(base64: string) {
-	const binaryString = atob(base64);
+// Convert DataURI base64 string to FsReadStream compatible format
+function createImageStreamFromDataUri(dataUri: string) {
+	// Extract MIME type and base64 data from DataURI
+	const [mimeTypePart, base64Data] = dataUri.split(",");
+	if (!base64Data || !mimeTypePart) {
+		throw new Error("Invalid DataURI format");
+	}
+
+	// Extract file extension from MIME type (e.g., "data:image/png;base64" -> "png")
+	const mimeTypeMatch = mimeTypePart.match(/data:image\/([^;]+)/);
+	const extension = mimeTypeMatch ? mimeTypeMatch[1] : "png";
+
+	const binaryString = atob(base64Data);
 	const bytes = new Uint8Array(binaryString.length);
 	for (let i = 0; i < binaryString.length; i++) {
 		bytes[i] = binaryString.charCodeAt(i);
 	}
 
 	const stream = {
-		path: "image.png",
+		path: `image.${extension}`,
 		async *[Symbol.asyncIterator]() {
 			yield bytes;
 		},
@@ -54,7 +64,7 @@ const OpenAI: AiProvider = {
 		{
 			id: "gpt-image-1",
 			name: "GPT Image 1",
-			supportImageEdit: true,
+			ability: "mi2i",
 			enabledByDefault: true,
 		},
 	],
@@ -67,21 +77,24 @@ const OpenAI: AiProvider = {
 		const client = new openai.OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true });
 
 		let generateResult: openai.ImagesResponse;
-		if (!request.images || request.images.length === 0) {
-			// Text-to-image generation
-			generateResult = await client.images.generate({
-				model: request.modelId,
-				prompt: request.prompt,
-				n: request.n || 1,
-			});
-		} else {
-			// Image editing
-			generateResult = await client.images.edit({
-				model: request.modelId,
-				image: request.images.map(createImageStreamFromBase64),
-				prompt: request.prompt,
-				n: request.n || 1,
-			});
+		switch (chooseAblility(request, findModel(OpenAI, request.modelId).ability)) {
+			case "t2i":
+				// Text-to-image generation
+				generateResult = await client.images.generate({
+					model: request.modelId,
+					prompt: request.prompt,
+					n: request.n || 1,
+				});
+				break;
+			default:
+				// Image editing
+				generateResult = await client.images.edit({
+					model: request.modelId,
+					image: request.images!.map(createImageStreamFromDataUri),
+					prompt: request.prompt,
+					n: request.n || 1,
+				});
+				break;
 		}
 
 		return {
@@ -92,7 +105,7 @@ const OpenAI: AiProvider = {
 					}
 					if (image.url) {
 						try {
-							return await fetchUrlToBase64(image.url);
+							return await fetchUrlToDataURI(image.url);
 						} catch (error) {
 							console.error("OpenAI image fetch error:", error);
 							return null;

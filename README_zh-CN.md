@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-Typix 是一款现代化、开源、易用的 AI 工具，专注于媒体内容生成领域，为广大 AI 创作者提供一站式的生成体验。
+Typix 是一款现代化、开源、易用、隐私安全的 AI 工具，专注于媒体内容生成领域，为广大 AI 创作者提供一站式的生成体验。
 
 ## 🎯 快速使用
 
@@ -21,6 +21,17 @@ Typix 是一款现代化、开源、易用的 AI 工具，专注于媒体内容�
 - ☁️ **一键部署** - Docker 和 Cloudflare Workers 快速上线
 - 🤖 **多模型支持** - 支持多种 AI 模型和服务提供商
 - 🔄 **云同步** - 在所有设备间无缝同步您的内容
+
+## 🔒 数据安全
+
+Typix 将您的数据安全和隐私保护放在首位：
+
+- **🛡️ 浏览器本地存储** - 基于 WASM SQLite 技术，所有数据完全存储在您的浏览器上
+- **🔐 零数据上传** - 您的创作内容、设置信息等敏感数据从不离开您的设备
+- **🚫 无服务器依赖** - 客户端模式无需依赖外部服务器，保障数据主权
+- **🔄 可选云同步** - 支持可选的云同步功能
+
+您的创意和隐私，我们一并守护。
 
 ## ⚡ 领先 AI 模型驱动
 
@@ -41,63 +52,7 @@ Typix 是一款现代化、开源、易用的 AI 工具，专注于媒体内容�
 
 Cloudflare Workers 部署可以免费享受 Cloudflare AI 提供的图像生成服务。
 
-### Cloudflare Workers 手动部署
-
-#### 前置要求
-
-- Cloudflare 账户
-- 已安装 Node.js 18+ 和 pnpm
-
-#### 部署步骤
-
-1. **克隆项目**
-
-```bash
-git clone https://github.com/monkeyWie/typix.git
-cd typix
-```
-
-2. **安装依赖**
-
-```bash
-pnpm install
-```
-
-3. **配置 Cloudflare**
-
-```bash
-# 登录 Cloudflare
-npx wrangler auth login
-```
-
-4. **创建 D1 数据库**
-
-```bash
-# 创建数据库
-npx wrangler d1 create typix
-
-# 将返回的 database_id 填入 wrangler.toml 文件
-```
-
-5. **执行数据库迁移**
-
-```bash
-# 应用迁移到远程数据库
-pnpm db:migrate:worker
-```
-
-6. **构建并部署**
-
-```bash
-# 构建项目
-pnpm build
-
-# 部署到 Cloudflare Workers
-pnpm deploy
-```
-
-7. **访问应用**
-   部署成功后，您将获得一个 `*.workers.dev` 域名，即可开始使用！
+> 部署成功后，您将获得一个 `typix.xxx.workers.dev` 域名，即可开始使用！
 
 ### Node.js 部署
 

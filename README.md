@@ -2,7 +2,7 @@
 
 English | [简体中文](README_zh-CN.md)
 
-Typix is a modern, open-source, and user-friendly AI tool focused on media content generation, providing creators with a one-stop generation experience.
+Typix is a modern, open-source, user-friendly, and privacy-secure AI tool focused on media content generation, providing creators with a one-stop generation experience.
 
 ## 🎯 Quick Start
 
@@ -21,6 +21,17 @@ Focus on AI image generation, turning creativity into visual art instantly
 - ☁️ **One-click Deploy** - Quick deployment with Docker and Cloudflare Workers
 - 🤖 **Multi-model Support** - Support multiple AI models and service providers
 - 🔄 **Cloud Sync** - Seamlessly sync your content across all devices
+
+## 🔒 Data Security
+
+Typix puts your data security and privacy protection first:
+
+- **🛡️ Browser Local Storage** - Based on WASM SQLite technology, all data is completely stored in your browser
+- **🔐 Zero Data Upload** - Your creative content, settings and other sensitive data never leave your device
+- **🚫 No Server Dependencies** - Client mode requires no external server dependencies, ensuring data sovereignty
+- **🔄 Optional Cloud Sync** - Support for optional cloud sync functionality
+
+We protect both your creativity and privacy.
 
 ## ⚡ Powered by Leading AI Models
 
@@ -41,63 +52,7 @@ More service providers and models are being integrated continuously.
 
 Cloudflare Workers deployment provides free access to Cloudflare AI image generation services.
 
-### Manual Cloudflare Workers Deployment
-
-#### Prerequisites
-
-- Cloudflare account
-- Node.js 18+ and pnpm installed
-
-#### Deployment Steps
-
-1. **Clone the project**
-
-```bash
-git clone https://github.com/monkeyWie/typix.git
-cd typix
-```
-
-2. **Install dependencies**
-
-```bash
-pnpm install
-```
-
-3. **Configure Cloudflare**
-
-```bash
-# Login to Cloudflare
-npx wrangler auth login
-```
-
-4. **Create D1 database**
-
-```bash
-# Create database
-npx wrangler d1 create typix
-
-# Fill the returned database_id into wrangler.toml file
-```
-
-5. **Run database migration**
-
-```bash
-# Apply migration to remote database
-pnpm db:migrate:worker
-```
-
-6. **Build and deploy**
-
-```bash
-# Build project
-pnpm build
-
-# Deploy to Cloudflare Workers
-pnpm deploy
-```
-
-7. **Access the application**
-   After successful deployment, you'll get a `*.workers.dev` domain to start using!
+> After successful deployment, you'll get a `typix.xxx.workers.dev` domain to start using!
 
 ### Node.js Deployment
 

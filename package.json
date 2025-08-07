@@ -21,6 +21,7 @@
 		"deploy:no-migrate": "wrangler deploy"
 	},
 	"dependencies": {
+		"@fal-ai/client": "^1.6.1",
 		"@hono/node-server": "^1.18.0",
 		"@hono/zod-validator": "^0.7.0",
 		"@hookform/resolvers": "^5.1.1",

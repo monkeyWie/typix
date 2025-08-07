@@ -1,6 +1,6 @@
 import { type Storage, files } from "@/server/db/schemas";
 import { inBrowser } from "@/server/lib/env";
-import { fetchUrlToBase64 } from "@/server/lib/util";
+import { fetchUrlToDataURI } from "@/server/lib/util";
 import { and, eq } from "drizzle-orm";
 import { getContext } from "../context";
 
@@ -56,7 +56,7 @@ const storageHandlers: Record<
 			return fileData;
 		},
 		get: async (file, userId) => {
-			return `data:image/png;base64,${file.url}`;
+			return file.url;
 		},
 	},
 	disk: {
@@ -147,7 +147,7 @@ export const getFileData = async (fileId: string, userId: string) => {
 			return await fs.readFile(metadata.accessUrl, "base64");
 		}
 		default:
-			return await fetchUrlToBase64(metadata.accessUrl);
+			return await fetchUrlToDataURI(metadata.accessUrl);
 	}
 };
 

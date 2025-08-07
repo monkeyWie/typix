@@ -1,10 +1,12 @@
 import { apiClient } from "@/app/lib/api-client";
+import { inBrowser } from "@/server/lib/env";
 import { ServiceException } from "@/server/lib/exception";
 import type { AiProvider } from "../types/provider";
 import { default as cloudflare } from "./cloudflare";
+import { default as fal } from "./fal";
 import { default as openAI } from "./openai";
 
-export const AI_PROVIDERS = [cloudflare, openAI].map(enhancedProvider);
+export const AI_PROVIDERS = [cloudflare, openAI, fal].map(enhancedProvider);
 
 export function getDefaultProvider() {
 	return AI_PROVIDERS[0]!;
@@ -23,7 +25,6 @@ function enhancedProvider(provider: AiProvider): AiProvider {
 		...provider,
 		generate: async (request, settings) => {
 			// Check is browser environment
-			const inBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
 			if (!inBrowser || provider.supportCors) {
 				return await provider.generate(request, settings);
 			}

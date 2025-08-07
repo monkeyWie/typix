@@ -4,7 +4,7 @@ import { chats, generations, messages } from "@/server/db/schemas";
 import { createSchemaOmits } from "@/server/db/util";
 import { inBrowser, inCfWorker } from "@/server/lib/env";
 import { ServiceException } from "@/server/lib/exception";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import z from "zod/v4";
 import { aiService } from "../ai";
@@ -20,7 +20,7 @@ export const CreateChatSchema = createInsertSchema(chats)
 	.extend({
 		content: z.string().optional(),
 		/**
-		 * base64-encoded image strings
+		 * Data URI (base64) images
 		 */
 		images: z.array(z.string()).optional(),
 	});
@@ -284,11 +284,16 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 			// Always use user uploaded images if provided
 			if (req.images && req.images.length > 0) {
 				referImages = req.images;
-			} else if (model?.supportImageEdit === true) {
+			} else if (model?.ability !== "t2i") {
 				// If no user images and model supports image edit, refer to last message's images
 				const lastMessageImage = async () => {
 					const lastMessage = await db.query.messages.findFirst({
-						where: and(eq(messages.chatId, req.chatId), eq(messages.role, "assistant"), eq(messages.type, "image")),
+						where: and(
+							eq(messages.chatId, req.chatId),
+							ne(messages.id, assistantMessage.id),
+							eq(messages.role, "assistant"),
+							eq(messages.type, "image"),
+						),
 						orderBy: [desc(messages.createdAt)],
 						with: {
 							generation: {
@@ -300,9 +305,13 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 					});
 					const fileIds = lastMessage?.generation?.fileIds as string[] | null;
 					if (fileIds && fileIds.length > 0) {
-						const image = await getFileData(fileIds[fileIds.length - 1]!, userId);
-						if (image) {
-							return [image];
+						switch (model?.ability) {
+							case "i2i":
+								// For single image edit, use the last image
+								return [await getFileData(fileIds[fileIds.length - 1]!, userId)].filter(Boolean) as string[];
+							case "mi2i":
+								// For multi image edit, use all images
+								return (await Promise.all(fileIds.map((id) => getFileData(id, userId)))).filter(Boolean) as string[];
 						}
 					}
 				};
