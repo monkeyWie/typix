@@ -80,7 +80,7 @@ export function GenerationErrorItem({ errorReason, provider, onRetry, className 
 	const ButtonIcon = errorInfo.buttonIcon;
 
 	return (
-		<div className={cn("flex h-48 w-80 flex-col px-2 text-center", className)}>
+		<div className={cn("flex h-56 w-96 flex-col px-4 text-center", className)}>
 			{/* Provider Icon Block */}
 			{provider && (
 				<div className="mb-6 flex flex-1 items-center justify-center">
@@ -96,7 +96,7 @@ export function GenerationErrorItem({ errorReason, provider, onRetry, className 
 
 			{/* Action Button Block */}
 			<div className="flex flex-1 items-center justify-center">
-				<Button onClick={handleButtonClick} className="h-10 gap-2 px-6 font-medium text-sm">
+				<Button onClick={handleButtonClick} className="h-10 w-40 gap-2 font-medium text-sm">
 					<ButtonIcon className="h-4 w-4" />
 					{errorInfo.buttonText}
 				</Button>
