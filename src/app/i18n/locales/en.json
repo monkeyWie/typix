@@ -43,6 +43,19 @@
 			"createChat": "Failed to create chat - no available AI models",
 			"noModel": "No available AI models - please configure providers first",
 			"createNewChat": "Failed to create new chat - please select a provider and model"
+		},
+		"generation": {
+			"failed": "Generation failed",
+			"configError": "Provider configuration error",
+			"configErrorDesc": "Please check your provider settings and try again",
+			"apiError": "API request failed",
+			"apiErrorDesc": "The service is temporarily unavailable, please try again later",
+			"timeoutError": "Request timeout",
+			"timeoutErrorDesc": "The request took too long, please try again",
+			"unknownError": "Unknown error",
+			"unknownErrorDesc": "An unexpected error occurred, please try again",
+			"goToSettings": "Go to Settings",
+			"retry": "Retry"
 		}
 	},
 	"navigation": {

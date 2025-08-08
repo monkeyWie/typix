@@ -1,5 +1,5 @@
 import { getProviderById } from "@/server/ai/provider";
-import type { ApiProviderSettings } from "@/server/ai/types/provider";
+import { type ApiProviderSettings, ConfigInvalidError } from "@/server/ai/types/provider";
 import { chats, generations, messages } from "@/server/db/schemas";
 import { createSchemaOmits } from "@/server/db/util";
 import { inBrowser, inCfWorker } from "@/server/lib/env";
@@ -327,12 +327,12 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 				},
 				settings,
 			);
-			if (!result || !result.images || result.images.length === 0) {
+			if (result.errorReason) {
 				await db
 					.update(generations)
 					.set({
 						status: "failed",
-						errorMessage: "AI provider did not return any images",
+						errorReason: result.errorReason,
 					})
 					.where(eq(generations.id, generation!.id));
 				return;
@@ -357,7 +357,7 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 				.update(generations)
 				.set({
 					status: "failed",
-					errorMessage: error instanceof Error ? error.message : "Unknown error",
+					errorReason: error instanceof ConfigInvalidError ? "CONFIG_INVALID" : "UNKNOWN",
 				})
 				.where(eq(generations.id, generation!.id));
 			return;

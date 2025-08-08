@@ -33,6 +33,9 @@ export const messages = sqliteTable("messages", {
 	...metaFields,
 });
 
+const errorReason = ["CONFIG_INVALID", "CONFIG_ERROR", "API_ERROR", "TIMEOUT", "UNKNOWN"] as const;
+export type ErrorReason = (typeof errorReason)[number];
+
 // Generations table - stores AI generation requests and results (images, videos, etc.)
 export const generations = sqliteTable("generations", {
 	id: text().$defaultFn(generateId).primaryKey(),
@@ -48,7 +51,7 @@ export const generations = sqliteTable("generations", {
 		enum: ["pending", "generating", "completed", "failed"],
 	}).default("pending"),
 	fileIds: text({ mode: "json" }), // Array of file IDs if applicable
-	errorMessage: text(), // Error message if generation failed
+	errorReason: text({ enum: errorReason }), // Reason for failure if status is "failed"
 	generationTime: integer({ mode: "number" }), // Time taken in milliseconds
 	cost: real(), // Cost of generation if applicable
 	...metaFields,

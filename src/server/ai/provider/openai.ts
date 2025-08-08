@@ -77,24 +77,34 @@ const OpenAI: AiProvider = {
 		const client = new openai.OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true });
 
 		let generateResult: openai.ImagesResponse;
-		switch (chooseAblility(request, findModel(OpenAI, request.modelId).ability)) {
-			case "t2i":
-				// Text-to-image generation
-				generateResult = await client.images.generate({
-					model: request.modelId,
-					prompt: request.prompt,
-					n: request.n || 1,
-				});
-				break;
-			default:
-				// Image editing
-				generateResult = await client.images.edit({
-					model: request.modelId,
-					image: request.images!.map(createImageStreamFromDataUri),
-					prompt: request.prompt,
-					n: request.n || 1,
-				});
-				break;
+		try {
+			switch (chooseAblility(request, findModel(OpenAI, request.modelId).ability)) {
+				case "t2i":
+					// Text-to-image generation
+					generateResult = await client.images.generate({
+						model: request.modelId,
+						prompt: request.prompt,
+						n: request.n || 1,
+					});
+					break;
+				default:
+					// Image editing
+					generateResult = await client.images.edit({
+						model: request.modelId,
+						image: request.images!.map(createImageStreamFromDataUri),
+						prompt: request.prompt,
+						n: request.n || 1,
+					});
+					break;
+			}
+		} catch (e) {
+			if (e instanceof openai.AuthenticationError || e instanceof openai.NotFoundError) {
+				return {
+					errorReason: "CONFIG_ERROR",
+					images: [],
+				};
+			}
+			throw e;
 		}
 
 		return {

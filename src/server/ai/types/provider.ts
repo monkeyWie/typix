@@ -1,4 +1,5 @@
 import { ServiceException } from "@/server/lib/exception";
+import { E } from "node_modules/better-auth/dist/shared/better-auth.Bzjh9zg_";
 import type { TypixChatApiResponse, TypixGenerateRequest } from "./api";
 import type { Ability, AiModel } from "./model";
 
@@ -49,6 +50,8 @@ export type ProviderSettingsType<T extends readonly ApiProviderSettingsItem[]> =
 					: never;
 };
 
+export class ConfigInvalidError extends Error {}
+
 // Generic settings validator and extractor
 export function doParseSettings<T extends readonly ApiProviderSettingsItem[]>(
 	settings: ApiProviderSettings,
@@ -61,7 +64,7 @@ export function doParseSettings<T extends readonly ApiProviderSettingsItem[]>(
 
 		// Check if required field is missing
 		if (schema.required && (value === undefined || value === null || value === "")) {
-			throw new Error(`Missing required setting: ${schema.key}`);
+			throw new ConfigInvalidError(`Missing required setting: ${schema.key}`);
 		}
 
 		// Type validation and conversion
@@ -71,11 +74,11 @@ export function doParseSettings<T extends readonly ApiProviderSettingsItem[]>(
 				case "password":
 				case "url": {
 					if (typeof value !== "string") {
-						throw new Error(`Setting '${schema.key}' must be a string, got ${typeof value}`);
+						throw new ConfigInvalidError(`Setting '${schema.key}' must be a string, got ${typeof value}`);
 					}
 					const trimmedValue = value.trim();
 					if (schema.required && !trimmedValue) {
-						throw new Error(`Setting '${schema.key}' cannot be empty`);
+						throw new ConfigInvalidError(`Setting '${schema.key}' cannot be empty`);
 					}
 					result[schema.key] = trimmedValue;
 					break;
@@ -83,13 +86,13 @@ export function doParseSettings<T extends readonly ApiProviderSettingsItem[]>(
 				case "number": {
 					const numValue = typeof value === "number" ? value : Number(value);
 					if (Number.isNaN(numValue)) {
-						throw new Error(`Setting '${schema.key}' must be a valid number, got '${value}'`);
+						throw new ConfigInvalidError(`Setting '${schema.key}' must be a valid number, got '${value}'`);
 					}
 					if (schema.min !== undefined && numValue < schema.min) {
-						throw new Error(`Setting '${schema.key}' must be at least ${schema.min}, got ${numValue}`);
+						throw new ConfigInvalidError(`Setting '${schema.key}' must be at least ${schema.min}, got ${numValue}`);
 					}
 					if (schema.max !== undefined && numValue > schema.max) {
-						throw new Error(`Setting '${schema.key}' must be at most ${schema.max}, got ${numValue}`);
+						throw new ConfigInvalidError(`Setting '${schema.key}' must be at most ${schema.max}, got ${numValue}`);
 					}
 					result[schema.key] = numValue;
 					break;
@@ -105,16 +108,16 @@ export function doParseSettings<T extends readonly ApiProviderSettingsItem[]>(
 						} else if (lowerValue === "false" || lowerValue === "0" || lowerValue === "no") {
 							boolValue = false;
 						} else {
-							throw new Error(`Setting '${schema.key}' must be a boolean value, got '${value}'`);
+							throw new ConfigInvalidError(`Setting '${schema.key}' must be a boolean value, got '${value}'`);
 						}
 					} else {
-						throw new Error(`Setting '${schema.key}' must be a boolean, got ${typeof value}`);
+						throw new ConfigInvalidError(`Setting '${schema.key}' must be a boolean, got ${typeof value}`);
 					}
 					result[schema.key] = boolValue;
 					break;
 				}
 				default:
-					throw new Error(`Unknown setting type: ${(schema as any).type}`);
+					throw new ConfigInvalidError(`Unknown setting type: ${(schema as any).type}`);
 			}
 		} else if (!schema.required && schema.defaultValue !== undefined) {
 			// Apply default value for optional fields

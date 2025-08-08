@@ -81,7 +81,7 @@ CREATE TABLE `generations` (
 	`model` text NOT NULL,
 	`status` text DEFAULT 'pending',
 	`file_ids` text,
-	`error_message` text,
+	`error_reason` text,
 	`generation_time` integer,
 	`cost` real,
 	`created_at` text NOT NULL,

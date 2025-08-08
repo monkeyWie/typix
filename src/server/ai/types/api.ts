@@ -1,3 +1,4 @@
+import type { ErrorReason } from "@/server/db/schemas";
 import z from "zod/v4";
 
 export const TypixGenerateRequestSchema = z.object({
@@ -11,5 +12,6 @@ export const TypixGenerateRequestSchema = z.object({
 export type TypixGenerateRequest = z.infer<typeof TypixGenerateRequestSchema>;
 
 export type TypixChatApiResponse = {
+	errorReason?: ErrorReason; // Optional error reason if generation failed
 	images: string[]; // Array of generated image base64 Data URI
 };

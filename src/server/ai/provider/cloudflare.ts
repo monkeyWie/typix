@@ -114,6 +114,13 @@ const Cloudflare: AiProvider = {
 		});
 
 		if (!resp.ok) {
+			if (resp.status === 401 || resp.status === 404) {
+				return {
+					errorReason: "CONFIG_ERROR",
+					images: [],
+				};
+			}
+
 			const errorText = await resp.text();
 			throw new Error(`Cloudflare API error: ${resp.status} ${resp.statusText} - ${errorText}`);
 		}

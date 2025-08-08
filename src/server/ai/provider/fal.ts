@@ -1,6 +1,5 @@
-import { ServiceException } from "@/server/lib/exception";
 import { fetchUrlToDataURI } from "@/server/lib/util";
-import { fal } from "@fal-ai/client";
+import { ApiError, fal } from "@fal-ai/client";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
 import { type ProviderSettingsType, chooseAblility, doParseSettings, findModel } from "../types/provider";
 
@@ -56,15 +55,27 @@ const Fal: AiProvider = {
 		}
 
 		fal.config({ credentials: apiKey });
-		const resp = await fal.run(request.modelId + endpoint, {
-			input: {
-				prompt: request.prompt,
-				image_url: genType === "i2i" ? request.images?.[0] : undefined,
-				image_urls: genType === "mi2i" ? request.images : undefined,
-			},
-		});
 
-		console.log("Fal response:", resp);
+		let resp: Awaited<ReturnType<typeof fal.run>>;
+		try {
+			resp = await fal.run(request.modelId + endpoint, {
+				input: {
+					prompt: request.prompt,
+					image_url: genType === "i2i" ? request.images?.[0] : undefined,
+					image_urls: genType === "mi2i" ? request.images : undefined,
+				},
+			});
+		} catch (error) {
+			if (error instanceof ApiError) {
+				if (error.status === 401 || error.status === 404) {
+					return {
+						errorReason: "CONFIG_ERROR",
+						images: [],
+					};
+				}
+			}
+			throw error;
+		}
 
 		return {
 			images: await Promise.all(

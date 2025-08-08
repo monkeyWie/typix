@@ -19,6 +19,7 @@
 
 ## Key Rules
 
+- Ignore code formatting and css class sorting lint issues, focus on functionality implementation
 - Pure SPA (Single Page Application) - no SSR
 - TypeScript required, implement proper error handling
 - Use `POST` + JSON for all API endpoints (not RESTful)

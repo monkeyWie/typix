@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "82d26b97-e90c-4c86-bdd8-6215bf6402ca",
+  "id": "2505c767-2fae-4df3-a6de-f59692802ad9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -545,8 +545,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "error_message": {
-          "name": "error_message",
+        "error_reason": {
+          "name": "error_reason",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

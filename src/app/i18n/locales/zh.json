@@ -43,6 +43,19 @@
 			"createChat": "创建对话失败 - 没有可用的AI模型",
 			"noModel": "没有可用的AI模型 - 请先配置提供商",
 			"createNewChat": "创建新对话失败 - 请选择提供商和模型"
+		},
+		"generation": {
+			"failed": "生成失败",
+			"configError": "提供商配置有误",
+			"configErrorDesc": "请检查您的提供商设置后重试",
+			"apiError": "API请求失败",
+			"apiErrorDesc": "服务暂时不可用，请稍后重试",
+			"timeoutError": "请求超时",
+			"timeoutErrorDesc": "请求时间过长，请重试",
+			"unknownError": "未知错误",
+			"unknownErrorDesc": "发生了意外错误，请重试",
+			"goToSettings": "前往设置",
+			"retry": "重试"
 		}
 	},
 	"navigation": {

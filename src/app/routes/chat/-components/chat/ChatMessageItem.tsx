@@ -7,6 +7,7 @@ import { cn } from "@/app/lib/utils";
 import type { chatService } from "@/server/service/chat";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GenerationErrorItem } from "./GenerationErrorItem";
 
 // Type inference from service functions
 type ChatData = NonNullable<Awaited<ReturnType<typeof chatService.getChatById>>>;
@@ -70,6 +71,7 @@ export function ChatMessageItem({ message, user, allMessages, onMessageUpdate }:
 		return date;
 	})();
 	const isMessageGenerating = message.generation?.status === "pending" || message.generation?.status === "generating";
+	const isMessageFailed = message.generation?.status === "failed";
 
 	// Get current message's images for display
 	const currentMessageImages = message.generation?.resultUrls;
@@ -198,6 +200,22 @@ export function ChatMessageItem({ message, user, allMessages, onMessageUpdate }:
 									<Skeleton className="h-4 w-full" />
 									<Skeleton className="h-4 w-3/4" />
 								</div>
+							</div>
+						) : isMessageFailed && !isUser ? (
+							<div className="space-y-3">
+								{/* Show original prompt if available */}
+								{message.content && (
+									<p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
+								)}
+								{/* Show error card */}
+								<GenerationErrorItem
+									errorReason={message.generation?.errorReason || "UNKNOWN"}
+									provider={message.generation?.provider}
+									onRetry={() => {
+										// TODO: Implement retry functionality
+										console.log("Retry generation for message:", message.id);
+									}}
+								/>
 							</div>
 						) : (
 							<>
