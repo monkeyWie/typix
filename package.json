@@ -17,7 +17,7 @@
 		"db:migrate:worker": "wrangler d1 migrations apply --remote typix",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
-		"deploy": "npm run db:migrate:dev:worker && wrangler deploy",
+		"deploy": "npm run db:migrate:worker && wrangler deploy",
 		"deploy:no-migrate": "wrangler deploy"
 	},
 	"dependencies": {
