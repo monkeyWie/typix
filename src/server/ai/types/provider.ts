@@ -1,5 +1,4 @@
 import { ServiceException } from "@/server/lib/exception";
-import { E } from "node_modules/better-auth/dist/shared/better-auth.Bzjh9zg_";
 import type { TypixChatApiResponse, TypixGenerateRequest } from "./api";
 import type { Ability, AiModel } from "./model";
 
