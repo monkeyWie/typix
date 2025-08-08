@@ -4,9 +4,10 @@ import { ServiceException } from "@/server/lib/exception";
 import type { AiProvider } from "../types/provider";
 import { default as cloudflare } from "./cloudflare";
 import { default as fal } from "./fal";
+import { default as flux } from "./flux";
 import { default as openAI } from "./openai";
 
-export const AI_PROVIDERS = [cloudflare, openAI, fal].map(enhancedProvider);
+export const AI_PROVIDERS = [cloudflare, openAI, fal, flux].map(enhancedProvider);
 
 export function getDefaultProvider() {
 	return AI_PROVIDERS[0]!;

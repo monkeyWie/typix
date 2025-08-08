@@ -225,6 +225,36 @@
 					"description": "FLUX.1 Kontext [pro] 将文本和参考图像作为输入进行处理，无缝地实现了对整个场景的有针对性的局部编辑和复杂转换。"
 				}
 			}
+		},
+		"flux": {
+			"description": "由Black Forest Labs提供的高质量AI图像生成",
+			"settings": {
+				"apiKey": {
+					"title": "API密钥",
+					"description": "用于身份验证的BFL API密钥",
+					"placeholder": "输入您的BFL API密钥"
+				}
+			},
+			"models": {
+				"flux-kontext-pro": {
+					"description": "FLUX.1 Kontext Pro - 高级图像到图像生成，具有卓越的提示遵循和编辑能力。"
+				},
+				"flux-kontext-max": {
+					"description": "FLUX.1 Kontext Max - 顶级图像到图像生成，为专业编辑提供最高质量和一致性。"
+				},
+				"flux-dev": {
+					"description": "FLUX.1 Dev - 为开发和实验优化的高质量文本到图像生成模型。"
+				},
+				"flux-pro": {
+					"description": "FLUX.1 Pro - 专业级文本到图像生成，具有出色的提示遵循和图像质量。"
+				},
+				"flux-pro-1.1": {
+					"description": "FLUX.1 Pro 1.1 - FLUX Pro的增强版本，提升了性能和质量。"
+				},
+				"flux-pro-1.1-ultra": {
+					"description": "FLUX.1 Pro 1.1 Ultra - 最先进的FLUX模型，具有超高质量生成和精度。"
+				}
+			}
 		}
 	}
 }

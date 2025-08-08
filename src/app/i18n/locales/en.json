@@ -225,6 +225,36 @@
 					"description": "FLUX.1 Kontext [pro] handles both text and reference images as inputs, seamlessly enabling targeted, local edits and complex transformations of entire scenes."
 				}
 			}
+		},
+		"flux": {
+			"description": "High-quality AI image generation by Black Forest Labs",
+			"settings": {
+				"apiKey": {
+					"title": "API Key",
+					"description": "Your BFL API key for authentication",
+					"placeholder": "Enter your BFL API key"
+				}
+			},
+			"models": {
+				"flux-kontext-pro": {
+					"description": "FLUX.1 Kontext Pro - Advanced image-to-image generation with superior prompt adherence and editing capabilities."
+				},
+				"flux-kontext-max": {
+					"description": "FLUX.1 Kontext Max - Premium image-to-image generation with maximum quality and consistency for professional editing."
+				},
+				"flux-dev": {
+					"description": "FLUX.1 Dev - High-quality text-to-image generation model optimized for development and experimentation."
+				},
+				"flux-pro": {
+					"description": "FLUX.1 Pro - Professional-grade text-to-image generation with excellent prompt adherence and image quality."
+				},
+				"flux-pro-1.1": {
+					"description": "FLUX.1 Pro 1.1 - Enhanced version of FLUX Pro with improved performance and quality."
+				},
+				"flux-pro-1.1-ultra": {
+					"description": "FLUX.1 Pro 1.1 Ultra - The most advanced FLUX model with ultra-high quality generation and precision."
+				}
+			}
 		}
 	}
 }
