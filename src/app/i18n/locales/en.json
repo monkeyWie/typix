@@ -32,7 +32,7 @@
 		"thinking": "AI is thinking...",
 		"generating": "Generating image...",
 		"selectModel": "Select AI Model",
-		"welcomeMessage": "Describe the image you'd like me to create, or start a conversation! Let your imagination run wild.",
+		"welcomeMessage": "Describe the image you'd like me to create! Let your imagination run wild.",
 		"generatedImage": "Generated image",
 		"generatedOrUploaded": "Generated or uploaded",
 		"ai": "AI",
@@ -123,7 +123,7 @@
 		"hasAccount": "Already have an account?",
 		"signUpNow": "Sign up now",
 		"goToLogin": "Go to login",
-		"welcomeMessage": "Welcome to AI Assistant",
+		"welcomeMessage": "Welcome",
 		"loginToSave": "Login to save your chat history"
 	},
 	"user": {
