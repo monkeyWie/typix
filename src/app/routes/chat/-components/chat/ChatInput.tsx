@@ -1,6 +1,7 @@
 import { Button } from "@/app/components/ui/button";
 import { ImagePreview, type ImageSlide } from "@/app/components/ui/image-preview";
 import { Textarea } from "@/app/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { useToast } from "@/app/hooks/useToast";
 import { cn } from "@/app/lib/utils";
 import { getModelById } from "@/server/ai/provider";
@@ -247,25 +248,38 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 
 						{/* Bottom buttons area */}
 						<div className="absolute right-3 bottom-3 flex items-center gap-2">
-							{/* Image upload button - only show if model supports image input */}
-							{canUploadImages && (
-								<Button
-									variant="outline"
-									size="icon"
-									onClick={handleUploadClick}
-									disabled={disabled || selectedImages.length >= maxImages}
-									className="h-10 w-10 rounded-lg border-border/50 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-accent/80"
-									title={
-										selectedImages.length >= maxImages
-											? t("chat.maxImagesReached")
-											: maxImages === 1
-												? t("chat.uploadForImageToImage")
-												: t("chat.uploadImages")
-									}
-								>
-									<Image className="h-4 w-4" />
-								</Button>
-							)}
+							{/* Image upload button - always show but disable for t2i models */}
+							<TooltipProvider>
+								<Tooltip>
+									<TooltipTrigger asChild>
+										<div
+											className={cn(
+												"inline-block",
+												(disabled || !canUploadImages || selectedImages.length >= maxImages) && "cursor-not-allowed",
+											)}
+										>
+											<Button
+												variant="outline"
+												size="icon"
+												onClick={handleUploadClick}
+												disabled={disabled || !canUploadImages || selectedImages.length >= maxImages}
+												className="h-10 w-10 rounded-lg border-border/50 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-accent/80"
+											>
+												<Image className="h-4 w-4" />
+											</Button>
+										</div>
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>
+											{!canUploadImages
+												? t("chat.textToImageModelNoUpload")
+												: selectedImages.length >= maxImages
+													? t("chat.maxImagesReached")
+													: t("chat.uploadForImageToImage")}
+										</p>
+									</TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
 
 							{/* Send button */}
 							<Button
