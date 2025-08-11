@@ -222,7 +222,12 @@ function ChatPageContent() {
 					fallbackModel={selectedModel}
 				/>
 				{/* Chat Input */}
-				<ChatInput onSendMessage={handleSendMessage} disabled={isGenerating} />
+				<ChatInput
+					onSendMessage={handleSendMessage}
+					disabled={isGenerating}
+					currentProvider={currentChat?.provider || selectedProvider}
+					currentModel={currentChat?.model || selectedModel}
+				/>
 			</div>
 		</div>
 	);

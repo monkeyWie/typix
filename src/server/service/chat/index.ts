@@ -305,12 +305,19 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 					const fileIds = lastMessage?.generation?.fileIds as string[] | null;
 					if (fileIds && fileIds.length > 0) {
 						switch (model?.ability) {
-							case "i2i":
-								// For single image edit, use the last image
-								return [await getFileData(fileIds[fileIds.length - 1]!, userId)].filter(Boolean) as string[];
-							case "mi2i":
-								// For multi image edit, use all images
-								return (await Promise.all(fileIds.map((id) => getFileData(id, userId)))).filter(Boolean) as string[];
+							case "i2i": {
+								// For i2i models, use appropriate number of images based on maxInputImages
+								const maxImages = model.maxInputImages || 1;
+								if (maxImages === 1) {
+									// For single image edit, use the last image
+									return [await getFileData(fileIds[fileIds.length - 1]!, userId)].filter(Boolean) as string[];
+								}
+								// For multi image edit, use all images up to the limit
+								const imagesToUse = fileIds.slice(-maxImages);
+								return (await Promise.all(imagesToUse.map((id) => getFileData(id, userId)))).filter(
+									Boolean,
+								) as string[];
+							}
 						}
 					}
 				};

@@ -24,7 +24,7 @@ const Fal: AiProvider = {
 		{
 			id: "fal-ai/flux-pro/kontext/max",
 			name: "FLUX.1 Kontext [max]",
-			ability: "mi2i",
+			ability: "i2i",
 			enabledByDefault: true,
 		},
 		{
@@ -46,12 +46,18 @@ const Fal: AiProvider = {
 			case "t2i":
 				endpoint = "/text-to-image";
 				break;
-			case "i2i":
-				endpoint = "";
+			case "i2i": {
+				// Check if this model supports multiple images
+				const model = Fal.models.find((m) => m.id === request.modelId);
+				const maxImages = model?.maxInputImages || 1;
+
+				if ((request.images?.length || 0) > 1 && maxImages > 1) {
+					endpoint = "/multi";
+				} else {
+					endpoint = "";
+				}
 				break;
-			case "mi2i":
-				endpoint = "/multi";
-				break;
+			}
 		}
 
 		fal.config({ credentials: apiKey });
@@ -61,8 +67,8 @@ const Fal: AiProvider = {
 			resp = await fal.run(request.modelId + endpoint, {
 				input: {
 					prompt: request.prompt,
-					image_url: genType === "i2i" ? request.images?.[0] : undefined,
-					image_urls: genType === "mi2i" ? request.images : undefined,
+					image_url: genType === "i2i" && (request.images?.length || 0) === 1 ? request.images?.[0] : undefined,
+					image_urls: genType === "i2i" && (request.images?.length || 0) > 1 ? request.images : undefined,
 				},
 			});
 		} catch (error) {

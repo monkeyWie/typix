@@ -152,8 +152,8 @@ export function chooseAblility(request: TypixGenerateRequest, ability: Ability):
 	if (!request.images || request.images.length === 0) {
 		return "t2i";
 	}
-	if (request.images.length === 1) {
-		return "i2i";
-	}
-	return "mi2i";
+
+	// For i2i models, always return i2i regardless of image count
+	// The actual image count validation should be done elsewhere
+	return "i2i";
 }

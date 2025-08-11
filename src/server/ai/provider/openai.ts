@@ -64,7 +64,8 @@ const OpenAI: AiProvider = {
 		{
 			id: "gpt-image-1",
 			name: "GPT Image 1",
-			ability: "mi2i",
+			ability: "i2i",
+			maxInputImages: 3,
 			enabledByDefault: true,
 		},
 	],

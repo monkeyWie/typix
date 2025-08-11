@@ -1,7 +1,10 @@
 import { Button } from "@/app/components/ui/button";
 import { ImagePreview, type ImageSlide } from "@/app/components/ui/image-preview";
 import { Textarea } from "@/app/components/ui/textarea";
+import { useToast } from "@/app/hooks/useToast";
 import { cn } from "@/app/lib/utils";
+import { getModelById } from "@/server/ai/provider";
+import type { Ability } from "@/server/ai/types/model";
 import { Image, Send, X, ZoomIn } from "lucide-react";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,10 +12,13 @@ import { useTranslation } from "react-i18next";
 interface ChatInputProps {
 	onSendMessage: (content: string, imageFiles?: File[]) => void;
 	disabled?: boolean;
+	currentProvider?: string;
+	currentModel?: string;
 }
 
-export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
+export function ChatInput({ onSendMessage, disabled, currentProvider, currentModel }: ChatInputProps) {
 	const { t } = useTranslation();
+	const { toast } = useToast();
 	const [message, setMessage] = useState("");
 	const [selectedImages, setSelectedImages] = useState<File[]>([]);
 	const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -21,6 +27,45 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
 	const [shouldFocusAfterEnable, setShouldFocusAfterEnable] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+	// Get current model capability and max images
+	const { currentModelCapability, maxImages } = (() => {
+		if (!currentProvider || !currentModel) return { currentModelCapability: null, maxImages: 1 };
+
+		try {
+			const model = getModelById(currentProvider, currentModel);
+			return {
+				currentModelCapability: model.ability,
+				maxImages: model.ability === "i2i" ? model.maxInputImages || 1 : 1,
+			};
+		} catch {
+			return { currentModelCapability: null, maxImages: 1 };
+		}
+	})();
+
+	// Determine upload restrictions based on model capability
+	const canUploadImages = currentModelCapability && currentModelCapability !== "t2i";
+
+	// Clear images when switching to t2i model or model that doesn't support images
+	useEffect(() => {
+		if (!canUploadImages && selectedImages.length > 0) {
+			// Clean up preview URLs
+			for (const url of previewUrls) {
+				if (url) URL.revokeObjectURL(url);
+			}
+			setSelectedImages([]);
+			setPreviewUrls([]);
+
+			// Show toast to inform user
+			if (currentModelCapability === "t2i") {
+				toast({
+					title: t("chat.modelChanged"),
+					description: t("chat.textToImageOnlyModel"),
+					variant: "default",
+				});
+			}
+		}
+	}, [canUploadImages, currentModelCapability, selectedImages.length, previewUrls, toast, t]);
 
 	// Monitor disabled state changes and restore focus when re-enabled
 	useEffect(() => {
@@ -53,21 +98,48 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
 		}
 	};
 
+	const handleUploadClick = () => {
+		fileInputRef.current?.click();
+	};
+
 	const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files || []);
 		const imageFiles = files.filter((file) => file.type.startsWith("image/"));
 
-		if (imageFiles.length > 0) {
-			setSelectedImages((prev) => {
-				const newImages = [...prev, ...imageFiles];
-				// Generate preview URLs for new images
-				const newUrls = [...previewUrls];
-				imageFiles.forEach((file, index) => {
-					newUrls[prev.length + index] = URL.createObjectURL(file);
-				});
-				setPreviewUrls(newUrls);
-				return newImages;
+		if (imageFiles.length === 0) {
+			// Reset input
+			if (fileInputRef.current) {
+				fileInputRef.current.value = "";
+			}
+			return;
+		}
+
+		// Calculate available slots
+		const availableSlots = maxImages - selectedImages.length;
+		const filesToAdd = imageFiles.slice(0, availableSlots);
+
+		// Show toast if user selected more files than available slots
+		if (filesToAdd.length < imageFiles.length) {
+			toast({
+				title: t("chat.tooManyImagesSelected"),
+				description: t("chat.onlyAddedImages", {
+					added: filesToAdd.length,
+					selected: imageFiles.length,
+				}),
+				variant: "destructive",
 			});
+		}
+
+		// Update state only if there are files to add
+		if (filesToAdd.length > 0) {
+			// Generate preview URLs for new images
+			const newUrls = [...previewUrls];
+			filesToAdd.forEach((file, index) => {
+				newUrls[selectedImages.length + index] = URL.createObjectURL(file);
+			});
+
+			setSelectedImages((prev) => [...prev, ...filesToAdd]);
+			setPreviewUrls(newUrls);
 		}
 
 		// Reset input
@@ -110,7 +182,7 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
 						accept="image/*"
 						onChange={handleImageSelect}
 						className="hidden"
-						multiple
+						multiple={maxImages > 1}
 					/>
 
 					{/* Image preview thumbnails - above the input */}
@@ -175,16 +247,25 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
 
 						{/* Bottom buttons area */}
 						<div className="absolute right-3 bottom-3 flex items-center gap-2">
-							{/* Image upload button */}
-							<Button
-								variant="outline"
-								size="icon"
-								onClick={() => fileInputRef.current?.click()}
-								disabled={disabled}
-								className="h-10 w-10 rounded-lg border-border/50 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-accent/80"
-							>
-								<Image className="h-4 w-4" />
-							</Button>
+							{/* Image upload button - only show if model supports image input */}
+							{canUploadImages && (
+								<Button
+									variant="outline"
+									size="icon"
+									onClick={handleUploadClick}
+									disabled={disabled || selectedImages.length >= maxImages}
+									className="h-10 w-10 rounded-lg border-border/50 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-accent/80"
+									title={
+										selectedImages.length >= maxImages
+											? t("chat.maxImagesReached")
+											: maxImages === 1
+												? t("chat.uploadForImageToImage")
+												: t("chat.uploadImages")
+									}
+								>
+									<Image className="h-4 w-4" />
+								</Button>
+							)}
 
 							{/* Send button */}
 							<Button

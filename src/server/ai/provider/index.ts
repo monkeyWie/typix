@@ -21,6 +21,15 @@ export function getProviderById(providerId: string) {
 	return provider;
 }
 
+export function getModelById(providerId: string, modelId: string) {
+	const provider = getProviderById(providerId);
+	const model = provider.models.find((model) => model.id === modelId);
+	if (!model) {
+		throw new ServiceException("not_found", `Model ${modelId} not found in provider ${providerId}`);
+	}
+	return model;
+}
+
 function enhancedProvider(provider: AiProvider): AiProvider {
 	return {
 		...provider,
