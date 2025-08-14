@@ -67,6 +67,18 @@ function VerificationCodeTemplate({ code }: VerificationCodeTemplateProps) {
 						borderBottom: "1px solid #e4e4e7",
 					}}
 				>
+					<p
+						style={{
+							fontSize: "14px",
+							color: "#71717a",
+							margin: "16px 0 0 0",
+							fontWeight: "500",
+							textTransform: "uppercase",
+							letterSpacing: "0.05em",
+						}}
+					>
+						Your Verification Code
+					</p>
 					<div
 						style={{
 							fontSize: "48px",
@@ -81,18 +93,6 @@ function VerificationCodeTemplate({ code }: VerificationCodeTemplateProps) {
 					>
 						{code}
 					</div>
-					<p
-						style={{
-							fontSize: "14px",
-							color: "#71717a",
-							margin: "16px 0 0 0",
-							fontWeight: "500",
-							textTransform: "uppercase",
-							letterSpacing: "0.05em",
-						}}
-					>
-						Your Verification Code
-					</p>
 				</div>
 
 				{/* Main Content */}
