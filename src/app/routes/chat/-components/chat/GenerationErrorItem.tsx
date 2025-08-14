@@ -80,25 +80,25 @@ export function GenerationErrorItem({ errorReason, provider, onRetry, className 
 	const ButtonIcon = errorInfo.buttonIcon;
 
 	return (
-		<div className={cn("flex h-56 w-96 flex-col px-4 text-center", className)}>
+		<div className={cn("flex h-56 w-full max-w-md flex-col px-4 text-center", className)}>
 			{/* Provider Icon Block */}
 			{provider && (
-				<div className="mb-6 flex flex-1 items-center justify-center">
+				<div className="mb-4 flex flex-1 items-center justify-center sm:mb-6">
 					<ProviderIcon provider={provider} size={44} type="avatar" />
 				</div>
 			)}
 
 			{/* Error Content Block */}
-			<div className="mb-6 flex flex-1 flex-col items-center justify-center space-y-2 px-2">
-				<h3 className="font-semibold text-foreground text-lg leading-tight">{errorInfo.title}</h3>
-				<p className="text-muted-foreground text-sm leading-relaxed">{errorInfo.description}</p>
+			<div className="mb-4 flex flex-1 flex-col items-center justify-center space-y-2 px-2 sm:mb-6">
+				<h3 className="font-semibold text-base text-foreground leading-tight sm:text-lg">{errorInfo.title}</h3>
+				<p className="break-words text-muted-foreground text-xs leading-relaxed sm:text-sm">{errorInfo.description}</p>
 			</div>
 
 			{/* Action Button Block */}
 			<div className="flex flex-1 items-center justify-center">
-				<Button onClick={handleButtonClick} className="h-10 w-40 gap-2 font-medium text-sm">
-					<ButtonIcon className="h-4 w-4" />
-					{errorInfo.buttonText}
+				<Button onClick={handleButtonClick} className="h-9 w-32 gap-2 font-medium text-xs sm:h-10 sm:w-48 sm:text-sm">
+					<ButtonIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+					<span className="truncate">{errorInfo.buttonText}</span>
 				</Button>
 			</div>
 		</div>
