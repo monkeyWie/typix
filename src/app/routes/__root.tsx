@@ -22,10 +22,9 @@ function RootComponent() {
 	const { isLoading: authLoading } = useAuth();
 	const [isInitialized, setIsInitialized] = useState(false);
 	const [initError, setInitError] = useState<string | null>(null);
-	const [isInitialAuthCheck, setIsInitialAuthCheck] = useState(true);
+	const [hasAuthResolved, setHasAuthResolved] = useState(false);
 	const { i18n, t } = useTranslation();
 
-	// Settings service for loading initial theme configuration
 	const settingsService = useSettingsService();
 
 	// Apply theme and theme color with automatic system theme detection
@@ -121,16 +120,18 @@ function RootComponent() {
 		};
 	}
 
+	// Track when auth has resolved at least once
+	useEffect(() => {
+		if (!authLoading && !hasAuthResolved) {
+			setHasAuthResolved(true);
+		}
+	}, [authLoading, hasAuthResolved]);
+
 	// Initialize database and load settings on app startup
 	useEffect(() => {
-		// Wait for auth loading to complete before initializing, but only during initial auth check
-		if (authLoading && isInitialAuthCheck) {
+		// Only initialize once auth has resolved for the first time
+		if (!hasAuthResolved) {
 			return;
-		}
-
-		// Mark that initial auth check is complete once auth loading finishes for the first time
-		if (!authLoading && isInitialAuthCheck) {
-			setIsInitialAuthCheck(false);
 		}
 
 		let isMobileCleanup: (() => void) | null = null;
@@ -163,11 +164,11 @@ function RootComponent() {
 				isMobileCleanup();
 			}
 		};
-	}, [authLoading, isInitialAuthCheck, setIsInitialAuthCheck]);
+	}, [hasAuthResolved]);
 
-	// Show loading screen during initial auth loading or app initialization
-	// After initial auth check, subsequent auth operations won't trigger global loading
-	if ((authLoading && isInitialAuthCheck) || (!isInitialized && !initError)) {
+	// Show loading screen only during initial app initialization
+	// Don't block on auth loading after first resolution
+	if (!isInitialized && !initError) {
 		return (
 			<div className="flex min-h-app items-center justify-center bg-background md:min-h-screen">
 				<div className="space-y-4 text-center">

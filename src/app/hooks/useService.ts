@@ -4,6 +4,7 @@ import { aiService } from "@/server/service/ai";
 import { chatService } from "@/server/service/chat";
 import { type RequestContext, localUserId } from "@/server/service/context";
 import { settingsService } from "@/server/service/settings";
+import { useMemo } from "react";
 import useSWR from "swr";
 import type { SWRResponse } from "swr";
 import useSWRMutation from "swr/mutation";
@@ -17,7 +18,7 @@ type ExtractPromiseType<T> = T extends Promise<infer U> ? U : T;
 // Remove the last parameter (userId) from function parameters
 type RemoveLastParam<T extends readonly unknown[]> = T extends readonly [...infer Rest, any] ? Rest : T;
 
-// Transform function type to remove last parameter
+// Transform function type to remove last parameter and preserve exact return type
 type TransformFunction<T> = T extends (...args: infer P) => infer R ? (...args: RemoveLastParam<P>) => R : T;
 
 // Helper type to determine the correct argument type for SWR mutation
@@ -77,6 +78,7 @@ function createEnhancedService<T>(baseService: T): EnhancedService<T> {
 				// Add SWR method - create a fetcher that calls the original method
 				enhancedMethod.swr = (key: string | null, ...args: any[]) => {
 					const fetcher = async () => {
+						console.log("SWR fetcher called with args:", args);
 						// Add localUserId as the last parameter
 						return await originalMethod.call(target, ...args, requestContext);
 					};
@@ -126,10 +128,16 @@ function createEnhancedService<T>(baseService: T): EnhancedService<T> {
  */
 function useService<T extends Record<string, any>>(defaultService: T, apiService: T): EnhancedService<T> {
 	const { isLogin } = useAuth();
-	const service = isLogin ? apiService : defaultService;
 
-	// Return enhanced service (auth loading is guaranteed to be complete at root level)
-	return createEnhancedService(service);
+	// Memoize service selection to prevent unnecessary re-computations
+	const service = useMemo(() => {
+		return isLogin ? apiService : defaultService;
+	}, [isLogin, apiService, defaultService]);
+
+	// Memoize enhanced service creation
+	return useMemo(() => {
+		return createEnhancedService(service);
+	}, [service]);
 }
 
 /**
@@ -158,12 +166,16 @@ async function doRequest<T>(apiCall: (...args: any[]) => Promise<Response>, ...a
 	}
 }
 
-/**
- * Generic service proxy that automatically maps interface methods to API calls
- * Dynamically resolves endpoints based on method names
- */
-function createApiServiceProxy<T extends object>(apiEndpoints: Record<string, any>): T {
-	return new Proxy({} as T, {
+// Service proxy cache to avoid recreating proxies
+const apiServiceCache = new WeakMap<Record<string, any>, any>();
+
+function createApiServiceProxy<T extends Record<string, any>>(apiEndpoints: Record<string, any>): T {
+	// Check cache first
+	if (apiServiceCache.has(apiEndpoints)) {
+		return apiServiceCache.get(apiEndpoints);
+	}
+
+	const proxy = new Proxy({} as T, {
 		get(target, prop: string | symbol) {
 			if (typeof prop === "string") {
 				// Look for a property with $post method
@@ -179,16 +191,23 @@ function createApiServiceProxy<T extends object>(apiEndpoints: Record<string, an
 			return undefined;
 		},
 	});
+
+	// Cache the proxy
+	apiServiceCache.set(apiEndpoints, proxy);
+	return proxy;
 }
 
 export function useChatService() {
-	return useService(chatService, createApiServiceProxy(apiClient.api.chats));
+	const apiService = useMemo(() => createApiServiceProxy<typeof chatService>(apiClient.api.chats), []);
+	return useService(chatService, apiService);
 }
 
 export function useSettingsService() {
-	return useService(settingsService, createApiServiceProxy(apiClient.api.settings));
+	const apiService = useMemo(() => createApiServiceProxy<typeof settingsService>(apiClient.api.settings), []);
+	return useService(settingsService, apiService);
 }
 
 export function useAiService() {
-	return useService(aiService, createApiServiceProxy(apiClient.api.ai));
+	const apiService = useMemo(() => createApiServiceProxy<typeof aiService>(apiClient.api.ai), []);
+	return useService(aiService, apiService);
 }
