@@ -23,7 +23,7 @@ interface ChatAreaProps {
 	onCreateChat?: () => void;
 	onModelChange?: (provider: string, model: string) => void;
 	onMessageUpdate?: (messageId: string, updates: Partial<ChatData["messages"][0]>) => void;
-	onRetry?: (messageId: string) => void;
+	onRetry?: (messageId: string) => Promise<void>;
 	// Fallback values when there's no current chat
 	fallbackProvider?: string;
 	fallbackModel?: string;

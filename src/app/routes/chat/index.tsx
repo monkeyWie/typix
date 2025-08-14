@@ -31,7 +31,6 @@ function ChatPageContent() {
 	const { chatId } = Route.useSearch();
 	const navigate = Route.useNavigate();
 	const chatAreaRef = useRef<ChatAreaRef>(null);
-	const { user } = useAuth();
 	const { toast } = useToast();
 	const { t } = useTranslation();
 	const aiService = useAiService();

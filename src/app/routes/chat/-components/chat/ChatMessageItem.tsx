@@ -166,25 +166,36 @@ export function ChatMessageItem({ message, user, allMessages, onMessageUpdate, o
 							</AvatarFallback>
 						</>
 					) : (
-						<AvatarFallback className="bg-gradient-to-br from-muted-foreground to-muted-foreground/80 text-background">
-							<span className="font-bold text-sm">{t("chat.ai")}</span>
-						</AvatarFallback>
+						<>
+							<AvatarImage src="/logo.svg" alt={t("chat.ai")} />
+							<AvatarFallback className="bg-gradient-to-br from-muted-foreground to-muted-foreground/80 text-background">
+								<span className="font-bold text-sm">{t("chat.ai")}</span>
+							</AvatarFallback>
+						</>
 					)}
 				</Avatar>
 			</div>
 
 			{/* Message Content */}
-			<div className={cn("min-w-0 flex-1", isUser && "text-right")}>
+			<div
+				className={cn("min-w-0", message.type === "image" && !message.content ? "" : "flex-1", isUser && "text-right")}
+			>
 				{/* Message Header - positioned above the message box */}
 				<div className={cn("mb-1 flex items-center gap-2 text-muted-foreground text-xs", isUser && "flex-row-reverse")}>
 					<span className="opacity-70">{formatTime(displayTime)}</span>
 				</div>
 
 				{/* Message Body - aligned with avatar top */}
-				<div className={cn("flex", isUser && "justify-end")}>
+				<div
+					className={cn(
+						"flex",
+						isUser ? "justify-end" : message.type === "image" && !message.content ? "justify-start" : "",
+					)}
+				>
 					<Card
 						className={cn(
-							"max-w-2xl p-4 shadow-sm transition-all duration-200 hover:shadow-md",
+							"shadow-sm transition-all duration-200 hover:shadow-md",
+							message.type === "image" && !message.content ? "w-fit p-2" : "max-w-2xl p-4",
 							isUser
 								? "border-primary/30 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground"
 								: "border-border/50 bg-card/80 backdrop-blur-sm",
@@ -234,8 +245,14 @@ export function ChatMessageItem({ message, user, allMessages, onMessageUpdate, o
 									<p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
 								)}{" "}
 								{message.type === "image" && currentMessageImageUrls.length > 0 && (
-									<div className="mt-3">
-										<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+									<div className={cn(message.content ? "mt-3" : "")}>
+										<div
+											className={cn(
+												currentMessageImageUrls.length === 1
+													? "flex justify-start"
+													: "grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3",
+											)}
+										>
 											{currentMessageImageUrls.map((imageUrl, index) => (
 												<button
 													key={`${message.id}-${imageUrl}`}
@@ -256,7 +273,7 @@ export function ChatMessageItem({ message, user, allMessages, onMessageUpdate, o
 													<img
 														src={imageUrl}
 														alt={t("chat.generatedOrUploaded")}
-														className="h-auto max-h-96 max-w-full rounded-xl object-cover shadow-lg"
+														className="h-auto max-h-64 max-w-80 rounded-xl object-cover shadow-lg"
 														loading="lazy"
 													/>
 												</button>
