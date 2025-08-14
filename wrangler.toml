@@ -19,10 +19,31 @@ migrations_dir = "drizzle/migrations"
 binding = "AI"
 
 [vars]
-# Application mode: client | mixed
-# client: Pure client-side mode without server user system and cloud data synchronization
-# mixed: Supports both client-side mode and server user system with cloud data synchronization
+# Application deployment mode configuration
+# 
+# client: Client-only mode - operates entirely on the client-side with no authentication required.
+#         All user data is stored locally in browser storage (IndexedDB).
+#         Ideal for privacy-focused deployments or when server infrastructure is not available.
+#
+# mixed:  Hybrid mode - supports both client-only operation and server-backed features.
+#         Users can choose to remain client mode or sign in for cloud synchronization.
+#         Authenticated users benefit from cross-device data sync and server-side data persistence.
+#         Provides the best of both worlds: instant local access with optional cloud features.
 MODE = "mixed"
+
+# Authentication configuration, only for mixed mode
+#
+# AUTH_EMAIL_VERIFICATION_ENABLED = "false"
+# AUTH_EMAIL_RESEND_API_KEY = ""
+# AUTH_EMAIL_RESEND_FROM = "Typix <hi@typix.art>"
+#
+# AUTH_SOCIAL_GOOGLE_ENABLED = "false"
+# AUTH_SOCIAL_GOOGLE_CLIENT_ID = ""
+# AUTH_SOCIAL_GOOGLE_CLIENT_SECRET = ""
+#
+# AUTH_SOCIAL_GITHUB_ENABLED = "false"
+# AUTH_SOCIAL_GITHUB_CLIENT_ID = ""
+# AUTH_SOCIAL_GITHUB_CLIENT_SECRET = ""
 
 # Enable Cloudflare built-in AI binding
 # When set to true, uses Cloudflare Workers AI for image generation without requiring additional API keys

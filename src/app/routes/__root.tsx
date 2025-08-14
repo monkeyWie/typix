@@ -22,6 +22,7 @@ function RootComponent() {
 	const { isLoading: authLoading } = useAuth();
 	const [isInitialized, setIsInitialized] = useState(false);
 	const [initError, setInitError] = useState<string | null>(null);
+	const [isInitialAuthCheck, setIsInitialAuthCheck] = useState(true);
 	const { i18n, t } = useTranslation();
 
 	// Settings service for loading initial theme configuration
@@ -122,9 +123,14 @@ function RootComponent() {
 
 	// Initialize database and load settings on app startup
 	useEffect(() => {
-		// Wait for auth loading to complete before initializing
-		if (authLoading) {
+		// Wait for auth loading to complete before initializing, but only during initial auth check
+		if (authLoading && isInitialAuthCheck) {
 			return;
+		}
+
+		// Mark that initial auth check is complete once auth loading finishes for the first time
+		if (!authLoading && isInitialAuthCheck) {
+			setIsInitialAuthCheck(false);
 		}
 
 		let isMobileCleanup: (() => void) | null = null;
@@ -136,7 +142,7 @@ function RootComponent() {
 				if (db) {
 					initContext({
 						db: db,
-						PROVIDER_CLOUDFLARE_BUILTIN: import.meta.env.PROVIDER_CLOUDFLARE_BUILTIN === "true",
+						providerCloudflareBuiltin: import.meta.env.PROVIDER_CLOUDFLARE_BUILTIN === "true",
 					});
 					await initSettings();
 					isMobileCleanup = initIsMobile();
@@ -157,10 +163,11 @@ function RootComponent() {
 				isMobileCleanup();
 			}
 		};
-	}, [authLoading]);
+	}, [authLoading, isInitialAuthCheck, setIsInitialAuthCheck]);
 
-	// Show loading screen during auth loading or app initialization
-	if (authLoading || (!isInitialized && !initError)) {
+	// Show loading screen during initial auth loading or app initialization
+	// After initial auth check, subsequent auth operations won't trigger global loading
+	if ((authLoading && isInitialAuthCheck) || (!isInitialized && !initError)) {
 		return (
 			<div className="flex min-h-app items-center justify-center bg-background md:min-h-screen">
 				<div className="space-y-4 text-center">

@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react-swc";
 import TOML from "smol-toml";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { analyzer } from "vite-bundle-analyzer";
 
 // Read wrangler.toml configuration
@@ -25,11 +25,12 @@ function readWranglerConfig() {
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
+	const env = loadEnv(mode, process.cwd(), "");
 	const wranglerVars = readWranglerConfig();
 
 	// Adapted to work in both Cloudflare Workers and Node.js environments
 	function getEnv(key: string, defaultValue?: string): string | undefined {
-		const envValue = process.env[key] || wranglerVars[key];
+		const envValue = process.env[key] || env[key] || wranglerVars[key];
 		if (envValue !== undefined) {
 			return JSON.stringify(envValue);
 		}
@@ -77,6 +78,9 @@ export default defineConfig(({ mode }) => {
 		define: {
 			"import.meta.env.RUNTIME": getEnv("RUNTIME"),
 			"import.meta.env.MODE": getEnv("MODE"),
+			"import.meta.env.AUTH_EMAIL_VERIFICATION_ENABLED": getEnv("AUTH_EMAIL_VERIFICATION_ENABLED"),
+			"import.meta.env.AUTH_SOCIAL_GOOGLE_ENABLED": getEnv("AUTH_SOCIAL_GOOGLE_ENABLED"),
+			"import.meta.env.AUTH_SOCIAL_GITHUB_ENABLED": getEnv("AUTH_SOCIAL_GITHUB_ENABLED"),
 			"import.meta.env.PROVIDER_CLOUDFLARE_BUILTIN": getEnv("PROVIDER_CLOUDFLARE_BUILTIN"),
 		},
 	};

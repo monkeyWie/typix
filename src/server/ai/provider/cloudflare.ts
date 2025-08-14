@@ -42,7 +42,7 @@ const Cloudflare: AiProvider = {
 	id: "cloudflare",
 	name: "Cloudflare AI",
 	settings: () => {
-		return inCfWorker && getContext().PROVIDER_CLOUDFLARE_BUILTIN === true
+		return inCfWorker && getContext().providerCloudflareBuiltin === true
 			? cloudflareSettingsBuiltinSchema
 			: cloudflareSettingsNotBuiltInSchema;
 	},

@@ -1,10 +1,15 @@
 import type { ExecutionContext } from "hono";
+import type { Resend } from "resend";
 import type { DrizzleDb } from "../db";
 
 interface ServiceContext {
 	db: DrizzleDb;
 	AI?: Ai;
-	PROVIDER_CLOUDFLARE_BUILTIN?: boolean;
+	resend?: {
+		instance: Resend;
+		from: string;
+	};
+	providerCloudflareBuiltin?: boolean;
 }
 
 let serviceContext: ServiceContext | null = null;

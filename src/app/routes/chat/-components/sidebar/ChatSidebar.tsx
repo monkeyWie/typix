@@ -1,5 +1,5 @@
 import { LoginButton } from "@/app/components/login/LoginButton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar";
+import { UserMenu } from "@/app/components/navigation/UserMenu";
 import { Button } from "@/app/components/ui/button";
 import {
 	DropdownMenu,
@@ -13,8 +13,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { cn } from "@/app/lib/utils";
 import { mode } from "@/server/lib/env";
 import type { chatService } from "@/server/service/chat";
-import { useNavigate } from "@tanstack/react-router";
-import { MoreVertical, Palette, PanelLeftClose, PanelRightClose, Plus, Settings, Trash2 } from "lucide-react";
+import { MoreVertical, Palette, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSidebar } from "../../-hooks/useChatSidebar";
@@ -50,7 +49,6 @@ export function ChatSidebar({
 	const { t } = useTranslation();
 	const { isOpen, toggle, setOpen, isMobile } = useSidebar();
 	const { isLogin: isAuthenticated } = useAuth();
-	const navigate = useNavigate();
 
 	// State to control when to show the expand button (after sidebar is fully hidden)
 	const [showExpandButton, setShowExpandButton] = useState(!isOpen);
@@ -201,37 +199,11 @@ export function ChatSidebar({
 			</div>
 			{/* BOTTOM SECTION - Fixed height at bottom (User Profile or Login) */}
 			{mode !== "client" && (
-				<div className="mt-auto flex-shrink-0 border-border border-t bg-muted/30">
+				<div className="mt-auto flex-shrink-0">
 					<div className="p-4">
 						{isAuthenticated ? (
-							/* Logged in user profile */
-							<div className="flex items-center gap-3">
-								<Avatar className="h-9 w-9 ring-2 ring-primary/20">
-									<AvatarImage src={user.avatar} alt={t("user.avatar")} />
-									<AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 font-semibold text-primary-foreground text-sm">
-										{user.nickname.charAt(0).toUpperCase()}
-									</AvatarFallback>
-								</Avatar>
-								<div className="flex-1 overflow-hidden">
-									<div className="truncate font-medium text-sm leading-tight">{user.nickname}</div>
-									<div className="mt-1 flex items-center gap-1.5">
-										<div className="h-2 w-2 rounded-full bg-green-500" />
-										<span className="text-muted-foreground text-xs">{t("user.online")}</span>
-									</div>
-								</div>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => {
-										navigate({ to: "/settings", search: {} });
-										if (isMobile) closeSidebar();
-									}}
-									className="h-8 w-8 transition-colors hover:bg-accent"
-									title={t("settings.title")}
-								>
-									<Settings className="h-4 w-4" />
-								</Button>
-							</div>
+							/* Logged in user profile with UserMenu */
+							<UserMenu showLoginButton={false} className="w-full" />
 						) : (
 							/* Login prompt for non-authenticated users */
 							<div className="space-y-3">
