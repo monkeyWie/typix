@@ -1,9 +1,8 @@
+import ProviderIcon from "@/app/components/icon/ProviderIcon";
 import { Button } from "@/app/components/ui/button";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { cn } from "@/app/lib/utils";
 import type { ProviderSection } from "@/app/routes/settings/provider/-hooks/useProviders";
-import { ProviderIcon } from "@lobehub/icons";
-import { LucideCpu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface ProviderNavigationProps {

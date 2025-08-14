@@ -1,7 +1,7 @@
+import ProviderIcon from "@/app/components/icon/ProviderIcon";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
 import type { ErrorReason } from "@/server/db/schemas/chat";
-import { ProviderIcon } from "@lobehub/icons";
 import { useNavigate } from "@tanstack/react-router";
 import { RefreshCw, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";

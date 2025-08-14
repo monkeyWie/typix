@@ -1,6 +1,6 @@
 import { Switch } from "@/app/components/ui/switch";
 import { useAiService } from "@/app/hooks/useService";
-import { ModelIcon, ProviderIcon } from "@lobehub/icons";
+import { ModelIcon } from "@lobehub/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ModelListSkeleton } from "./ModelListSkeleton";

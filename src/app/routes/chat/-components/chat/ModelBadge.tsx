@@ -1,4 +1,4 @@
-import { ProviderIcon } from "@lobehub/icons";
+import ProviderIcon from "@/app/components/icon/ProviderIcon";
 import { ModelSelector } from "./ModelSelector";
 
 interface ModelBadgeProps {

@@ -268,8 +268,8 @@
 			"settings": {
 				"apiKey": {
 					"title": "API Key",
-					"description": "Your BFL API key for authentication",
-					"placeholder": "Enter your BFL API key"
+					"description": "Your API key for authentication",
+					"placeholder": "Enter your API key"
 				}
 			},
 			"models": {

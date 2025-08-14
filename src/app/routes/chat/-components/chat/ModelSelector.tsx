@@ -1,7 +1,7 @@
+import ProviderIcon from "@/app/components/icon/ProviderIcon";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { useAiService } from "@/app/hooks/useService";
-import { ProviderIcon } from "@lobehub/icons";
 
 interface ModelSelectorProps {
 	currentProvider: string;

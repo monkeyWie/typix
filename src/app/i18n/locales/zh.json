@@ -268,8 +268,8 @@
 			"settings": {
 				"apiKey": {
 					"title": "API密钥",
-					"description": "用于身份验证的BFL API密钥",
-					"placeholder": "输入您的BFL API密钥"
+					"description": "用于身份验证的API密钥",
+					"placeholder": "输入您的API密钥"
 				}
 			},
 			"models": {
