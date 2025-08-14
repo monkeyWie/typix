@@ -24,6 +24,7 @@ interface ChatAreaProps {
 	onModelChange?: (provider: string, model: string) => void;
 	onMessageUpdate?: (messageId: string, updates: Partial<ChatData["messages"][0]>) => void;
 	onRetry?: (messageId: string) => Promise<void>;
+	onDeleteMessage?: (messageId: string) => Promise<void>;
 	// Fallback values when there's no current chat
 	fallbackProvider?: string;
 	fallbackModel?: string;
@@ -43,6 +44,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
 			onModelChange,
 			onMessageUpdate,
 			onRetry,
+			onDeleteMessage,
 			fallbackProvider,
 			fallbackModel,
 		},
@@ -230,6 +232,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
 													allMessages={displayChat.messages}
 													onMessageUpdate={onMessageUpdate}
 													onRetry={onRetry}
+													onDelete={onDeleteMessage}
 												/>
 											</div>
 										);

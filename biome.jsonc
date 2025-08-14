@@ -7,14 +7,8 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"include": [
-			"src",
-			"docs/src"
-		],
-		"ignore": [
-			"src/app/components/ui/*.tsx",
-			"src/app/routeTree.gen.ts"
-		]
+		"include": ["src", "docs/src"],
+		"ignore": ["src/app/components/ui/*.tsx", "src/app/routeTree.gen.ts"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -31,11 +25,7 @@
 					"level": "warn",
 					"fix": "safe",
 					"options": {
-						"functions": [
-							"clsx",
-							"cva",
-							"cn"
-						]
+						"functions": ["clsx", "cva", "cn"]
 					}
 				}
 			},

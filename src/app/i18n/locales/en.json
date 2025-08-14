@@ -43,6 +43,11 @@
 		"generatedOrUploaded": "Generated or uploaded",
 		"ai": "AI",
 		"clickToEnlarge": "Click to enlarge image",
+		"actions": {
+			"copy": "Copy",
+			"download": "Download",
+			"delete": "Delete"
+		},
 		"error": {
 			"title": "Error",
 			"default": "An error occurred while sending the message",

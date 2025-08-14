@@ -43,6 +43,11 @@
 		"generatedOrUploaded": "生成或上传的图片",
 		"ai": "AI",
 		"clickToEnlarge": "点击放大图片",
+		"actions": {
+			"copy": "复制",
+			"download": "下载",
+			"delete": "删除"
+		},
 		"error": {
 			"title": "错误",
 			"default": "发送消息时发生错误",

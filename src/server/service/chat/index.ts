@@ -186,6 +186,36 @@ const updateChat = async (req: UpdateChat, ctx: RequestContext) => {
 	return true;
 };
 
+export const DeleteMessageSchema = z.object({
+	messageId: z.string().nonempty(),
+});
+export type DeleteMessage = z.infer<typeof DeleteMessageSchema>;
+const deleteMessage = async (req: DeleteMessage, ctx: RequestContext) => {
+	const { db } = getContext();
+	const { userId } = ctx;
+
+	// Find the message and verify ownership
+	const message = await db.query.messages.findFirst({
+		where: eq(messages.id, req.messageId),
+		with: {
+			chat: true,
+			generation: true,
+		},
+	});
+
+	if (!message || message.chat.userId !== userId) {
+		throw new ServiceException("not_found", "Message not found");
+	}
+
+	// Delete the message (this should cascade delete associated generation via foreign key constraint)
+	await db.delete(messages).where(eq(messages.id, req.messageId));
+
+	// Update chat timestamp
+	await db.update(chats).set({ updatedAt: new Date().toISOString() }).where(eq(chats.id, message.chatId));
+
+	return true;
+};
+
 export const CreateMessageSchema = createInsertSchema(messages)
 	.omit(createSchemaOmits)
 	.pick({
@@ -538,6 +568,7 @@ class ChatService {
 	deleteChat = deleteChat;
 	updateChat = updateChat;
 	createMessage = createMessage;
+	deleteMessage = deleteMessage;
 	getGenerationStatus = getGenerationStatus;
 	regenerateMessage = regenerateMessage;
 }

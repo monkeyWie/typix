@@ -464,6 +464,36 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 		[currentChatMutate],
 	);
 
+	// Delete message functionality
+	const deleteMessage = useCallback(
+		async (messageId: string) => {
+			if (!currentChatId) return;
+
+			try {
+				// Optimistically remove the message from UI
+				currentChatMutate((currentData) => {
+					if (!currentData) return currentData;
+
+					return {
+						...currentData,
+						messages: currentData.messages.filter((msg) => msg.id !== messageId),
+					};
+				}, false);
+
+				// Call the API to delete from server
+				await chatService.deleteMessage({ messageId });
+
+				// Revalidate chat data to ensure consistency
+				await currentChatMutate();
+			} catch (error) {
+				// Revert the optimistic update on error
+				await currentChatMutate();
+				throw error;
+			}
+		},
+		[currentChatId, currentChatMutate, chatService],
+	);
+
 	// Regenerate message functionality
 	const regenerateMessage = useCallback(
 		async (messageId: string) => {
@@ -556,6 +586,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 		switchChat,
 		clearChat,
 		updateMessage,
+		deleteMessage,
 		regenerateMessage,
 	};
 };

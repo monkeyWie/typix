@@ -57,6 +57,7 @@ function ChatPageContent() {
 		deleteChat,
 		updateChat,
 		updateMessage,
+		deleteMessage,
 		regenerateMessage,
 	} = useChat(chatId, selectedProvider, selectedModel);
 
@@ -218,6 +219,7 @@ function ChatPageContent() {
 					onModelChange={handleModelChange}
 					onMessageUpdate={updateMessage}
 					onRetry={regenerateMessage}
+					onDeleteMessage={deleteMessage}
 					// Pass selected provider/model for when there's no current chat
 					fallbackProvider={selectedProvider}
 					fallbackModel={selectedModel}

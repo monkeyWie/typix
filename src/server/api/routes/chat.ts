@@ -1,6 +1,7 @@
 import {
 	CreateChatSchema,
 	CreateMessageSchema,
+	DeleteMessageSchema,
 	GetChatByIdSchema,
 	GetGenerationStatusSchema,
 	RegenerateMessageSchema,
@@ -60,6 +61,13 @@ const app = new Hono<Env>()
 		const req = c.req.valid("json");
 
 		return c.json(ok(await chatService.createMessage(req, { userId: user.id, executionCtx: c.executionCtx })));
+	})
+	.post("/deleteMessage", zValidator("json", DeleteMessageSchema), async (c) => {
+		const user = c.var.user!;
+		const req = c.req.valid("json");
+
+		const success = await chatService.deleteMessage(req, { userId: user.id });
+		return c.json(ok({ success }));
 	})
 	.post("/getGenerationStatus", zValidator("json", GetGenerationStatusSchema), async (c) => {
 		const user = c.var.user!;
