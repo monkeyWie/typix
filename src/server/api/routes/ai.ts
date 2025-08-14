@@ -1,4 +1,6 @@
 import { getProviderById } from "@/server/ai/provider";
+import type { TypixChatApiResponse } from "@/server/ai/types/api";
+import { ConfigInvalidError } from "@/server/ai/types/provider";
 import { ServiceException } from "@/server/lib/exception";
 import {
 	GetAiModelsByProviderIdSchema,
@@ -67,8 +69,15 @@ const app = new Hono<Env>()
 				throw new ServiceException("not_found", "AI provider not found in system");
 			}
 
-			const response = await aiProviderInstance.generate(req.request, req.settings);
-			return c.json(ok(response));
+			try {
+				const response = await aiProviderInstance.generate(req.request, req.settings);
+				return c.json(ok(response));
+			} catch (error) {
+				if (error instanceof ConfigInvalidError) {
+					return c.json(ok({ errorReason: "CONFIG_INVALID", images: [] } as TypixChatApiResponse));
+				}
+				throw error;
+			}
 		},
 	);
 
