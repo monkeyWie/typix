@@ -11,7 +11,7 @@ interface ModelBadgeProps {
 export function ModelBadge({ currentProvider, currentModel, onModelChange, isNewChat = false }: ModelBadgeProps) {
 	return (
 		<div className="flex items-center gap-2">
-			<ProviderIcon forceMono provider={currentProvider} type="mono" className="h-6 w-6" />
+			{currentProvider && <ProviderIcon forceMono provider={currentProvider} type="mono" className="h-6 w-6" />}
 			<ModelSelector
 				currentProvider={currentProvider}
 				currentModel={currentModel}

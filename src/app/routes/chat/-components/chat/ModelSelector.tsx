@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
+import { Skeleton } from "@/app/components/ui/skeleton";
 import { useAiService } from "@/app/hooks/useService";
 import { ProviderIcon } from "@lobehub/icons";
-import { useTranslation } from "react-i18next";
 
 interface ModelSelectorProps {
 	currentProvider: string;
@@ -12,7 +12,6 @@ interface ModelSelectorProps {
 }
 
 export function ModelSelector({ currentProvider, currentModel, onModelChange, isNewChat = false }: ModelSelectorProps) {
-	const { t, i18n } = useTranslation();
 	const aiService = useAiService();
 
 	// Fetch AI providers and models
@@ -38,8 +37,8 @@ export function ModelSelector({ currentProvider, currentModel, onModelChange, is
 	if (isLoading) {
 		return (
 			<div className="flex items-center gap-2">
-				<div className="h-4 w-4 animate-pulse rounded bg-muted" />
-				<div className="h-4 w-20 animate-pulse rounded bg-muted" />
+				<Skeleton className="h-4 w-4" />
+				<Skeleton className="h-4 w-20" />
 			</div>
 		);
 	}
@@ -48,8 +47,8 @@ export function ModelSelector({ currentProvider, currentModel, onModelChange, is
 	if (!currentProvider || !currentModel) {
 		return (
 			<div className="flex items-center gap-2">
-				<div className="h-4 w-4 animate-pulse rounded bg-muted" />
-				<div className="h-4 w-20 animate-pulse rounded bg-muted" />
+				<Skeleton className="h-4 w-4" />
+				<Skeleton className="h-4 w-20" />
 			</div>
 		);
 	}
