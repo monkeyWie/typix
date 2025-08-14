@@ -35,6 +35,11 @@ jobs:
       - name: Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          AUTH_EMAIL_RESEND_API_KEY: ${{ secrets.AUTH_EMAIL_RESEND_API_KEY }}
+          AUTH_SOCIAL_GOOGLE_CLIENT_ID: ${{ secrets.AUTH_SOCIAL_GOOGLE_CLIENT_ID }}
+          AUTH_SOCIAL_GOOGLE_CLIENT_SECRET: ${{ secrets.AUTH_SOCIAL_GOOGLE_CLIENT_SECRET }}
+          AUTH_SOCIAL_GITHUB_CLIENT_ID: ${{ secrets.AUTH_SOCIAL_GITHUB_CLIENT_ID }}
+          AUTH_SOCIAL_GITHUB_CLIENT_SECRET: ${{ secrets.AUTH_SOCIAL_GITHUB_CLIENT_SECRET }}
         run: |
           # build application
           sed -i "s/DATABASE_ID/${{ secrets.CLOUDFLARE_DATABASE_ID }}/g" wrangler.toml
