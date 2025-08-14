@@ -58,6 +58,7 @@ function ChatPageContent() {
 		deleteChat,
 		updateChat,
 		updateMessage,
+		regenerateMessage,
 	} = useChat(chatId, selectedProvider, selectedModel);
 
 	// Auto-select first available model for new chats only
@@ -217,6 +218,7 @@ function ChatPageContent() {
 					onCreateChat={handleCreateChat}
 					onModelChange={handleModelChange}
 					onMessageUpdate={updateMessage}
+					onRetry={regenerateMessage}
 					// Pass selected provider/model for when there's no current chat
 					fallbackProvider={selectedProvider}
 					fallbackModel={selectedModel}

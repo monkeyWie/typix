@@ -464,6 +464,72 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 		[currentChatMutate],
 	);
 
+	// Regenerate message functionality
+	const regenerateMessage = useCallback(
+		async (messageId: string) => {
+			if (!currentChatId) return;
+
+			try {
+				setIsGenerating(true);
+
+				// Optimistically update the message status to show generating state
+				// Use currentChatMutate to get the latest data and update it
+				currentChatMutate((currentData) => {
+					if (!currentData) return currentData;
+
+					return {
+						...currentData,
+						messages: currentData.messages.map((msg) => {
+							if (msg.id === messageId && msg.generation) {
+								return {
+									...msg,
+									generation: {
+										...msg.generation,
+										status: "pending" as const,
+										fileIds: null,
+										errorReason: null,
+									},
+								};
+							}
+							return msg;
+						}),
+					};
+				}, false);
+
+				// Call the API
+				await chatService.regenerateMessage({ messageId });
+
+				// The polling mechanism in ChatMessageItem will handle updating the UI
+			} catch (error) {
+				console.error("Failed to regenerate message:", error);
+				// Revert to failed state on error
+				currentChatMutate((currentData) => {
+					if (!currentData) return currentData;
+
+					return {
+						...currentData,
+						messages: currentData.messages.map((msg) => {
+							if (msg.id === messageId && msg.generation) {
+								return {
+									...msg,
+									generation: {
+										...msg.generation,
+										status: "failed" as const,
+										errorReason: "UNKNOWN",
+									},
+								};
+							}
+							return msg;
+						}),
+					};
+				}, false);
+			} finally {
+				setIsGenerating(false);
+			}
+		},
+		[chatService, currentChatId, currentChatMutate],
+	);
+
 	// Transform user data to match the expected format
 	const transformedUser = useMemo(() => {
 		if (!user) return guestUser; // Fallback to mock user if not authenticated
@@ -490,5 +556,6 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 		switchChat,
 		clearChat,
 		updateMessage,
+		regenerateMessage,
 	};
 };

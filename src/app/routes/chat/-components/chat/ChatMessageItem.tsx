@@ -24,12 +24,14 @@ interface ChatMessageItemProps {
 	user: User;
 	allMessages?: ChatMessage[]; // Add all messages to get all images
 	onMessageUpdate?: (messageId: string, updates: Partial<ChatMessage>) => void;
+	onRetry?: (messageId: string) => Promise<void>; // Add retry callback
 }
 
-export function ChatMessageItem({ message, user, allMessages, onMessageUpdate }: ChatMessageItemProps) {
+export function ChatMessageItem({ message, user, allMessages, onMessageUpdate, onRetry }: ChatMessageItemProps) {
 	const { t } = useTranslation();
 	const chatService = useChatService();
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	const skipPoll = useRef<boolean>(false);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const isUser = message.role === "user"; // Get all images from the chat
@@ -89,6 +91,10 @@ export function ChatMessageItem({ message, user, allMessages, onMessageUpdate }:
 		if (isMessageGenerating && generationId && onMessageUpdate) {
 			const pollStatus = async () => {
 				try {
+					if (skipPoll.current) {
+						return;
+					}
+
 					const status = await chatService.getGenerationStatus({
 						generationId: generationId!,
 					});
@@ -115,7 +121,7 @@ export function ChatMessageItem({ message, user, allMessages, onMessageUpdate }:
 			// Start polling every 3 seconds
 			intervalRef.current = setInterval(pollStatus, 3000);
 
-			// Also poll immediately
+			// Also poll immediately (unless skipFirstPoll is set)
 			pollStatus();
 
 			// Cleanup on unmount or when generation is no longer pending
@@ -211,9 +217,14 @@ export function ChatMessageItem({ message, user, allMessages, onMessageUpdate }:
 								<GenerationErrorItem
 									errorReason={message.generation?.errorReason || "UNKNOWN"}
 									provider={message.generation?.provider}
-									onRetry={() => {
-										// TODO: Implement retry functionality
-										console.log("Retry generation for message:", message.id);
+									onRetry={async () => {
+										skipPoll.current = true;
+										try {
+											// Call the retry callback with message ID
+											await onRetry?.(message.id);
+										} finally {
+											skipPoll.current = false;
+										}
 									}}
 								/>
 							</div>

@@ -23,6 +23,7 @@ interface ChatAreaProps {
 	onCreateChat?: () => void;
 	onModelChange?: (provider: string, model: string) => void;
 	onMessageUpdate?: (messageId: string, updates: Partial<ChatData["messages"][0]>) => void;
+	onRetry?: (messageId: string) => void;
 	// Fallback values when there's no current chat
 	fallbackProvider?: string;
 	fallbackModel?: string;
@@ -34,7 +35,17 @@ export interface ChatAreaRef {
 
 export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
 	(
-		{ chat, user, isGenerating, onCreateChat, onModelChange, onMessageUpdate, fallbackProvider, fallbackModel },
+		{
+			chat,
+			user,
+			isGenerating,
+			onCreateChat,
+			onModelChange,
+			onMessageUpdate,
+			onRetry,
+			fallbackProvider,
+			fallbackModel,
+		},
 		ref,
 	) => {
 		const { t } = useTranslation();
@@ -218,6 +229,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
 													user={user}
 													allMessages={displayChat.messages}
 													onMessageUpdate={onMessageUpdate}
+													onRetry={onRetry}
 												/>
 											</div>
 										);

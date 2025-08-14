@@ -3,6 +3,7 @@ import {
 	CreateMessageSchema,
 	GetChatByIdSchema,
 	GetGenerationStatusSchema,
+	RegenerateMessageSchema,
 	UpdateChatSchema,
 	chatService,
 } from "@/server/service/chat";
@@ -65,6 +66,17 @@ const app = new Hono<Env>()
 		const req = c.req.valid("json");
 
 		return c.json(ok(await chatService.getGenerationStatus(req, { userId: user.id })));
+	})
+	.post("/regenerateMessage", zValidator("json", RegenerateMessageSchema), async (c) => {
+		const user = c.var.user!;
+		const req = c.req.valid("json");
+
+		try {
+			const result = await chatService.regenerateMessage(req, { userId: user.id, executionCtx: c.executionCtx });
+			return c.json(ok(result));
+		} catch (err: any) {
+			return c.json(error(err.code || "error", err.message || "Failed to regenerate message"));
+		}
 	});
 
 export default app;

@@ -203,6 +203,133 @@ export const CreateMessageSchema = createInsertSchema(messages)
 	});
 export type CreateMessage = z.infer<typeof CreateMessageSchema>;
 type CreateMessageResponse = Pick<NonNullable<Awaited<ReturnType<typeof getChatById>>>, "messages">;
+
+// Common image generation logic
+interface GenerationParams {
+	generationId: string;
+	prompt: string;
+	provider: string;
+	model: string;
+	chatId: string;
+	userId: string;
+	userImages?: string[];
+	messageId?: string; // For regeneration, exclude this message from reference search
+}
+
+const executeImageGeneration = async (params: GenerationParams, ctx: RequestContext) => {
+	const { db } = getContext();
+	const { generationId, prompt, provider: providerId, model: modelId, chatId, userId, userImages, messageId } = params;
+
+	try {
+		const providerInstance = getProviderById(providerId);
+		const provider = await aiService.getAiProviderById({ providerId }, ctx);
+		const settings =
+			provider?.settings?.reduce((acc, setting) => {
+				const value = setting.value ?? setting.defaultValue;
+				if (value !== undefined) {
+					acc[setting.key] = value;
+				}
+				return acc;
+			}, {} as ApiProviderSettings) ?? {};
+
+		const model = providerInstance.models.find((m) => m.id === modelId);
+		let referImages: string[] | undefined;
+
+		// Always use user uploaded images if provided
+		if (userImages && userImages.length > 0) {
+			referImages = userImages;
+		} else if (model?.ability !== "t2i") {
+			// If no user images and model supports image edit, refer to last message's images
+			const lastMessageImage = async () => {
+				const whereConditions = [
+					eq(messages.chatId, chatId),
+					eq(messages.role, "assistant"),
+					eq(messages.type, "image"),
+				];
+
+				// Exclude the current message being regenerated
+				if (messageId) {
+					whereConditions.push(ne(messages.id, messageId));
+				}
+
+				const lastMessage = await db.query.messages.findFirst({
+					where: and(...whereConditions),
+					orderBy: [desc(messages.createdAt)],
+					with: {
+						generation: {
+							columns: {
+								fileIds: true,
+							},
+						},
+					},
+				});
+				const fileIds = lastMessage?.generation?.fileIds as string[] | null;
+				if (fileIds && fileIds.length > 0) {
+					switch (model?.ability) {
+						case "i2i": {
+							// For i2i models, use appropriate number of images based on maxInputImages
+							const maxImages = model.maxInputImages || 1;
+							if (maxImages === 1) {
+								// For single image edit, use the last image
+								return [await getFileData(fileIds[fileIds.length - 1]!, userId)].filter(Boolean) as string[];
+							}
+							// For multi image edit, use all images up to the limit
+							const imagesToUse = fileIds.slice(-maxImages);
+							return (await Promise.all(imagesToUse.map((id) => getFileData(id, userId)))).filter(Boolean) as string[];
+						}
+					}
+				}
+			};
+
+			referImages = await lastMessageImage();
+		}
+
+		const result = await providerInstance.generate(
+			{
+				providerId,
+				modelId,
+				prompt,
+				images: referImages,
+			},
+			settings,
+		);
+		if (result.errorReason) {
+			await db
+				.update(generations)
+				.set({
+					status: "failed",
+					errorReason: result.errorReason,
+				})
+				.where(eq(generations.id, generationId));
+			return;
+		}
+
+		const now = new Date();
+		// Save generated files to database
+		const fileIds = await saveFiles(result.images, userId);
+		// Update generation with result URLs
+		await db
+			.update(generations)
+			.set({
+				status: "completed",
+				fileIds,
+				generationTime: Date.now() - now.getTime(),
+				updatedAt: now.toISOString(),
+			})
+			.where(eq(generations.id, generationId));
+	} catch (error) {
+		console.error("Error generating image:", error);
+		await db
+			.update(generations)
+			.set({
+				status: "failed",
+				errorReason: error instanceof ConfigInvalidError ? "CONFIG_INVALID" : "UNKNOWN",
+			})
+			.where(eq(generations.id, generationId));
+		return;
+	}
+};
+
 const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 	const { db } = getContext();
 	const { userId } = ctx;
@@ -263,113 +390,21 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 		throw new ServiceException("error", "Failed to create assistant message");
 	}
 
-	// Generate image using AI provider asynchronously
-	const generateImage = async () => {
-		try {
-			const providerInstance = getProviderById(req.provider);
-			const provider = await aiService.getAiProviderById({ providerId: req.provider }, ctx);
-			const settings =
-				provider?.settings?.reduce((acc, setting) => {
-					const value = setting.value ?? setting.defaultValue;
-					if (value !== undefined) {
-						acc[setting.key] = value;
-					}
-					return acc;
-				}, {} as ApiProviderSettings) ?? {};
+	// Execute image generation using common logic
+	const generateImage = () =>
+		executeImageGeneration(
+			{
+				generationId: generation!.id,
+				prompt: req.content,
+				provider: req.provider,
+				model: req.model,
+				chatId: req.chatId,
+				userId,
+				userImages: req.images,
+			},
+			ctx,
+		);
 
-			const model = providerInstance.models.find((m) => m.id === req.model);
-			let referImages: string[] | undefined;
-
-			// Always use user uploaded images if provided
-			if (req.images && req.images.length > 0) {
-				referImages = req.images;
-			} else if (model?.ability !== "t2i") {
-				// If no user images and model supports image edit, refer to last message's images
-				const lastMessageImage = async () => {
-					const lastMessage = await db.query.messages.findFirst({
-						where: and(
-							eq(messages.chatId, req.chatId),
-							ne(messages.id, assistantMessage.id),
-							eq(messages.role, "assistant"),
-							eq(messages.type, "image"),
-						),
-						orderBy: [desc(messages.createdAt)],
-						with: {
-							generation: {
-								columns: {
-									fileIds: true,
-								},
-							},
-						},
-					});
-					const fileIds = lastMessage?.generation?.fileIds as string[] | null;
-					if (fileIds && fileIds.length > 0) {
-						switch (model?.ability) {
-							case "i2i": {
-								// For i2i models, use appropriate number of images based on maxInputImages
-								const maxImages = model.maxInputImages || 1;
-								if (maxImages === 1) {
-									// For single image edit, use the last image
-									return [await getFileData(fileIds[fileIds.length - 1]!, userId)].filter(Boolean) as string[];
-								}
-								// For multi image edit, use all images up to the limit
-								const imagesToUse = fileIds.slice(-maxImages);
-								return (await Promise.all(imagesToUse.map((id) => getFileData(id, userId)))).filter(
-									Boolean,
-								) as string[];
-							}
-						}
-					}
-				};
-
-				referImages = await lastMessageImage();
-			}
-
-			const result = await providerInstance.generate(
-				{
-					providerId: req.provider,
-					modelId: req.model,
-					prompt: req.content,
-					images: referImages,
-				},
-				settings,
-			);
-			if (result.errorReason) {
-				await db
-					.update(generations)
-					.set({
-						status: "failed",
-						errorReason: result.errorReason,
-					})
-					.where(eq(generations.id, generation!.id));
-				return;
-			}
-
-			const now = new Date();
-			// Save generated files to database
-			const fileIds = await saveFiles(result.images, userId);
-			// Update generation with result URLs
-			await db
-				.update(generations)
-				.set({
-					status: "completed",
-					fileIds,
-					generationTime: Date.now() - now.getTime(),
-					updatedAt: now.toISOString(),
-				})
-				.where(eq(generations.id, generation!.id));
-		} catch (error) {
-			console.error("Error generating image:", error);
-			await db
-				.update(generations)
-				.set({
-					status: "failed",
-					errorReason: error instanceof ConfigInvalidError ? "CONFIG_INVALID" : "UNKNOWN",
-				})
-				.where(eq(generations.id, generation!.id));
-			return;
-		}
-	};
 	if (!inBrowser && inCfWorker) {
 		// Run generation in background for Cloudflare Workers
 		ctx.executionCtx!.waitUntil(generateImage());
@@ -413,6 +448,89 @@ const getGenerationStatus = async (req: GetGenerationStatus, ctx: RequestContext
 	};
 };
 
+export const RegenerateMessageSchema = z.object({
+	messageId: z.string(),
+});
+export type RegenerateMessage = z.infer<typeof RegenerateMessageSchema>;
+const regenerateMessage = async (req: RegenerateMessage, ctx: RequestContext) => {
+	const { db } = getContext();
+	const { userId } = ctx;
+
+	// Find the message to regenerate
+	const message = await db.query.messages.findFirst({
+		where: eq(messages.id, req.messageId),
+		with: {
+			generation: true,
+			chat: true,
+		},
+	});
+
+	if (!message || message.userId !== userId || message.role !== "assistant") {
+		throw new ServiceException("not_found", "Message not found or not regeneratable");
+	}
+
+	if (!message.generation) {
+		throw new ServiceException("invalid_parameter", "Message has no generation to regenerate");
+	}
+
+	const originalGeneration = message.generation;
+	const chat = message.chat;
+
+	if (!chat) {
+		throw new ServiceException("not_found", "Chat not found");
+	}
+
+	// Reset the existing generation record to pending status
+	await db
+		.update(generations)
+		.set({
+			status: "pending",
+			fileIds: null, // Clear previous results
+			errorReason: null, // Clear previous errors
+			generationTime: null, // Clear previous timing
+			updatedAt: new Date().toISOString(),
+		})
+		.where(eq(generations.id, originalGeneration.id));
+
+	// Reset message content while regenerating
+	await db
+		.update(messages)
+		.set({
+			content: "", // Reset content while regenerating
+		})
+		.where(eq(messages.id, req.messageId));
+
+	// Update chat timestamp
+	await db.update(chats).set({ updatedAt: new Date().toISOString() }).where(eq(chats.id, chat.id));
+
+	// Execute image generation using common logic
+	const generateImage = () =>
+		executeImageGeneration(
+			{
+				generationId: originalGeneration.id, // Use existing generation ID
+				prompt: originalGeneration.prompt,
+				provider: originalGeneration.provider,
+				model: originalGeneration.model,
+				chatId: chat.id,
+				userId,
+				messageId: req.messageId, // Exclude this message from reference search
+			},
+			ctx,
+		);
+
+	if (!inBrowser && inCfWorker) {
+		// Run generation in background for Cloudflare Workers
+		ctx.executionCtx!.waitUntil(generateImage());
+	} else {
+		generateImage();
+	}
+
+	return {
+		messageId: req.messageId,
+		generationId: originalGeneration.id, // Return the existing generation ID
+	};
+};
+
 class ChatService {
 	createChat = createChat;
 	getChats = getChats;
@@ -421,6 +539,7 @@ class ChatService {
 	updateChat = updateChat;
 	createMessage = createMessage;
 	getGenerationStatus = getGenerationStatus;
+	regenerateMessage = regenerateMessage;
 }
 
 export const chatService = new ChatService();
