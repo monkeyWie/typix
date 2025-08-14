@@ -9,6 +9,7 @@
 		"build": "tsc -b && cross-env RUNTIME=cloudflare vite build",
 		"build:node": "tsc -b && vite build && tsup --minify",
 		"analyze": "vite build --mode analyze",
+		"fmt": "biome format --write .",
 		"lint": "eslint .",
 		"preview": "vite preview",
 		"db:generate": "drizzle-kit generate",

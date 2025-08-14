@@ -128,7 +128,6 @@
 }
 
 @keyframes float {
-
 	0%,
 	100% {
 		transform: translateY(0px);
@@ -140,7 +139,6 @@
 }
 
 @keyframes pulse-glow {
-
 	0%,
 	100% {
 		box-shadow: 0 0 5px oklch(var(--primary) / 0.3);
@@ -157,7 +155,6 @@
 }
 
 @keyframes gradient-shift {
-
 	0%,
 	100% {
 		background-position: 0% 50%;
