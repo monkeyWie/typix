@@ -8,7 +8,11 @@ export const createDb = async (client: any) => {
 	}
 	const { drizzle } = await import("drizzle-orm/libsql");
 	const { client: sqliteClient } = await import("./sqlite");
-	return drizzle(sqliteClient, { schema, casing: "snake_case" });
+	return drizzle(sqliteClient, {
+		schema,
+		casing: "snake_case",
+		logger: process.env.NODE_ENV === "development" ? true : undefined,
+	});
 };
 
 export type DrizzleDb = Awaited<ReturnType<typeof createDb>>;

@@ -66,7 +66,7 @@ export function ModelSelector({ currentProvider, currentModel, onModelChange, is
 						<div key={provider.id}>
 							{/* Provider group header */}
 							<div className="flex items-center gap-2 px-2 py-1.5 font-medium text-muted-foreground text-sm">
-								<ProviderIcon forceMono provider={provider.id} type="mono" className="h-4 w-4" />
+								<ProviderIcon provider={provider.id} type="mono" className="h-4 w-4" />
 								{provider.name}
 							</div>
 

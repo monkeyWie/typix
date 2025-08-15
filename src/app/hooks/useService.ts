@@ -78,7 +78,6 @@ function createEnhancedService<T>(baseService: T): EnhancedService<T> {
 				// Add SWR method - create a fetcher that calls the original method
 				enhancedMethod.swr = (key: string | null, ...args: any[]) => {
 					const fetcher = async () => {
-						console.log("SWR fetcher called with args:", args);
 						// Add localUserId as the last parameter
 						return await originalMethod.call(target, ...args, requestContext);
 					};

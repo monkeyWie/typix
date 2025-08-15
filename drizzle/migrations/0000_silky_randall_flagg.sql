@@ -110,11 +110,10 @@ CREATE TABLE `ai_models` (
 	`enabled` integer DEFAULT true NOT NULL,
 	`user_id` text NOT NULL,
 	`created_at` text NOT NULL,
-	`updated_at` text NOT NULL,
-	FOREIGN KEY (`provider_id`) REFERENCES `ai_providers`(`id`) ON UPDATE no action ON DELETE cascade
+	`updated_at` text NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `ai_models_providerId_modelId_unique` ON `ai_models` (`provider_id`,`model_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `ai_models_userId_providerId_modelId_unique` ON `ai_models` (`user_id`,`provider_id`,`model_id`);--> statement-breakpoint
 CREATE TABLE `ai_providers` (
 	`id` text PRIMARY KEY NOT NULL,
 	`provider_id` text NOT NULL,
@@ -126,6 +125,7 @@ CREATE TABLE `ai_providers` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `ai_providers_providerId_unique` ON `ai_providers` (`provider_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `ai_providers_userId_providerId_unique` ON `ai_providers` (`user_id`,`provider_id`);--> statement-breakpoint
 CREATE TABLE `files` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,

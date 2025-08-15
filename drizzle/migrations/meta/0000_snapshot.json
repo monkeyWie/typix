@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "2505c767-2fae-4df3-a6de-f59692802ad9",
+  "id": "0d29dca8-9ba8-423e-83a9-0346e461efe8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -750,30 +750,17 @@
         }
       },
       "indexes": {
-        "ai_models_providerId_modelId_unique": {
-          "name": "ai_models_providerId_modelId_unique",
+        "ai_models_userId_providerId_modelId_unique": {
+          "name": "ai_models_userId_providerId_modelId_unique",
           "columns": [
+            "user_id",
             "provider_id",
             "model_id"
           ],
           "isUnique": true
         }
       },
-      "foreignKeys": {
-        "ai_models_provider_id_ai_providers_id_fk": {
-          "name": "ai_models_provider_id_ai_providers_id_fk",
-          "tableFrom": "ai_models",
-          "tableTo": "ai_providers",
-          "columnsFrom": [
-            "provider_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -836,6 +823,14 @@
         "ai_providers_providerId_unique": {
           "name": "ai_providers_providerId_unique",
           "columns": [
+            "provider_id"
+          ],
+          "isUnique": true
+        },
+        "ai_providers_userId_providerId_unique": {
+          "name": "ai_providers_userId_providerId_unique",
+          "columns": [
+            "user_id",
             "provider_id"
           ],
           "isUnique": true
