@@ -29,7 +29,7 @@ binding = "AI"
 #         Users can choose to remain client mode or sign in for cloud synchronization.
 #         Authenticated users benefit from cross-device data sync and server-side data persistence.
 #         Provides the best of both worlds: instant local access with optional cloud features.
-MODE = "mixed"
+MODE = "client"
 
 # Authentication configuration, only for mixed mode
 #
