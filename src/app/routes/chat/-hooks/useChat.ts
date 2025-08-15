@@ -232,10 +232,12 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 		async (content: string, imageFiles?: File[], targetChatId?: string): Promise<string | null> => {
 			const chatId = targetChatId || currentChatId;
 
-			// Convert image files to base64 data URLs
-			let images: string[] | undefined;
+			// Convert image files to attachments with base64 data
+			let attachments: Array<{ data: string; type: "image" }> | undefined;
+			let images: string[] | undefined; // Keep for backward compatibility
+
 			if (imageFiles && imageFiles.length > 0) {
-				images = await Promise.all(
+				const base64Images = await Promise.all(
 					imageFiles.map((file) => {
 						return new Promise<string>((resolve, reject) => {
 							const reader = new FileReader();
@@ -251,6 +253,12 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 						});
 					}),
 				);
+
+				// Create attachments array
+				attachments = base64Images.map((data) => ({ data, type: "image" as const }));
+
+				// Keep images for backward compatibility
+				images = base64Images;
 			}
 
 			// If no chat is selected, create a new one with content and images
@@ -276,7 +284,8 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 						provider,
 						model,
 						content,
-						images,
+						attachments,
+						images, // Keep for backward compatibility
 					});
 
 					if (!result?.id) {
@@ -312,6 +321,15 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 				generationId: null,
 				metadata: null,
 				generation: null,
+				// Include attachments in optimistic message for immediate display
+				// Match server response structure: { id, type, url }
+				attachments: attachments
+					? attachments.map((attachment, index) => ({
+							id: `temp-attachment-${Date.now()}-${index}`,
+							type: attachment.type,
+							url: attachment.data, // Use base64 data URL for immediate display
+						}))
+					: undefined,
 			};
 
 			// For new chats, we need to initialize the chat data optimistically
@@ -382,7 +400,8 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 					provider,
 					model,
 					type: "text",
-					images,
+					attachments,
+					images, // Keep for backward compatibility
 				});
 
 				// Use returned messages to update the chat data instead of revalidating

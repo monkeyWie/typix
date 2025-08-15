@@ -40,6 +40,7 @@
 		"selectModel": "Select AI Model",
 		"welcomeMessage": "Describe the image you'd like me to create! Let your imagination run wild.",
 		"generatedImage": "Generated image",
+		"userImage": "Uploaded image",
 		"generatedOrUploaded": "Generated or uploaded",
 		"ai": "AI",
 		"clickToEnlarge": "Click to enlarge image",

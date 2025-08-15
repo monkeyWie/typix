@@ -40,6 +40,7 @@
 		"selectModel": "选择AI模型",
 		"welcomeMessage": "描述您想要创建的图片！让您的想象力尽情发挥。",
 		"generatedImage": "生成的图片",
+		"userImage": "上传的图片",
 		"generatedOrUploaded": "生成或上传的图片",
 		"ai": "AI",
 		"clickToEnlarge": "点击放大图片",

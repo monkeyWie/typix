@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { generateId, metaFields } from "../util";
+import { files } from "./file";
 
 // Chat table - represents conversation sessions
 export const chats = sqliteTable("chats", {
@@ -25,11 +26,26 @@ export const messages = sqliteTable("messages", {
 	type: text({ enum: ["text", "image"] })
 		.default("text")
 		.notNull(),
-	// For image messages, this will reference the generations table
-	generationId: text().references(() => generations.id, {
+	// For image messages, this will reference the message generations table
+	generationId: text().references(() => messageGenerations.id, {
 		onDelete: "set null",
 	}),
 	metadata: text({ mode: "json" }), // Store additional metadata as JSON
+	...metaFields,
+});
+
+// Message attachments table - stores attachments for messages
+export const messageAttachments = sqliteTable("message_attachments", {
+	id: text().$defaultFn(generateId).primaryKey(),
+	messageId: text()
+		.references(() => messages.id, { onDelete: "cascade" })
+		.notNull(),
+	fileId: text()
+		.references(() => files.id, { onDelete: "cascade" })
+		.notNull(),
+	type: text({ enum: ["image"] })
+		.default("image")
+		.notNull(), // Attachment type, currently only image
 	...metaFields,
 });
 
@@ -37,7 +53,7 @@ const errorReason = ["CONFIG_INVALID", "CONFIG_ERROR", "API_ERROR", "TIMEOUT", "
 export type ErrorReason = (typeof errorReason)[number];
 
 // Generations table - stores AI generation requests and results (images, videos, etc.)
-export const generations = sqliteTable("generations", {
+export const messageGenerations = sqliteTable("message_generations", {
 	id: text().$defaultFn(generateId).primaryKey(),
 	type: text({ enum: ["image", "video"] })
 		.default("image")
@@ -62,17 +78,33 @@ export const chatsRelations = relations(chats, ({ many }) => ({
 	messages: many(messages),
 }));
 
-export const messagesRelations = relations(messages, ({ one }) => ({
+export const messagesRelations = relations(messages, ({ one, many }) => ({
 	chat: one(chats, {
 		fields: [messages.chatId],
 		references: [chats.id],
 	}),
-	generation: one(generations, {
+	generation: one(messageGenerations, {
 		fields: [messages.generationId],
-		references: [generations.id],
+		references: [messageGenerations.id],
+	}),
+	attachments: many(messageAttachments),
+}));
+
+export const messageAttachmentsRelations = relations(messageAttachments, ({ one }) => ({
+	message: one(messages, {
+		fields: [messageAttachments.messageId],
+		references: [messages.id],
+	}),
+	file: one(files, {
+		fields: [messageAttachments.fileId],
+		references: [files.id],
 	}),
 }));
 
-export const generationsRelations = relations(generations, ({ many }) => ({
+export const messageGenerationsRelations = relations(messageGenerations, ({ many }) => ({
 	messages: many(messages),
+}));
+
+export const filesRelations = relations(files, ({ many }) => ({
+	messageAttachments: many(messageAttachments),
 }));

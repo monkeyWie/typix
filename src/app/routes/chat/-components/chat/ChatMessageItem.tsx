@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar";
-import { Card } from "@/app/components/ui/card";
 import { ImagePreview, type ImageSlide } from "@/app/components/ui/image-preview";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { useChatService } from "@/app/hooks/useService";
@@ -44,18 +43,42 @@ export function ChatMessageItem({
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [isHovered, setIsHovered] = useState(false);
-	const isUser = message.role === "user"; // Get all images from the chat
-	const allImages: ImageSlide[] = (allMessages || [])
-		.filter((msg) => msg.type === "image" && msg.generation?.resultUrls && msg.generation?.status === "completed")
-		.flatMap((msg) => {
+	const isUser = message.role === "user";
+
+	// Get user message attachments
+	const userAttachments = message.attachments || [];
+
+	// Get all images from the chat (including user attachments and AI generations)
+	const allImages: ImageSlide[] = (allMessages || []).flatMap((msg) => {
+		const images: ImageSlide[] = [];
+
+		// Add user attachments
+		if (msg.attachments) {
+			for (const attachment of msg.attachments) {
+				if (attachment.type === "image" && attachment.url) {
+					images.push({
+						src: attachment.url,
+						title: t("chat.userImage"),
+					});
+				}
+			}
+		}
+
+		// Add AI generated images
+		if (msg.type === "image" && msg.generation?.resultUrls && msg.generation?.status === "completed") {
 			const urls = msg.generation!.resultUrls;
 			// Handle both string and array formats
 			const imageUrls = typeof urls === "string" ? [urls] : (urls as string[]);
-			return imageUrls.map((url: string) => ({
-				src: url,
-				title: msg.content || t("chat.generatedImage"),
-			}));
-		});
+			for (const url of imageUrls) {
+				images.push({
+					src: url,
+					title: msg.content || t("chat.generatedImage"),
+				});
+			}
+		}
+
+		return images;
+	});
 	// Find current image index
 	const currentImageUrls = message.generation?.resultUrls;
 	const currentImageUrl = currentImageUrls
@@ -155,10 +178,7 @@ export function ChatMessageItem({
 
 	return (
 		<div
-			className={cn(
-				"group flex gap-4 p-6 transition-all duration-200 hover:bg-muted/30",
-				isUser && "flex-row-reverse bg-gradient-to-l from-muted/20 to-transparent",
-			)}
+			className={cn("group flex gap-4 p-6 transition-all duration-200", isUser && "flex-row-reverse")}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 		>
@@ -198,134 +218,193 @@ export function ChatMessageItem({
 				</div>
 
 				{/* Message Body - aligned with avatar top */}
-				<div
-					className={cn(
-						"flex",
-						isUser ? "justify-end" : message.type === "image" && !message.content ? "justify-start" : "",
-					)}
-				>
-					<div className="relative">
-						{/* Message Actions - positioned near the message card */}
-						{isHovered && !isMessageGenerating && (
-							<MessageActions
-								messageId={message.id}
-								messageType={message.type}
-								content={message.content}
-								imageUrls={currentMessageImageUrls}
-								isUser={isUser}
-								onDelete={onDelete}
+				<div className={cn("flex flex-col gap-2", isUser ? "items-end" : "items-start")}>
+					{/* User attachments - displayed above the text message */}
+					{isUser && userAttachments.length > 0 && (
+						<div className={cn("mb-2", isUser ? "flex justify-end" : "flex justify-start")}>
+							<div
 								className={cn(
-									"absolute top-1 z-10",
-									isUser ? "-left-2 -translate-x-full" : "-right-2 translate-x-full",
+									"max-w-2xl",
+									userAttachments.length === 1
+										? "flex justify-start"
+										: "grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3",
 								)}
-							/>
-						)}
-						<Card
-							className={cn(
-								"shadow-sm transition-all duration-200 hover:shadow-md",
-								message.type === "image" && !message.content ? "w-fit p-2" : "max-w-2xl p-4",
-								isUser
-									? "border-primary/30 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground"
-									: "border-border/50 bg-card/80 backdrop-blur-sm",
-							)}
-						>
-							{isMessageGenerating && !isUser ? (
-								<div className="space-y-3">
-									<div className="flex items-center gap-2">
-										<div className="flex space-x-1">
-											<div className="h-2 w-2 animate-bounce rounded-full bg-primary" />
-											<div className="h-2 w-2 animate-bounce rounded-full bg-primary delay-75" />
-											<div className="h-2 w-2 animate-bounce rounded-full bg-primary delay-150" />
-										</div>
-										<span className="text-muted-foreground text-xs">
-											{message.type === "image" ? t("chat.generating") : t("chat.thinking")}
-										</span>
-									</div>
-									<div className="space-y-2">
-										<Skeleton className="h-4 w-full" />
-										<Skeleton className="h-4 w-3/4" />
-									</div>
-								</div>
-							) : isMessageFailed && !isUser ? (
-								<div className="space-y-3">
-									{/* Show original prompt if available */}
-									{message.content && (
-										<p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
-									)}
-									{/* Show error card */}
-									<GenerationErrorItem
-										errorReason={message.generation?.errorReason || "UNKNOWN"}
-										provider={message.generation?.provider}
-										onRetry={async () => {
-											skipPoll.current = true;
-											try {
-												// Call the retry callback with message ID
-												await onRetry?.(message.id);
-											} finally {
-												skipPoll.current = false;
+							>
+								{userAttachments.map((attachment, index) => (
+									<button
+										key={`${message.id}-attachment-${attachment.id}`}
+										type="button"
+										className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+										onClick={() => {
+											if (attachment.url && allImages.length > 0) {
+												// Find the index of this specific image in allImages
+												const imageIndex = allImages.findIndex((img) => img.src === attachment.url);
+												setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
+												setIsLightboxOpen(true);
 											}
 										}}
-									/>
-								</div>
-							) : (
-								<>
-									{message.content && (
-										<p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
-									)}{" "}
-									{message.type === "image" && currentMessageImageUrls.length > 0 && (
-										<div className={cn(message.content ? "mt-3" : "")}>
-											<div
-												className={cn(
-													currentMessageImageUrls.length === 1
-														? "flex justify-start"
-														: "grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3",
-												)}
-											>
-												{currentMessageImageUrls.map((imageUrl, index) => (
-													<button
-														key={`${message.id}-${imageUrl}`}
-														type="button"
-														className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-														onClick={() => {
-															// Only open preview if current image is successful
-															if (isCurrentImageSuccessful && allImages.length > 0) {
-																// Find the index of this specific image in allImages
-																const imageIndex = allImages.findIndex((img) => img.src === imageUrl);
-																setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
-																setIsLightboxOpen(true);
-															}
-														}}
-														aria-label={t("chat.clickToEnlarge")}
-														disabled={!isCurrentImageSuccessful}
-													>
-														<img
-															src={imageUrl}
-															alt={t("chat.generatedOrUploaded")}
-															className="h-auto max-h-64 max-w-80 rounded-xl object-cover shadow-lg"
-															loading="lazy"
-														/>
-													</button>
-												))}
-											</div>
-											{/* Only render ImagePreview if there are successful images */}
-											{allImages.length > 0 && (
-												<ImagePreview
-													open={isLightboxOpen}
-													close={() => setIsLightboxOpen(false)}
-													slides={allImages}
-													index={currentImageIndex}
-													onIndexChange={setCurrentImageIndex}
-													plugins={{
-														captions: false,
-													}}
-												/>
-											)}
-										</div>
+										aria-label={t("chat.clickToEnlarge")}
+										disabled={!attachment.url}
+									>
+										<img
+											src={attachment.url || ""}
+											alt={t("chat.userImage")}
+											className="h-auto max-h-64 max-w-80 rounded-xl object-cover shadow-lg"
+											loading="lazy"
+										/>
+									</button>
+								))}
+							</div>
+						</div>
+					)}
+
+					{/* Text message card container - separate from attachments to maintain independent width */}
+					{(message.content || isMessageGenerating || isMessageFailed) && (
+						<div className="relative">
+							{/* Message Actions - positioned near the message card */}
+							{isHovered && !isMessageGenerating && (
+								<MessageActions
+									messageId={message.id}
+									messageType={message.type}
+									content={message.content}
+									imageUrls={
+										isUser
+											? (userAttachments.map((att) => att.url).filter(Boolean) as string[])
+											: currentMessageImageUrls
+									}
+									isUser={isUser}
+									onDelete={onDelete}
+									className={cn(
+										"absolute top-1 z-10",
+										isUser ? "-left-2 -translate-x-full" : "-right-2 translate-x-full",
 									)}
-								</>
+								/>
 							)}
-						</Card>
-					</div>
+
+							<div
+								className={cn(
+									"max-w-2xl rounded-xl border border-border/50 bg-card/80 p-4 shadow-sm transition-all duration-200 hover:shadow-md",
+								)}
+							>
+								{isMessageGenerating && !isUser ? (
+									<div className="space-y-3">
+										<div className="flex items-center gap-2">
+											<div className="flex space-x-1">
+												<div className="h-2 w-2 animate-bounce rounded-full bg-primary" />
+												<div className="h-2 w-2 animate-bounce rounded-full bg-primary delay-75" />
+												<div className="h-2 w-2 animate-bounce rounded-full bg-primary delay-150" />
+											</div>
+											<span className="text-muted-foreground text-xs">
+												{message.type === "image" ? t("chat.generating") : t("chat.thinking")}
+											</span>
+										</div>
+										<div className="space-y-2">
+											<Skeleton className="h-4 w-full" />
+											<Skeleton className="h-4 w-3/4" />
+										</div>
+									</div>
+								) : isMessageFailed && !isUser ? (
+									<div className="space-y-3">
+										{/* Show original prompt if available */}
+										{message.content && (
+											<p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
+										)}
+										{/* Show error card */}
+										<GenerationErrorItem
+											errorReason={message.generation?.errorReason || "UNKNOWN"}
+											provider={message.generation?.provider}
+											onRetry={async () => {
+												skipPoll.current = true;
+												try {
+													// Call the retry callback with message ID
+													await onRetry?.(message.id);
+												} finally {
+													skipPoll.current = false;
+												}
+											}}
+										/>
+									</div>
+								) : (
+									<>
+										{/* Text content */}
+										{message.content && (
+											<p className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
+										)}
+									</>
+								)}
+							</div>
+						</div>
+					)}
+
+					{/* Display AI generated images - no background/border wrapper, same as attachments */}
+					{message.type === "image" && currentMessageImageUrls.length > 0 && (
+						<div className={cn("mt-2", isUser ? "flex justify-end" : "flex justify-start")}>
+							<div
+								className={cn(
+									"max-w-2xl",
+									currentMessageImageUrls.length === 1
+										? "flex justify-start"
+										: "grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3",
+								)}
+							>
+								{currentMessageImageUrls.map((imageUrl, index) => (
+									<div key={`${message.id}-${imageUrl}`} className="relative">
+										{/* Message Actions for images */}
+										{isHovered && (
+											<MessageActions
+												messageId={message.id}
+												messageType={message.type}
+												content={message.content}
+												imageUrls={currentMessageImageUrls}
+												isUser={isUser}
+												onDelete={onDelete}
+												className={cn(
+													"absolute top-1 z-10",
+													isUser ? "-left-2 -translate-x-full" : "-right-2 translate-x-full",
+												)}
+											/>
+										)}
+										<button
+											type="button"
+											className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+											onClick={() => {
+												// Only open preview if current image is successful
+												if (isCurrentImageSuccessful && allImages.length > 0) {
+													// Find the index of this specific image in allImages
+													const imageIndex = allImages.findIndex((img) => img.src === imageUrl);
+													setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
+													setIsLightboxOpen(true);
+												}
+											}}
+											aria-label={t("chat.clickToEnlarge")}
+											disabled={!isCurrentImageSuccessful}
+										>
+											<img
+												src={imageUrl}
+												alt={t("chat.generatedOrUploaded")}
+												className="h-auto max-h-64 max-w-80 rounded-xl object-cover shadow-lg"
+												loading="lazy"
+											/>
+										</button>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+
+					{/* Image Preview for all images */}
+					{allImages.length > 0 && (
+						<ImagePreview
+							open={isLightboxOpen}
+							close={() => setIsLightboxOpen(false)}
+							slides={allImages}
+							index={currentImageIndex}
+							onIndexChange={setCurrentImageIndex}
+							plugins={{
+								captions: false,
+							}}
+						/>
+					)}
 				</div>
 			</div>
 		</div>

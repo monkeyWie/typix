@@ -71,7 +71,18 @@ CREATE TABLE `chats` (
 	`updated_at` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `generations` (
+CREATE TABLE `message_attachments` (
+	`id` text PRIMARY KEY NOT NULL,
+	`message_id` text NOT NULL,
+	`file_id` text NOT NULL,
+	`type` text DEFAULT 'image' NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
+	FOREIGN KEY (`message_id`) REFERENCES `messages`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`file_id`) REFERENCES `files`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `message_generations` (
 	`id` text PRIMARY KEY NOT NULL,
 	`type` text DEFAULT 'image' NOT NULL,
 	`user_id` text NOT NULL,
@@ -100,7 +111,7 @@ CREATE TABLE `messages` (
 	`created_at` text NOT NULL,
 	`updated_at` text NOT NULL,
 	FOREIGN KEY (`chat_id`) REFERENCES `chats`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`generation_id`) REFERENCES `generations`(`id`) ON UPDATE no action ON DELETE set null
+	FOREIGN KEY (`generation_id`) REFERENCES `message_generations`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
 CREATE TABLE `ai_models` (

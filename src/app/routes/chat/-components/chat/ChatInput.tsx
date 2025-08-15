@@ -227,7 +227,7 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 					)}
 
 					{/* Text input container */}
-					<div className="relative rounded-xl border border-border/50 bg-card/80 shadow-sm backdrop-blur-sm transition-all duration-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20">
+					<div className="relative rounded-xl border border-border/50 bg-card/80 shadow-sm transition-all duration-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20">
 						<Textarea
 							ref={textareaRef}
 							value={message}
@@ -237,6 +237,7 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 							disabled={disabled}
 							className={cn(
 								"max-h-60 min-h-[120px] resize-none border-0 bg-transparent pr-4 pb-16 placeholder:text-muted-foreground/60 focus-visible:ring-0",
+								"dark:!bg-transparent", // 强制覆盖shadcn默认背景
 							)}
 							rows={4}
 							onInput={(e) => {

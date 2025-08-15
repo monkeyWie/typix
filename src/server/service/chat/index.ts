@@ -1,6 +1,6 @@
 import { getProviderById } from "@/server/ai/provider";
 import { type ApiProviderSettings, ConfigInvalidError } from "@/server/ai/types/provider";
-import { chats, generations, messages } from "@/server/db/schemas";
+import { chats, messageAttachments, messageGenerations, messages } from "@/server/db/schemas";
 import { createSchemaOmits } from "@/server/db/util";
 import { inBrowser, inCfWorker } from "@/server/lib/env";
 import { ServiceException } from "@/server/lib/exception";
@@ -20,6 +20,18 @@ export const CreateChatSchema = createInsertSchema(chats)
 	.extend({
 		content: z.string().optional(),
 		/**
+		 * Attachments for the first message
+		 */
+		attachments: z
+			.array(
+				z.object({
+					data: z.string(), // base64 data
+					type: z.enum(["image"]).default("image"),
+				}),
+			)
+			.optional(),
+		/**
+		 * @deprecated Use attachments instead
 		 * Data URI (base64) images
 		 */
 		images: z.array(z.string()).optional(),
@@ -47,6 +59,7 @@ const createChat = async (req: CreateChat, ctx: RequestContext) => {
 				type: "text",
 				provider: req.provider,
 				model: req.model,
+				attachments: req.attachments,
 				images: req.images,
 			},
 			ctx,
@@ -83,6 +96,11 @@ const getChatById = async (req: GetChatById, ctx: RequestContext) => {
 				orderBy: [messages.createdAt],
 				with: {
 					generation: true,
+					attachments: {
+						with: {
+							file: true,
+						},
+					},
 				},
 			},
 		},
@@ -95,8 +113,21 @@ const getChatById = async (req: GetChatById, ctx: RequestContext) => {
 	const chatMessages = await Promise.all(
 		chat.messages.map(async (msg) => {
 			const fileIds = msg.generation?.fileIds as string[] | null;
+
+			// Process attachments for user messages
+			const attachmentUrls = msg.attachments
+				? await Promise.all(
+						msg.attachments.map(async (attachment) => ({
+							id: attachment.id,
+							type: attachment.type,
+							url: await getFileUrl(attachment.fileId, userId),
+						})),
+					)
+				: [];
+
 			return {
 				...msg,
+				attachments: attachmentUrls,
 				generation: msg.generation
 					? {
 							...msg.generation,
@@ -200,11 +231,17 @@ const deleteMessage = async (req: DeleteMessage, ctx: RequestContext) => {
 		with: {
 			chat: true,
 			generation: true,
+			attachments: true, // Include attachments for cleanup
 		},
 	});
 
 	if (!message || message.chat.userId !== userId) {
 		throw new ServiceException("not_found", "Message not found");
+	}
+
+	// Delete message attachments (this should cascade delete via foreign key constraints)
+	if (message.attachments && message.attachments.length > 0) {
+		await db.delete(messageAttachments).where(eq(messageAttachments.messageId, req.messageId));
 	}
 
 	// Delete the message (this should cascade delete associated generation via foreign key constraint)
@@ -227,6 +264,18 @@ export const CreateMessageSchema = createInsertSchema(messages)
 		provider: z.string(),
 		model: z.string(),
 		/**
+		 * base64-encoded image strings for attachments
+		 */
+		attachments: z
+			.array(
+				z.object({
+					data: z.string(), // base64 data
+					type: z.enum(["image"]).default("image"),
+				}),
+			)
+			.optional(),
+		/**
+		 * @deprecated Use attachments instead
 		 * base64-encoded image strings
 		 */
 		images: z.array(z.string()).optional(),
@@ -325,12 +374,12 @@ const executeImageGeneration = async (params: GenerationParams, ctx: RequestCont
 		);
 		if (result.errorReason) {
 			await db
-				.update(generations)
+				.update(messageGenerations)
 				.set({
 					status: "failed",
 					errorReason: result.errorReason,
 				})
-				.where(eq(generations.id, generationId));
+				.where(eq(messageGenerations.id, generationId));
 			return;
 		}
 
@@ -339,23 +388,23 @@ const executeImageGeneration = async (params: GenerationParams, ctx: RequestCont
 		const fileIds = await saveFiles(result.images, userId);
 		// Update generation with result URLs
 		await db
-			.update(generations)
+			.update(messageGenerations)
 			.set({
 				status: "completed",
 				fileIds,
 				generationTime: Date.now() - now.getTime(),
 				updatedAt: now.toISOString(),
 			})
-			.where(eq(generations.id, generationId));
+			.where(eq(messageGenerations.id, generationId));
 	} catch (error) {
 		console.error("Error generating image:", error);
 		await db
-			.update(generations)
+			.update(messageGenerations)
 			.set({
 				status: "failed",
 				errorReason: error instanceof ConfigInvalidError ? "CONFIG_INVALID" : "UNKNOWN",
 			})
-			.where(eq(generations.id, generationId));
+			.where(eq(messageGenerations.id, generationId));
 		return;
 	}
 };
@@ -388,12 +437,43 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 		throw new ServiceException("error", "Failed to create user message");
 	}
 
+	// Handle attachments if provided
+	const attachmentResults: Array<{ id: string; type: "image"; url: string | null }> = [];
+	if (req.attachments && req.attachments.length > 0) {
+		// Save attachment files
+		const attachmentFileIds = await saveFiles(
+			req.attachments.map((att) => att.data),
+			userId,
+		);
+
+		// Create attachment records and prepare results
+		for (let i = 0; i < req.attachments.length; i++) {
+			const attachment = req.attachments[i];
+			const fileId = attachmentFileIds[i];
+			if (fileId && attachment) {
+				await db.insert(messageAttachments).values({
+					messageId: userMessage.id,
+					fileId: fileId,
+					type: attachment.type,
+				});
+
+				// Prepare attachment result for response
+				const fileUrl = await getFileUrl(fileId, userId);
+				attachmentResults.push({
+					id: `${userMessage.id}-${i}`,
+					type: "image",
+					url: fileUrl,
+				});
+			}
+		}
+	}
+
 	// Update chat timestamp
 	await db.update(chats).set({ updatedAt: new Date().toISOString() }).where(eq(chats.id, req.chatId));
 
 	// Create generation record
 	const [generation] = await db
-		.insert(generations)
+		.insert(messageGenerations)
 		.values({
 			userId: userId,
 			prompt: req.content,
@@ -421,6 +501,9 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 	}
 
 	// Execute image generation using common logic
+	// Use attachments data or fallback to legacy images param
+	const userImages = req.attachments?.map((att) => att.data) || req.images;
+
 	const generateImage = () =>
 		executeImageGeneration(
 			{
@@ -430,7 +513,7 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 				model: req.model,
 				chatId: req.chatId,
 				userId,
-				userImages: req.images,
+				userImages,
 			},
 			ctx,
 		);
@@ -444,8 +527,13 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 
 	return {
 		messages: [
-			{ ...userMessage, generation: null },
-			{ ...assistantMessage, generation: generation! },
+			{
+				...userMessage,
+				generation: null,
+				// Include attachments for immediate display
+				attachments: attachmentResults,
+			},
+			{ ...assistantMessage, generation: generation!, attachments: [] },
 		],
 	} satisfies CreateMessageResponse;
 };
@@ -458,8 +546,8 @@ const getGenerationStatus = async (req: GetGenerationStatus, ctx: RequestContext
 	const { db } = getContext();
 	const { userId } = ctx;
 
-	const generation = await db.query.generations.findFirst({
-		where: eq(generations.id, req.generationId),
+	const generation = await db.query.messageGenerations.findFirst({
+		where: eq(messageGenerations.id, req.generationId),
 	});
 
 	if (!generation || generation.userId !== userId) {
@@ -512,7 +600,7 @@ const regenerateMessage = async (req: RegenerateMessage, ctx: RequestContext) =>
 
 	// Reset the existing generation record to pending status
 	await db
-		.update(generations)
+		.update(messageGenerations)
 		.set({
 			status: "pending",
 			fileIds: null, // Clear previous results
@@ -520,7 +608,7 @@ const regenerateMessage = async (req: RegenerateMessage, ctx: RequestContext) =>
 			generationTime: null, // Clear previous timing
 			updatedAt: new Date().toISOString(),
 		})
-		.where(eq(generations.id, originalGeneration.id));
+		.where(eq(messageGenerations.id, originalGeneration.id));
 
 	// Reset message content while regenerating
 	await db
