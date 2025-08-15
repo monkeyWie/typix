@@ -327,9 +327,9 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 					? attachments.map((attachment, index) => ({
 							id: `temp-attachment-${Date.now()}-${index}`,
 							type: attachment.type,
-							url: attachment.data, // Use base64 data URL for immediate display
+							url: attachment.data,
 						}))
-					: undefined,
+					: [],
 			};
 
 			// For new chats, we need to initialize the chat data optimistically
