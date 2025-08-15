@@ -173,7 +173,9 @@
 	"theme": {
 		"auto": "自动",
 		"light": "浅色",
-		"dark": "深色"
+		"dark": "深色",
+		"selectTheme": "选择主题",
+		"selectThemeColor": "选择主题色"
 	},
 	"language": {
 		"label": "简体中文",
