@@ -514,6 +514,7 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 				chatId: req.chatId,
 				userId,
 				userImages,
+				messageId: assistantMessage.id,
 			},
 			ctx,
 		);
