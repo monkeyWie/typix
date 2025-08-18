@@ -4,6 +4,8 @@ English | [简体中文](README_zh-CN.md)
 
 Typix is a modern, open-source, user-friendly, and privacy-secure AI tool focused on media content generation, providing creators with a one-stop generation experience.
 
+![](docs/public/images/demo/preview.png)
+
 ## 🎯 Quick Start
 
 - [https://typix.art](https://typix.art)
