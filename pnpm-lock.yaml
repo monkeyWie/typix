@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@bprogress/core':
+        specifier: ^1.3.4
+        version: 1.3.4
       '@fal-ai/client':
         specifier: ^1.6.1
         version: 1.6.1
@@ -429,6 +432,9 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@bprogress/core@1.3.4':
+    resolution: {integrity: sha512-q/AqpurI/1uJzOrQROuZWixn/+ARekh+uvJGwLCP6HQ/EqAX4SkvNf618tSBxL4NysC0MwqAppb/mRw6Tzi61w==}
 
   '@braintree/sanitize-url@7.1.1':
     resolution: {integrity: sha512-i1L7noDNxtFyL5DmZafWy1wRVhGehQmzZaz1HiN5e7iylJMSZR7ekOV7NsIqa5qBldlLrsKv4HbgFUVlQrz8Mw==}
@@ -5503,6 +5509,8 @@ snapshots:
 
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
+
+  '@bprogress/core@1.3.4': {}
 
   '@braintree/sanitize-url@7.1.1': {}
 
