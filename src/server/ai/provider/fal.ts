@@ -47,7 +47,7 @@ const Fal: AiProvider = {
 		const { apiKey } = Fal.parseSettings<FalSettings>(settings);
 
 		const genType = chooseAblility(request, findModel(Fal, request.modelId).ability);
-		let endpoint: string;
+		let endpoint = "";
 		switch (request.modelId) {
 			case "fal-ai/qwen-image":
 				if (genType === "i2i") {
@@ -66,8 +66,6 @@ const Fal: AiProvider = {
 
 						if ((request.images?.length || 0) > 1 && maxImages > 1) {
 							endpoint = "/multi";
-						} else {
-							endpoint = "";
 						}
 						break;
 					}
