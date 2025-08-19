@@ -33,6 +33,12 @@ const Fal: AiProvider = {
 			ability: "i2i",
 			enabledByDefault: true,
 		},
+		{
+			id: "fal-ai/qwen-image",
+			name: "Qwen Image",
+			ability: "i2i",
+			enabledByDefault: true,
+		},
 	],
 	parseSettings: <FalSettings>(settings: ApiProviderSettings) => {
 		return doParseSettings(settings, falSettingsSchema) as FalSettings;
@@ -42,35 +48,48 @@ const Fal: AiProvider = {
 
 		const genType = chooseAblility(request, findModel(Fal, request.modelId).ability);
 		let endpoint: string;
-		switch (genType) {
-			case "t2i":
-				endpoint = "/text-to-image";
-				break;
-			case "i2i": {
-				// Check if this model supports multiple images
-				const model = Fal.models.find((m) => m.id === request.modelId);
-				const maxImages = model?.maxInputImages || 1;
-
-				if ((request.images?.length || 0) > 1 && maxImages > 1) {
-					endpoint = "/multi";
-				} else {
-					endpoint = "";
+		switch (request.modelId) {
+			case "fal-ai/qwen-image":
+				if (genType === "i2i") {
+					endpoint = "-edit";
 				}
 				break;
-			}
+			default:
+				switch (genType) {
+					case "t2i":
+						endpoint = "/text-to-image";
+						break;
+					case "i2i": {
+						// Check if this model supports multiple images
+						const model = Fal.models.find((m) => m.id === request.modelId);
+						const maxImages = model?.maxInputImages || 1;
+
+						if ((request.images?.length || 0) > 1 && maxImages > 1) {
+							endpoint = "/multi";
+						} else {
+							endpoint = "";
+						}
+						break;
+					}
+				}
 		}
 
 		fal.config({ credentials: apiKey });
 
 		let resp: Awaited<ReturnType<typeof fal.run>>;
 		try {
-			resp = await fal.run(request.modelId + endpoint, {
-				input: {
-					prompt: request.prompt,
-					image_url: genType === "i2i" && (request.images?.length || 0) === 1 ? request.images?.[0] : undefined,
-					image_urls: genType === "i2i" && (request.images?.length || 0) > 1 ? request.images : undefined,
-				},
-			});
+			const imageCount = request.images?.length || 0;
+			const input: any = { prompt: request.prompt };
+
+			if (genType === "i2i") {
+				if (imageCount === 1) {
+					input.image_url = request.images?.[0];
+				} else {
+					input.image_urls = request.images;
+				}
+			}
+
+			resp = await fal.run(request.modelId + endpoint, { input });
 		} catch (error) {
 			if (error instanceof ApiError) {
 				if (error.status === 401 || error.status === 404) {

@@ -263,6 +263,9 @@
 				},
 				"fal-ai/flux-pro/kontext": {
 					"description": "FLUX.1 Kontext [pro] handles both text and reference images as inputs, seamlessly enabling targeted, local edits and complex transformations of entire scenes."
+				},
+				"fal-ai/qwen-image": {
+					"description": "Qwen-Image is a powerful image generation foundation model capable of complex text rendering and precise image editing."
 				}
 			}
 		},

@@ -263,6 +263,9 @@
 				},
 				"fal-ai/flux-pro/kontext": {
 					"description": "FLUX.1 Kontext [pro] 将文本和参考图像作为输入进行处理，无缝地实现了对整个场景的有针对性的局部编辑和复杂转换。"
+				},
+				"fal-ai/qwen-image": {
+					"description": "通义千问系列中首个图像生成基础模型，其在复杂文本渲染和精确图像编辑方面取得了显著进展"
 				}
 			}
 		},
