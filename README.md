@@ -1,71 +1,71 @@
-# Typix - Type To Pixels
+# Typix - 输入即图像
 
-English | [简体中文](README_zh-CN.md)
+[English](README_en-US.md) | 简体中文
 
-Typix is a modern, open-source, user-friendly, and privacy-secure AI tool focused on media content generation, providing creators with a one-stop generation experience.
+Typix 是一款现代化、开源、易用、隐私安全的 AI 工具，专注于媒体内容生成领域，为广大 AI 创作者提供一站式的生成体验。
 
 ![](docs/public/images/demo/preview.png)
 
-## 🎯 Quick Start
+## 🎯 快速使用
 
 - [https://typix.art](https://typix.art)
-  Production-grade stable version with reliable experience.
+  生产级稳定版本，提供更可靠的体验。
 - [https://preview.typix.art](https://preview.typix.art)
-  Preview the latest features and improvements, with free Cloudflare AI image generation service (daily quota limited, first come first served).
+  抢先体验最新功能和改进，免费提供 Cloudflare AI 图像生成服务（每日额度有限，先到先得）。
 
-## ✨ Core Features
+## ✨ 核心特性
 
-Focus on AI image generation, turning creativity into visual art instantly
+专注 AI 图像生成，让创意瞬间成为视觉艺术
 
-- 📱 **Local First** - Prioritize local storage and offline functionality
-- 🏠 **Self-hosted** - Full control over your data and privacy
-- 🎁 **Free Generation** - Free image generation with Cloudflare Workers AI
-- ☁️ **One-click Deploy** - Quick deployment with Docker and Cloudflare Workers
-- 🤖 **Multi-model Support** - Support multiple AI models and service providers
-- 🔄 **Cloud Sync** - Seamlessly sync your content across all devices
+- 📱 **本地优先** - 优先使用本地存储和离线功能
+- 🏠 **自托管部署** - 完全掌控您的数据和隐私
+- 🎁 **免费生图** - 免费使用 Cloudflare Workers AI 生图
+- ☁️ **一键部署** - Docker 和 Cloudflare Workers 快速上线
+- 🤖 **多模型支持** - 支持多种 AI 模型和服务提供商
+- 🔄 **云同步** - 在所有设备间无缝同步您的内容
 
-## 🔒 Data Security
+## 🔒 数据安全
 
-Typix puts your data security and privacy protection first:
+Typix 将您的数据安全和隐私保护放在首位：
 
-- **🛡️ Browser Local Storage** - Based on WASM SQLite technology, all data is completely stored in your browser
-- **🔐 Zero Data Upload** - Your creative content, settings and other sensitive data never leave your device
-- **🚫 No Server Dependencies** - Client mode requires no external server dependencies, ensuring data sovereignty
-- **🔄 Optional Cloud Sync** - Support for optional cloud sync functionality
+- **🛡️ 浏览器本地存储** - 基于 WASM SQLite 技术，所有数据完全存储在您的浏览器上
+- **🔐 零数据上传** - 您的创作内容、设置信息等敏感数据从不离开您的设备
+- **🚫 无服务器依赖** - 客户端模式无需依赖外部服务器，保障数据主权
+- **🔄 可选云同步** - 支持可选的云同步功能
 
-We protect both your creativity and privacy.
+您的创意和隐私，我们一并守护。
 
-## ⚡ Powered by Leading AI Models
+## ⚡ 领先 AI 模型驱动
 
-Integrated with cutting-edge AI models and services to provide the best image generation experience:
+集成最先进的 AI 模型和服务，为您提供最佳的图像生成体验：
 
-- **OpenAI** - Industry-leading AI technology
-- **Flux** - High-quality image generation models
-- **Fal** - Fast AI inference service
-- **Cloudflare** - Free AI model support
+- **OpenAI** - 业界领先的 AI 技术
+- **Flux** - 高质量图像生成模型
+- **Fal** - 快速 AI 推理服务
+- **Cloudflare** - 免费 AI 模型支持
 
-More service providers and models are being integrated continuously.
+更多服务商和模型正在持续接入中。
 
-## 🚀 Quick Deployment Guide
+## 🚀 快速部署
 
-### One-click Deploy to Cloudflare Workers (Recommended)
+### Cloudflare Workers 一键部署（推荐）
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/monkeyWie/typix)
 
-Cloudflare Workers deployment provides free access to Cloudflare AI image generation services.
+Cloudflare Workers 部署可以免费享受 Cloudflare AI 提供的图像生成服务。
 
-> After successful deployment, you'll get a `typix.xxx.workers.dev` domain to start using!
+> 部署成功后，您将获得一个 `typix.xxx.workers.dev` 域名，即可开始使用！
 
-### Node.js Deployment
+### Node.js 部署
 
-#### Prerequisites
+#### 前置要求
 
 - Node.js 20+
-- pnpm or npm
+- pnpm 或 npm
 
-#### Deployment Steps
+#### 部署步骤
 
-1. **Clone and install**
+1. **克隆并安装**
 
 ```bash
 git clone https://github.com/monkeyWie/typix.git
@@ -73,135 +73,135 @@ cd typix
 pnpm install
 ```
 
-2. **Configure environment variables**
+2. **配置环境变量**
 
 ```bash
 cp .env.node.example .env
-# Edit .env file to configure necessary parameters
+# 编辑 .env 文件配置必要参数
 ```
 
-3. **Database initialization**
+3. **数据库初始化**
 
 ```bash
 pnpm db:generate
 pnpm db:migrate
 ```
 
-4. **Build project**
+4. **构建项目**
 
 ```bash
 pnpm build:node
 ```
 
-5. **Start service**
+5. **启动服务**
 
 ```bash
 node .bin/node.js
 ```
 
-## 🛠️ Development Documentation
+## 🛠️ 开发文档
 
-### Tech Stack
+### 技术栈
 
-**Frontend:**
+**前端框架：**
 
-- **React 18** - Modern UI framework
-- **TypeScript** - Type-safe JavaScript
-- **Tailwind CSS** - Atomic CSS framework
-- **shadcn/ui** - High-quality UI component library
-- **Tanstack Router** - Type-safe routing management
-- **Zustand** - Lightweight state management
-- **BetterAuth** - Modern authentication solution
+- **React 18** - 现代化 UI 框架
+- **TypeScript** - 类型安全的 JavaScript
+- **Tailwind CSS** - 原子化 CSS 框架
+- **shadcn/ui** - 高质量 UI 组件库
+- **Tanstack Router** - 类型安全的路由管理
+- **Zustand** - 轻量级状态管理
+- **BetterAuth** - 现代化认证解决方案
 
-**Backend:**
+**后端框架：**
 
-- **Hono.js** - Lightweight web framework
-- **SQLite** - Embedded database
-- **Drizzle ORM** - Type-safe ORM
+- **Hono.js** - 轻量级 Web 框架
+- **SQLite** - 嵌入式数据库
+- **Drizzle ORM** - 类型安全的 ORM
 
-**Development Tools:**
+**开发工具：**
 
-- **Vite** - Fast build tool
-- **Biome** - Code formatting and linting
-- **pnpm** - Package manager
+- **Vite** - 快速构建工具
+- **Biome** - 代码格式化和检查
+- **pnpm** - 包管理器
 
-### Local Development Guide
+### 本地开发指引
 
-#### Environment Setup
+#### 环境准备
 
-1. **Install Node.js 20+**
-2. **Install pnpm**
+1. **安装 Node.js 20+**
+2. **安装 pnpm**
 
 ```bash
 npm install -g pnpm
 ```
 
-#### Development Workflow
+#### 开发流程
 
-1. **Clone project**
+1. **克隆项目**
 
 ```bash
 git clone https://github.com/monkeyWie/typix.git
 cd typix
 ```
 
-2. **Install dependencies**
+2. **安装依赖**
 
 ```bash
 pnpm install
 ```
 
-3. **Database initialization**
+3. **数据库初始化**
 
 ```bash
-# Generate database migration files
+# 生成数据库迁移文件
 pnpm db:generate
 
-# Execute migration
+# 执行迁移
 pnpm db:migrate
 ```
 
-4. **Start development server**
+4. **启动开发服务器**
 
 ```bash
-# Start frontend development server
+# 启动前端开发服务器
 pnpm dev
 ```
 
-#### Project Structure
+#### 项目结构
 
 ```
 src/
-├── app/                    # Frontend application
-│   ├── components/         # React components
-│   ├── hooks/             # Custom Hooks
-│   ├── routes/            # Route pages
-│   ├── stores/            # State management
-│   └── lib/               # Utility libraries
-├── server/                # Backend service
-│   ├── api/               # API routes
-│   ├── ai/                # AI provider integration
-│   ├── db/                # Database schemas
-│   └── service/           # Business logic
+├── app/                    # 前端应用
+│   ├── components/         # React 组件
+│   ├── hooks/             # 自定义 Hooks
+│   ├── routes/            # 路由页面
+│   ├── stores/            # 状态管理
+│   └── lib/               # 工具库
+├── server/                # 后端服务
+│   ├── api/               # API 路由
+│   ├── ai/                # AI 提供商集成
+│   ├── db/                # 数据库模式
+│   └── service/           # 业务逻辑
 ```
 
-## 📄 License
+## 📄 开源协议
 
-This project is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+本项目采用 [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) 开源协议。
 
-You are free to:
+您可以自由地：
 
-- ✅ Commercial use
-- ✅ Modify code
-- ✅ Distribute project
-- ✅ Private use
+- ✅ 商业使用
+- ✅ 修改代码
+- ✅ 分发项目
+- ✅ 私人使用
 
-But you must:
+但需要：
 
-- 📝 Include copyright notice
-- 📝 Include license file
-- 📝 State significant changes
+- 📝 保留版权声明
+- 📝 包含许可证文件
+- 📝 声明重大更改
 
 ---
 
-If this project helps you, please consider giving us a ⭐ Star!
+如果这个项目对您有帮助，请考虑给我们一个 ⭐ Star！
