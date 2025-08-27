@@ -1,4 +1,4 @@
-import { fetchUrlToDataURI } from "@/server/lib/util";
+import { base64ToDataURI, fetchUrlToDataURI } from "@/server/lib/util";
 import openai from "openai";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
 import { type ProviderSettingsType, chooseAblility, doParseSettings, findModel } from "../types/provider";
@@ -73,7 +73,7 @@ const OpenAI: AiProvider = {
 		return doParseSettings(settings, openAISettingsSchema) as OpenAISettings;
 	},
 	generate: async (request, settings) => {
-		const { baseURL, apiKey } = OpenAI.parseSettings<OpenAISettings>(settings);
+		const { baseURL, apiKey, model } = OpenAI.parseSettings<OpenAISettings>(settings);
 
 		const client = new openai.OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true });
 
@@ -83,7 +83,7 @@ const OpenAI: AiProvider = {
 				case "t2i":
 					// Text-to-image generation
 					generateResult = await client.images.generate({
-						model: request.modelId,
+						model,
 						prompt: request.prompt,
 						n: request.n || 1,
 					});
@@ -91,7 +91,7 @@ const OpenAI: AiProvider = {
 				default:
 					// Image editing
 					generateResult = await client.images.edit({
-						model: request.modelId,
+						model,
 						image: request.images!.map(createImageStreamFromDataUri),
 						prompt: request.prompt,
 						n: request.n || 1,
@@ -112,7 +112,7 @@ const OpenAI: AiProvider = {
 			images: await Promise.all(
 				(generateResult.data || []).map(async (image) => {
 					if (image.b64_json) {
-						return image.b64_json;
+						return base64ToDataURI(image.b64_json);
 					}
 					if (image.url) {
 						try {
