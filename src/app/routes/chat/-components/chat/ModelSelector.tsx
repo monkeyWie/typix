@@ -58,27 +58,29 @@ export function ModelSelector({ currentProvider, currentModel, onModelChange, is
 			<SelectTrigger className="h-7 w-auto gap-2 border-primary/20 bg-primary/10 px-3 text-primary hover:bg-primary/20">
 				<SelectValue placeholder={displayName} />
 			</SelectTrigger>
-			<SelectContent>
-				{providers?.map((provider) => {
-					if (!provider.enabled) return null;
+			<SelectContent className="max-h-72 [&>*[data-slot=select-scroll-down-button]]:hidden [&>*[data-slot=select-scroll-up-button]]:hidden">
+				<div className="max-h-72 overflow-y-auto pr-1 [&::-webkit-scrollbar-thumb:hover]:bg-muted-foreground/50 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2">
+					{providers?.map((provider) => {
+						if (!provider.enabled) return null;
 
-					return (
-						<div key={provider.id}>
-							{/* Provider group header */}
-							<div className="flex items-center gap-2 px-2 py-1.5 font-medium text-muted-foreground text-sm">
-								<ProviderIcon provider={provider.id} type="mono" className="h-4 w-4" />
-								{provider.name}
+						return (
+							<div key={provider.id}>
+								{/* Provider group header */}
+								<div className="flex items-center gap-2 px-2 py-1.5 font-medium text-muted-foreground text-sm">
+									<ProviderIcon provider={provider.id} type="mono" className="h-4 w-4" />
+									{provider.name}
+								</div>
+
+								{/* Models for this provider */}
+								{provider.models.map((model) => (
+									<SelectItem key={`${provider.id}:${model.id}`} value={`${provider.id}:${model.id}`} className="pl-8">
+										{model.name}
+									</SelectItem>
+								))}
 							</div>
-
-							{/* Models for this provider */}
-							{provider.models.map((model) => (
-								<SelectItem key={`${provider.id}:${model.id}`} value={`${provider.id}:${model.id}`} className="pl-8">
-									{model.name}
-								</SelectItem>
-							))}
-						</div>
-					);
-				})}
+						);
+					})}
+				</div>
 			</SelectContent>
 		</Select>
 	);
