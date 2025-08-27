@@ -3,7 +3,8 @@
     "name": "中文"
   },
   "metadata": {
-    "description": "专注AI图像生成的开源工具，通过自然对话与先进AI模型交互，轻松将创意想法转化为精美视觉作品。"
+    "description": "专注AI图像生成的开源工具，集成Nano Banana、Flux Kontext、GPT-4o等先进模型。通过自然对话与AI交互，轻松将创意想法转化为精美视觉作品。",
+    "keywords": "AI图像生成, Nano Banana, Flux Kontext, GPT-4o, AI艺术, 图像创作, 人工智能, 创意AI, 文本转图像, AI模型"
   },
   "nav": {
     "features": "功能特色",
@@ -14,7 +15,7 @@
   },
   "hero": {
     "title": "通过聊天创造精美图像",
-    "subtitle": "只需描述您想要看到的内容，观看 Typix 如何通过自然对话将您的文字转化为令人惊叹的 AI 生成图像。",
+    "subtitle": "基于Nano Banana、Flux Kontext、GPT-4o等模型驱动。只需描述您想要看到的内容，观看Typix如何将您的文字转化为令人惊叹的AI生成图像。",
     "primaryBtn": "开始使用",
     "stats": {
       "images": "创建图像",
@@ -74,6 +75,10 @@
       "formats": {
         "title": "多种格式",
         "description": "支持导出 PNG、JPG、SVG 等多种格式。"
+      },
+      "nanoBanana": {
+        "title": "Nano Banana 模型",
+        "description": "由创新的 Nano Banana AI 模型驱动，实现创意高效的图像生成。"
       }
     }
   },
@@ -87,7 +92,8 @@
       "artistic": "艺术风格",
       "abstract": "抽象风格",
       "anime": "动漫风格",
-      "digital": "数字艺术"
+      "digital": "数字艺术",
+      "nanoBanana": "Nano Banana"
     }
   },
   "preview": {
@@ -97,6 +103,39 @@
   "keyFeatures": {
     "title": "为什么选择 Typix？",
     "subtitle": "专注隐私保护、性能优化和成本效益"
+  },
+  "models": {
+    "title": "精选AI模型",
+    "subtitle": "体验前沿AI模型的强大能力，获得卓越的图像生成效果",
+    "items": {
+      "nanoBanana": {
+        "name": "Nano Banana",
+        "description": "轻量级高性能模型，快速生成高质量图像，创意表现卓越。",
+        "features": [
+          "快速生成",
+          "创意输出",
+          "多样风格"
+        ]
+      },
+      "fluxKontext": {
+        "name": "Flux Kontext",
+        "description": "先进的上下文理解模型，创造具有卓越叙事连贯性的图像。",
+        "features": [
+          "上下文感知",
+          "叙事流畅",
+          "场景构图"
+        ]
+      },
+      "gpt4o": {
+        "name": "GPT-4o",
+        "description": "多模态强力模型，结合文本理解与视觉生成的综合能力。",
+        "features": [
+          "多模态",
+          "高质量",
+          "智能设计"
+        ]
+      }
+    }
   },
   "providers": {
     "title": "领先AI模型驱动",

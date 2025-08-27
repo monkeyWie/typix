@@ -9,6 +9,10 @@ export function Providers() {
 	// Placeholder data structure - you can replace with actual SVG URLs
 	const providers = [
 		{
+			name: "Google",
+			logo: "https://unpkg.com/@lobehub/icons-static-svg@1.57.0/icons/google.svg",
+		},
+		{
 			name: "OpenAI",
 			logo: "https://unpkg.com/@lobehub/icons-static-svg@1.57.0/icons/openai.svg",
 		},
@@ -38,11 +42,11 @@ export function Providers() {
 				</div>
 
 				{/* Providers Grid */}
-				<div className="mx-auto grid max-w-4xl grid-cols-2 gap-6 sm:gap-8 md:grid-cols-3 lg:grid-cols-4">
+				<div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-6 sm:gap-8">
 					{providers.map((provider, index) => (
 						<motion.div
 							key={provider.name}
-							className="group relative"
+							className="group relative w-40 sm:w-44 md:w-48 lg:w-52"
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{

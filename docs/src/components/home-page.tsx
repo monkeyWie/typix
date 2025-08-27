@@ -1,3 +1,4 @@
+import { FeaturedModels } from "@/components/featured-models";
 import { Features } from "@/components/features";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
@@ -10,6 +11,7 @@ export function HomePage() {
 			<Header />
 			<Hero />
 			<Features />
+			<FeaturedModels />
 			<Providers />
 			<Footer />
 		</main>

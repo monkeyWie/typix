@@ -3,7 +3,8 @@
     "name": "English"
   },
   "metadata": {
-    "description": "Open-source tool focused on AI image generation. Transform your creative ideas into stunning visuals through natural conversation with advanced AI models."
+    "description": "Open-source AI image generation tool featuring Nano Banana, Flux Kontext, and GPT-4o models. Transform your creative ideas into stunning visuals through natural conversation with advanced AI models.",
+    "keywords": "AI image generation, Nano Banana, Flux Kontext, GPT-4o, AI art, image creation, artificial intelligence, creative AI, text to image, AI models"
   },
   "nav": {
     "features": "Features",
@@ -14,7 +15,7 @@
   },
   "hero": {
     "title": "Chat Your Way to Amazing Images",
-    "subtitle": "Simply describe what you want to see, and watch as Typix transforms your words into stunning AI-generated images through natural conversation.",
+    "subtitle": "Powered by Nano Banana, Flux Kontext, and GPT-4o models. Simply describe what you want to see, and watch as Typix transforms your words into stunning AI-generated images.",
     "primaryBtn": "TRY NOW",
     "stats": {
       "images": "Images Created",
@@ -74,6 +75,10 @@
       "formats": {
         "title": "Multiple Formats",
         "description": "Export in various formats including PNG, JPG, SVG, and more."
+      },
+      "nanoBanana": {
+        "title": "Nano Banana Model",
+        "description": "Powered by the innovative Nano Banana AI model for creative and efficient image generation."
       }
     }
   },
@@ -87,7 +92,8 @@
       "artistic": "Artistic",
       "abstract": "Abstract",
       "anime": "Anime",
-      "digital": "Digital Art"
+      "digital": "Digital Art",
+      "nanoBanana": "Nano Banana"
     }
   },
   "preview": {
@@ -97,6 +103,39 @@
   "keyFeatures": {
     "title": "Why Choose Typix?",
     "subtitle": "Built with privacy, performance, and cost-efficiency in mind"
+  },
+  "models": {
+    "title": "Featured AI Models",
+    "subtitle": "Experience the power of cutting-edge AI models for superior image generation",
+    "items": {
+      "nanoBanana": {
+        "name": "Nano Banana",
+        "description": "Lightweight yet powerful model for quick, high-quality image generation with exceptional creativity.",
+        "features": [
+          "Fast Generation",
+          "Creative Output",
+          "Versatile Styles"
+        ]
+      },
+      "fluxKontext": {
+        "name": "Flux Kontext",
+        "description": "Advanced contextual understanding model that creates images with superior narrative coherence.",
+        "features": [
+          "Context Aware",
+          "Narrative Flow",
+          "Scene Composition"
+        ]
+      },
+      "gpt4o": {
+        "name": "GPT-4o",
+        "description": "Multi-modal powerhouse combining text understanding with visual generation capabilities.",
+        "features": [
+          "Multi-modal",
+          "High Quality",
+          "Intelligent Design"
+        ]
+      }
+    }
   },
   "providers": {
     "title": "Powered by Leading AI Models",
