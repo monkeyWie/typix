@@ -22,6 +22,13 @@ const Fal: AiProvider = {
 	settings: falSettingsSchema,
 	models: [
 		{
+			id: "fal-ai/gemini-25-flash-image",
+			name: "Nano Banana",
+			ability: "i2i",
+			maxInputImages: 4,
+			enabledByDefault: true,
+		},
+		{
 			id: "fal-ai/flux-pro/kontext/max",
 			name: "FLUX.1 Kontext [max]",
 			ability: "i2i",
@@ -45,10 +52,16 @@ const Fal: AiProvider = {
 	},
 	generate: async (request, settings) => {
 		const { apiKey } = Fal.parseSettings<FalSettings>(settings);
+		const model = findModel(Fal, request.modelId);
 
-		const genType = chooseAblility(request, findModel(Fal, request.modelId).ability);
+		const genType = chooseAblility(request, model.ability);
 		let endpoint = "";
 		switch (request.modelId) {
+			case "fal-ai/gemini-25-flash-image":
+				if (genType === "i2i") {
+					endpoint = "/edit";
+				}
+				break;
 			case "fal-ai/qwen-image":
 				if (genType === "i2i") {
 					endpoint = "-edit";
@@ -80,7 +93,7 @@ const Fal: AiProvider = {
 			const input: any = { prompt: request.prompt };
 
 			if (genType === "i2i") {
-				if (imageCount === 1) {
+				if ((model.maxInputImages || 1) === 1) {
 					input.image_url = request.images?.[0];
 				} else {
 					input.image_urls = request.images;

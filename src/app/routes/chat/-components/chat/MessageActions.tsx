@@ -68,29 +68,83 @@ export function MessageActions({
 
 		try {
 			const imageUrl = imageUrls[0]!; // Only download the first image
-			const response = await fetch(imageUrl);
-			const blob = await response.blob();
-			const url = window.URL.createObjectURL(blob);
 
+			// Create a temporary link element
 			const link = document.createElement("a");
-			link.href = url;
-			// Extract file extension from URL or default to jpg
-			const urlPath = new URL(imageUrl).pathname;
-			const extension = urlPath.split(".").pop() || "jpg";
-			link.download = `generated-image-${messageId}.${extension}`;
+			link.href = imageUrl;
+			link.style.display = "none";
+			link.target = "_blank";
+			link.rel = "noopener noreferrer";
 
+			// Generate filename with timestamp
+			const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
+			let extension = "jpg"; // default extension
+
+			// Extract extension from URL
+			if (imageUrl.startsWith("data:")) {
+				// Handle base64 data URI: data:image/png;base64,xxx
+				const mimeType = imageUrl.split(":")[1]?.split(";")[0]?.split("/")[1];
+				if (mimeType) {
+					// Map MIME types to file extensions
+					switch (mimeType.toLowerCase()) {
+						case "jpeg":
+							extension = "jpg";
+							break;
+						case "png":
+							extension = "png";
+							break;
+						case "gif":
+							extension = "gif";
+							break;
+						case "webp":
+							extension = "webp";
+							break;
+						case "bmp":
+							extension = "bmp";
+							break;
+						case "svg+xml":
+							extension = "svg";
+							break;
+						default:
+							extension = mimeType; // Use the mime type as extension
+					}
+				}
+			} else {
+				// Handle regular URL
+				try {
+					const urlPath = new URL(imageUrl).pathname;
+					const urlExtension = urlPath.split(".").pop()?.toLowerCase();
+					if (urlExtension && /^(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(urlExtension)) {
+						extension = urlExtension;
+					}
+				} catch {
+					// Keep default extension if URL parsing fails
+				}
+			}
+
+			link.download = `typix-image-${timestamp}.${extension}`;
+
+			// Add to DOM, click, and remove
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
-
-			window.URL.revokeObjectURL(url);
 
 			setDownloadState("success");
 			resetStateAfterDelay(setDownloadState);
 		} catch (error) {
 			console.error("Failed to download image:", error);
-			setDownloadState("error");
-			resetStateAfterDelay(setDownloadState);
+
+			// Fallback: open image in new tab
+			try {
+				const imageUrl = imageUrls[0]!;
+				window.open(imageUrl, "_blank", "noopener,noreferrer");
+				setDownloadState("success");
+				resetStateAfterDelay(setDownloadState);
+			} catch (fallbackError) {
+				console.error("Fallback also failed:", fallbackError);
+				setDownloadState("error");
+				resetStateAfterDelay(setDownloadState);
+			}
 		}
 	};
 

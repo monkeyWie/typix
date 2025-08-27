@@ -209,9 +209,7 @@ export function ChatMessageItem({
 			</div>
 
 			{/* Message Content */}
-			<div
-				className={cn("min-w-0", message.type === "image" && !message.content ? "" : "flex-1", isUser && "text-right")}
-			>
+			<div className={cn("min-w-0", message.type === "image" && !message.content ? "" : "flex-1")}>
 				{/* Message Header - positioned above the message box */}
 				<div className={cn("mb-1 flex items-center gap-2 text-muted-foreground text-xs", isUser && "flex-row-reverse")}>
 					<span className="opacity-70">{formatTime(displayTime)}</span>
@@ -260,7 +258,7 @@ export function ChatMessageItem({
 
 					{/* Text message card container - separate from attachments to maintain independent width */}
 					{(message.content || isMessageGenerating || isMessageFailed) && (
-						<div className="relative">
+						<div className={cn("relative", isUser ? "flex justify-end" : "flex justify-start")}>
 							{/* Message Actions - positioned near the message card */}
 							{isHovered && !isMessageGenerating && (
 								<MessageActions
@@ -283,7 +281,7 @@ export function ChatMessageItem({
 
 							<div
 								className={cn(
-									"max-w-2xl rounded-xl border border-border/50 bg-card/80 p-4 shadow-sm transition-all duration-200 hover:shadow-md",
+									"max-w-2xl rounded-xl border border-border/50 bg-card/80 p-4 text-left shadow-sm transition-all duration-200 hover:shadow-md",
 								)}
 							>
 								{isMessageGenerating && !isUser ? (

@@ -298,6 +298,36 @@
 					"description": "FLUX.1 Pro 1.1 Ultra - 最先进的FLUX模型，具有超高质量生成和精度。"
 				}
 			}
+		},
+		"google": {
+			"description": "由Google Gemini和Imagen驱动的先进AI图像生成",
+			"settings": {
+				"apiKey": {
+					"title": "API密钥",
+					"description": "用于身份验证的Google AI API密钥",
+					"placeholder": "输入您的Google AI API密钥"
+				}
+			},
+			"models": {
+				"gemini-2.5-flash-image-preview": {
+					"description": "Nano Banana[Gemini 2.5 Flash Image] 是 Google 的最先进的图像生成和编辑模型。"
+				},
+				"gemini-2.0-flash-preview-image-generation": {
+					"description": "Gemini 2.0 Flash 图像生成 - 用于高质量图像生成和编辑的先进多模态模型。"
+				},
+				"imagen-4.0-generate-001": {
+					"description": "Imagen 4.0 - Google最新的文本到图像生成模型，具有卓越的质量和提示遵循能力。"
+				},
+				"imagen-4.0-ultra-generate-001": {
+					"description": "Imagen 4.0 Ultra - Imagen 4.0的高级版本，具有超高分辨率和卓越的图像质量。"
+				},
+				"imagen-4.0-fast-generate-001": {
+					"description": "Imagen 4.0 Fast - Imagen 4.0的优化版本，用于快速文本到图像生成，延迟更低。"
+				},
+				"imagen-3.0-generate-002": {
+					"description": "Imagen 3.0 - 稳定可靠的文本到图像生成模型，输出质量一致。"
+				}
+			}
 		}
 	}
 }

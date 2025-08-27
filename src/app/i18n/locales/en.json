@@ -298,6 +298,36 @@
 					"description": "FLUX.1 Pro 1.1 Ultra - The most advanced FLUX model with ultra-high quality generation and precision."
 				}
 			}
+		},
+		"google": {
+			"description": "Advanced AI image generation powered by Google Gemini and Imagen",
+			"settings": {
+				"apiKey": {
+					"title": "API Key",
+					"description": "Your Google AI API key for authentication",
+					"placeholder": "Enter your Google AI API key"
+				}
+			},
+			"models": {
+				"gemini-2.5-flash-image-preview": {
+					"description": "Nano Banana[Gemini 2.5 Flash Image] is Google's state-of-the-art image generation and editing model."
+				},
+				"gemini-2.0-flash-preview-image-generation": {
+					"description": "Gemini 2.0 Flash Image Generation - Advanced multimodal model for high-quality image generation and editing."
+				},
+				"imagen-4.0-generate-001": {
+					"description": "Imagen 4.0 - Google's latest text-to-image generation model with exceptional quality and prompt adherence."
+				},
+				"imagen-4.0-ultra-generate-001": {
+					"description": "Imagen 4.0 Ultra - Premium version of Imagen 4.0 with ultra-high resolution and superior image quality."
+				},
+				"imagen-4.0-fast-generate-001": {
+					"description": "Imagen 4.0 Fast - Optimized version of Imagen 4.0 for rapid text-to-image generation with reduced latency."
+				},
+				"imagen-3.0-generate-002": {
+					"description": "Imagen 3.0 - Stable and reliable text-to-image generation model with consistent output quality."
+				}
+			}
 		}
 	}
 }
