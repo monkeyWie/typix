@@ -1,6 +1,6 @@
 # Typix - 输入即图像
 
-[English](README_en-US.md) | 简体中文
+简体中文 | [English](README_en-US.md)
 
 Typix 是一款现代化、开源、易用、隐私安全的 AI 工具，专注于媒体内容生成领域，为广大 AI 创作者提供一站式的生成体验。
 

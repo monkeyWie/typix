@@ -1,6 +1,6 @@
 # Typix - Type To Pixels
 
-English | [简体中文](README.md)
+[简体中文](README.md) | English
 
 Typix is a modern, open-source, user-friendly, and privacy-secure AI tool focused on media content generation, providing creators with a one-stop generation experience.
 
