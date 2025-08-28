@@ -14,7 +14,6 @@
 	},
 	"app": {
 		"initializing": "初始化中",
-		"initializingDescription": "请稍候，正在设置应用程序...",
 		"initializationFailed": "初始化失败",
 		"retry": "重试"
 	},

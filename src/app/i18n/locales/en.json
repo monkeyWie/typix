@@ -14,7 +14,6 @@
 	},
 	"app": {
 		"initializing": "Initializing",
-		"initializingDescription": "Please wait while we set up the application...",
 		"initializationFailed": "Initialization Failed",
 		"retry": "Retry"
 	},

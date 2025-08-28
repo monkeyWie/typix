@@ -2,7 +2,6 @@ import { DatabaseStudio } from "@/app/components/dev/DatabaseStudio";
 import { LoginModal } from "@/app/components/login/LoginModal";
 import { GlobalNavigation } from "@/app/components/navigation/GlobalNavigation";
 import { Toaster } from "@/app/components/ui/sonner";
-import { Spinner } from "@/app/components/ui/spinner";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useSettingsService } from "@/app/hooks/useService";
 import { useThemeManager } from "@/app/hooks/useTheme";
@@ -30,13 +29,44 @@ function RootComponent() {
 	// Apply theme and theme color with automatic system theme detection
 	useThemeManager(theme, themeColor, setTheme);
 
-	// Clean up loading div from index.html
+	// Update loading title when initialization starts
 	useEffect(() => {
-		const loadingDiv = document.getElementById("loading");
-		if (loadingDiv) {
-			loadingDiv.remove();
+		if (hasAuthResolved && !isInitialized && !initError && i18n.isInitialized) {
+			const titleElement = document.getElementById("loading-title");
+			if (titleElement) {
+				titleElement.textContent = t("app.initializing");
+				titleElement.style.display = "block";
+			}
 		}
-	}, []);
+	}, [hasAuthResolved, isInitialized, initError, t, i18n.isInitialized]);
+
+	// Remove loading when app is fully loaded
+	useEffect(() => {
+		if (isInitialized && !initError) {
+			const loadingElement = document.getElementById("loading");
+			const loadingStyles = document.getElementById("loading-styles");
+			if (loadingElement) {
+				loadingElement.style.opacity = "0";
+				setTimeout(() => {
+					loadingElement.remove();
+					if (loadingStyles) {
+						loadingStyles.remove();
+					}
+				}, 300);
+			}
+		}
+	}, [isInitialized, initError]);
+
+	// Update loading title for error state
+	useEffect(() => {
+		if (initError && i18n.isInitialized) {
+			const titleElement = document.getElementById("loading-title");
+			if (titleElement) {
+				titleElement.textContent = t("app.initializationFailed");
+				titleElement.style.display = "block";
+			}
+		}
+	}, [initError, i18n.isInitialized, t]);
 
 	// Handle language change
 	useEffect(() => {
@@ -166,37 +196,9 @@ function RootComponent() {
 		};
 	}, [hasAuthResolved]);
 
-	// Show loading screen only during initial app initialization
-	// Don't block on auth loading after first resolution
-	if (!isInitialized && !initError) {
-		return (
-			<div className="flex min-h-app items-center justify-center bg-background md:min-h-screen">
-				<div className="space-y-4 text-center">
-					<Spinner size="lg" className="mx-auto text-primary" />
-					<h1 className="font-semibold text-2xl">{t("app.initializing")}</h1>
-					<p className="text-muted-foreground">{t("app.initializingDescription")}</p>
-				</div>
-			</div>
-		);
-	}
-
-	// Show error screen if initialization failed
-	if (initError) {
-		return (
-			<div className="flex min-h-app items-center justify-center bg-background md:min-h-screen">
-				<div className="space-y-4 text-center">
-					<h1 className="font-semibold text-2xl text-destructive">{t("app.initializationFailed")}</h1>
-					<p className="text-muted-foreground">{initError}</p>
-					<button
-						type="button"
-						onClick={() => window.location.reload()}
-						className="rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-					>
-						{t("app.retry")}
-					</button>
-				</div>
-			</div>
-		);
+	// Show loading screen during initialization - let index.html handle display
+	if (!isInitialized) {
+		return null;
 	}
 
 	return <AppContent />;
