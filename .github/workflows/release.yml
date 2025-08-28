@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - package.json
+      - .github/workflows/release.yml
+      - .github/release-drafter.yml
 
 permissions:
   contents: write
