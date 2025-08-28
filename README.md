@@ -59,6 +59,12 @@ Cloudflare Workers 部署可以免费享受 Cloudflare AI 提供的图像生成�
 
 > 部署成功后，您将获得一个 `typix.xxx.workers.dev` 域名，即可开始使用！
 
+### Docker 部署
+
+```bash
+docker run --name typix -d -p 9999:9999 liwei2633/typix
+```
+
 ### Node.js 部署
 
 #### 前置要求

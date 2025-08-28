@@ -59,6 +59,12 @@ Cloudflare Workers deployment provides free access to Cloudflare AI image genera
 
 > After successful deployment, you'll get a `typix.xxx.workers.dev` domain to start using!
 
+### Docker Deployment
+
+```bash
+docker run --name typix -d -p 9999:9999 liwei2633/typix
+```
+
 ### Node.js Deployment
 
 #### Prerequisites

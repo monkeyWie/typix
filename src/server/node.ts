@@ -5,4 +5,4 @@ import app from "./api";
 import "dotenv/config";
 
 app.use("/*", serveStatic({ root: "dist" }));
-serve(app);
+serve({ fetch: app.fetch, port: 9999 });
