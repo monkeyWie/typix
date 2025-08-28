@@ -8,10 +8,12 @@ Typix is a modern, open-source, user-friendly, and privacy-secure AI tool focuse
 
 ## 🎯 Quick Start
 
+No registration required, instantly experience premium AI image generation services, including cutting-edge models like Flux and SDXL (daily free quota limited, first come first served).
+
 - [https://typix.art](https://typix.art)
-  Production-grade stable version with reliable experience.
+  Production-grade stable version with cloud sync support
 - [https://preview.typix.art](https://preview.typix.art)
-  Preview the latest features and improvements, with free Cloudflare AI image generation service (daily quota limited, first come first served).
+  Get early access to the latest features and improvements
 
 ## ✨ Core Features
 
@@ -39,6 +41,7 @@ We protect both your creativity and privacy.
 
 Integrated with cutting-edge AI models and services to provide the best image generation experience:
 
+- **Google** - Advanced AI models with cutting-edge image generation capabilities
 - **OpenAI** - Industry-leading AI technology
 - **Flux** - High-quality image generation models
 - **Fal** - Fast AI inference service
