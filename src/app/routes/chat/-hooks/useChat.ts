@@ -174,6 +174,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 				title: t("chat.newChatTitle"),
 				provider,
 				model,
+				imageCount: 1, // Default image count for new chat
 			});
 
 			if (result?.id) {
@@ -229,7 +230,12 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 	);
 
 	const sendMessage = useCallback(
-		async (content: string, imageFiles?: File[], targetChatId?: string): Promise<string | null> => {
+		async (
+			content: string,
+			imageFiles?: File[],
+			targetChatId?: string,
+			imageCount?: number,
+		): Promise<string | null> => {
 			const chatId = targetChatId || currentChatId;
 
 			// Convert image files to attachments with base64 data
@@ -286,6 +292,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 						content,
 						attachments,
 						images, // Keep for backward compatibility
+						imageCount: imageCount || 1, // Pass the image count
 					});
 
 					if (!result?.id) {
@@ -402,6 +409,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 					type: "text",
 					attachments,
 					images, // Keep for backward compatibility
+					imageCount: imageCount || 1, // Pass the image count
 				});
 
 				// Use returned messages to update the chat data instead of revalidating

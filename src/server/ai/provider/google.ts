@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import type { TypixGenerateRequest } from "../types/api";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
 import { type ProviderSettingsType, chooseAblility, doParseSettings, findModel } from "../types/provider";
 
@@ -12,6 +13,74 @@ const googleSettingsSchema = [
 
 // Automatically generate type from schema
 export type GoogleSettings = ProviderSettingsType<typeof googleSettingsSchema>;
+
+// Single image generation helper function
+const generateSingle = async (request: TypixGenerateRequest, settings: ApiProviderSettings): Promise<string[]> => {
+	const { apiKey } = Google.parseSettings<GoogleSettings>(settings);
+
+	const ai = new GoogleGenAI({ apiKey });
+
+	const ability = chooseAblility(request, findModel(Google, request.modelId).ability);
+
+	let contents: any;
+
+	if (ability === "t2i") {
+		// Text-to-image generation
+		contents = request.prompt;
+	} else {
+		// Image-to-image generation
+		const promptParts: any[] = [{ text: request.prompt }];
+
+		// Add images to the prompt
+		if (request.images && request.images.length > 0) {
+			for (const imageDataUri of request.images) {
+				// Extract MIME type and base64 data from DataURI
+				const [mimeTypePart, base64Data] = imageDataUri.split(",");
+				if (!base64Data || !mimeTypePart) {
+					throw new Error("Invalid DataURI format");
+				}
+
+				// Extract MIME type (e.g., "data:image/png;base64" -> "image/png")
+				const mimeTypeMatch = mimeTypePart.match(/data:([^;]+)/);
+				const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : "image/png";
+
+				promptParts.push({
+					inlineData: {
+						mimeType,
+						data: base64Data,
+					},
+				});
+			}
+		}
+
+		contents = promptParts;
+	}
+
+	const response = await ai.models.generateContent({
+		model: request.modelId,
+		contents,
+	});
+
+	const images: string[] = [];
+
+	// Process response parts
+	if (response.candidates && response.candidates.length > 0) {
+		const candidate = response.candidates[0];
+		if (candidate?.content?.parts) {
+			for (const part of candidate.content.parts) {
+				if (part.inlineData) {
+					// Convert base64 to DataURI format
+					const mimeType = part.inlineData.mimeType || "image/png";
+					const base64Data = part.inlineData.data;
+					const dataUri = `data:${mimeType};base64,${base64Data}`;
+					images.push(dataUri);
+				}
+			}
+		}
+	}
+
+	return images;
+};
 
 const Google: AiProvider = {
 	id: "google",
@@ -63,72 +132,17 @@ const Google: AiProvider = {
 		return doParseSettings(settings, googleSettingsSchema) as GoogleSettings;
 	},
 	generate: async (request, settings) => {
-		const { apiKey } = Google.parseSettings<GoogleSettings>(settings);
-
-		const ai = new GoogleGenAI({ apiKey });
-
 		try {
-			const ability = chooseAblility(request, findModel(Google, request.modelId).ability);
+			const imageCount = request.n || 1;
 
-			let contents: any;
+			// Generate images in parallel using Promise.all
+			const generatePromises = Array.from({ length: imageCount }, () => generateSingle(request, settings));
 
-			if (ability === "t2i") {
-				// Text-to-image generation
-				contents = request.prompt;
-			} else {
-				// Image-to-image generation
-				const promptParts: any[] = [{ text: request.prompt }];
-
-				// Add images to the prompt
-				if (request.images && request.images.length > 0) {
-					for (const imageDataUri of request.images) {
-						// Extract MIME type and base64 data from DataURI
-						const [mimeTypePart, base64Data] = imageDataUri.split(",");
-						if (!base64Data || !mimeTypePart) {
-							throw new Error("Invalid DataURI format");
-						}
-
-						// Extract MIME type (e.g., "data:image/png;base64" -> "image/png")
-						const mimeTypeMatch = mimeTypePart.match(/data:([^;]+)/);
-						const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : "image/png";
-
-						promptParts.push({
-							inlineData: {
-								mimeType,
-								data: base64Data,
-							},
-						});
-					}
-				}
-
-				contents = promptParts;
-			}
-
-			const response = await ai.models.generateContent({
-				model: request.modelId,
-				contents,
-			});
-
-			const images: string[] = [];
-
-			// Process response parts
-			if (response.candidates && response.candidates.length > 0) {
-				const candidate = response.candidates[0];
-				if (candidate?.content?.parts) {
-					for (const part of candidate.content.parts) {
-						if (part.inlineData) {
-							// Convert base64 to DataURI format
-							const mimeType = part.inlineData.mimeType || "image/png";
-							const base64Data = part.inlineData.data;
-							const dataUri = `data:${mimeType};base64,${base64Data}`;
-							images.push(dataUri);
-						}
-					}
-				}
-			}
+			const results = await Promise.all(generatePromises);
+			const allImages = results.flat();
 
 			return {
-				images,
+				images: allImages,
 			};
 		} catch (error: any) {
 			// Handle common Google AI errors

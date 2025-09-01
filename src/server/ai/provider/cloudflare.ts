@@ -1,8 +1,55 @@
 import { inCfWorker } from "@/server/lib/env";
 import { base64ToDataURI, readableStreamToDataURI } from "@/server/lib/util";
 import { getContext } from "@/server/service/context";
+import type { TypixGenerateRequest } from "../types/api";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
 import { type ProviderSettingsType, doParseSettings, getProviderSettingsSchema } from "../types/provider";
+
+// Single image generation helper function
+const generateSingle = async (request: TypixGenerateRequest, settings: ApiProviderSettings): Promise<string[]> => {
+	const AI = getContext().AI;
+	const { builtin, apiKey, accountId } = Cloudflare.parseSettings<CloudflareSettings>(settings);
+
+	if (inCfWorker && AI && builtin === true) {
+		const resp = await AI.run(request.modelId as unknown as any, {
+			prompt: request.prompt,
+		});
+
+		if (resp instanceof ReadableStream) {
+			return [await readableStreamToDataURI(resp)];
+		}
+
+		return [base64ToDataURI(resp.image)];
+	}
+
+	const resp = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${request.modelId}`, {
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${apiKey}`,
+		},
+		body: JSON.stringify({
+			prompt: request.prompt,
+		}),
+	});
+
+	if (!resp.ok) {
+		if (resp.status === 401 || resp.status === 404) {
+			throw new Error("CONFIG_ERROR");
+		}
+
+		const errorText = await resp.text();
+		throw new Error(`Cloudflare API error: ${resp.status} ${resp.statusText} - ${errorText}`);
+	}
+
+	const contentType = resp.headers.get("Content-Type");
+	if (contentType?.includes("image/png") === true) {
+		const imageBuffer = await resp.arrayBuffer();
+		return [base64ToDataURI(Buffer.from(imageBuffer).toString("base64"))];
+	}
+
+	const result = (await resp.json()) as unknown as any;
+	return [base64ToDataURI(result.result.image)];
+};
 
 const cloudflareSettingsNotBuiltInSchema = [
 	{
@@ -49,6 +96,12 @@ const Cloudflare: AiProvider = {
 	enabledByDefault: true,
 	models: [
 		{
+			id: "@cf/leonardo/lucid-origin",
+			name: "lucid-origin",
+			ability: "t2i",
+			enabledByDefault: true,
+		},
+		{
 			id: "@cf/black-forest-labs/flux-1-schnell",
 			name: "FLUX.1-schnell",
 			ability: "t2i",
@@ -84,59 +137,27 @@ const Cloudflare: AiProvider = {
 		return doParseSettings(settings, settingsSchema!) as CloudflareSettings;
 	},
 	generate: async (request, settings) => {
-		const AI = getContext().AI;
-		const { builtin, apiKey, accountId } = Cloudflare.parseSettings<CloudflareSettings>(settings);
+		try {
+			const imageCount = request.n || 1;
 
-		if (inCfWorker && AI && builtin === true) {
-			const resp = await AI.run(request.modelId as unknown as any, {
-				prompt: request.prompt,
-			});
+			// Generate images in parallel using Promise.all
+			const generatePromises = Array.from({ length: imageCount }, () => generateSingle(request, settings));
 
-			if (resp instanceof ReadableStream) {
-				return {
-					images: [await readableStreamToDataURI(resp)],
-				};
-			}
+			const results = await Promise.all(generatePromises);
+			const allImages = results.flat();
 
 			return {
-				images: [base64ToDataURI(resp.image)],
+				images: allImages,
 			};
-		}
-
-		const resp = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${request.modelId}`, {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-			},
-			body: JSON.stringify({
-				prompt: request.prompt,
-			}),
-		});
-
-		if (!resp.ok) {
-			if (resp.status === 401 || resp.status === 404) {
+		} catch (error: any) {
+			if (error.message === "CONFIG_ERROR") {
 				return {
 					errorReason: "CONFIG_ERROR",
 					images: [],
 				};
 			}
-
-			const errorText = await resp.text();
-			throw new Error(`Cloudflare API error: ${resp.status} ${resp.statusText} - ${errorText}`);
+			throw error;
 		}
-
-		const contentType = resp.headers.get("Content-Type");
-		if (contentType?.includes("image/png") === true) {
-			const imageBuffer = await resp.arrayBuffer();
-			return {
-				images: [base64ToDataURI(Buffer.from(imageBuffer).toString("base64"))],
-			};
-		}
-
-		const result = (await resp.json()) as unknown as any;
-		return {
-			images: [base64ToDataURI(result.result.image)],
-		};
 	},
 };
 

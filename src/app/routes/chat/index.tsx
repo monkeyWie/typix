@@ -145,10 +145,10 @@ function ChatPageContent() {
 			});
 		}
 	};
-	const handleSendMessage = async (content: string, imageFiles?: File[]) => {
+	const handleSendMessage = async (content: string, imageFiles?: File[], imageCount?: number) => {
 		try {
 			// Execute sendMessage and wait for completion
-			await sendMessage(content, imageFiles);
+			await sendMessage(content, imageFiles, undefined, imageCount);
 		} catch (error) {
 			console.error("Error sending message:", error);
 

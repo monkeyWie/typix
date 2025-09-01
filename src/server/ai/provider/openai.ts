@@ -92,7 +92,7 @@ const OpenAI: AiProvider = {
 					// Image editing
 					generateResult = await client.images.edit({
 						model,
-						image: request.images!.map(createImageStreamFromDataUri),
+						image: createImageStreamFromDataUri(request.images![0]!),
 						prompt: request.prompt,
 						n: request.n || 1,
 					});

@@ -25,6 +25,7 @@
 		"uploadForImageToImage": "上传图片进行图生图",
 		"textToImageModelNoUpload": "当前模型仅支持文生图",
 		"maxImagesReached": "已达到最大图片数量",
+		"imageCount": "生成图片数量",
 		"tooManyImagesSelected": "选择图片过多",
 		"onlyAddedImages": "由于数量限制，仅添加了所选{{selected}}张图片中的{{added}}张",
 		"modelChanged": "模型已切换",
