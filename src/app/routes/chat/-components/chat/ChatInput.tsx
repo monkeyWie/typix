@@ -1,18 +1,18 @@
 import { Button } from "@/app/components/ui/button";
 import { ImagePreview, type ImageSlide } from "@/app/components/ui/image-preview";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { useToast } from "@/app/hooks/useToast";
 import { cn } from "@/app/lib/utils";
 import { getModelById } from "@/server/ai/provider";
-import type { Ability } from "@/server/ai/types/model";
-import { Hash, Image, Send, X, ZoomIn } from "lucide-react";
+import type { AspectRatio } from "@/server/ai/types/api";
+import { Image, Send, SlidersHorizontal, X, ZoomIn } from "lucide-react";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ImagePreferences } from "./ImagePreferences";
 
 interface ChatInputProps {
-	onSendMessage: (content: string, imageFiles?: File[], imageCount?: number) => void;
+	onSendMessage: (content: string, imageFiles?: File[], imageCount?: number, aspectRatio?: AspectRatio) => void;
 	disabled?: boolean;
 	currentProvider?: string;
 	currentModel?: string;
@@ -28,6 +28,8 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 	const [lightboxIndex, setLightboxIndex] = useState(0);
 	const [shouldFocusAfterEnable, setShouldFocusAfterEnable] = useState(false);
 	const [imageCount, setImageCount] = useState(1);
+	const [aspectRatio, setAspectRatio] = useState<AspectRatio | undefined>(undefined);
+	const [showPreferences, setShowPreferences] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -83,7 +85,7 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 		// Mark that we should focus after the input is re-enabled
 		setShouldFocusAfterEnable(true);
 
-		onSendMessage(message.trim(), selectedImages.length > 0 ? selectedImages : undefined, imageCount);
+		onSendMessage(message.trim(), selectedImages.length > 0 ? selectedImages : undefined, imageCount, aspectRatio);
 		setMessage("");
 		setSelectedImages([]);
 		setPreviewUrls([]);
@@ -251,35 +253,40 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 
 						{/* Bottom buttons area */}
 						<div className="absolute inset-x-3 bottom-3 flex items-center justify-between">
-							{/* Left side - Image count selector */}
-							<div className="flex items-center gap-2">
+							{/* Left side - Preferences button */}
+							<div className="relative flex items-center gap-2">
 								<TooltipProvider>
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<div className="flex items-center gap-1.5">
-												<Hash className="h-3.5 w-3.5 text-muted-foreground" />
-												<Select
-													value={imageCount.toString()}
-													onValueChange={(value) => setImageCount(Number.parseInt(value))}
-												>
-													<SelectTrigger className="h-8 w-16 border-border/50 bg-background/80 backdrop-blur-sm">
-														<SelectValue />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="1">1</SelectItem>
-														<SelectItem value="2">2</SelectItem>
-														<SelectItem value="3">3</SelectItem>
-														<SelectItem value="4">4</SelectItem>
-														<SelectItem value="5">5</SelectItem>
-													</SelectContent>
-												</Select>
-											</div>
+											<Button
+												variant={showPreferences ? "default" : "outline"}
+												size="icon"
+												onClick={() => setShowPreferences(!showPreferences)}
+												className="h-8 w-8 rounded-lg border-border/50 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-accent/80"
+											>
+												<SlidersHorizontal className="h-3.5 w-3.5" />
+											</Button>
 										</TooltipTrigger>
 										<TooltipContent>
-											<p>{t("chat.imageCount")}</p>
+											<p>图片偏好设置</p>
 										</TooltipContent>
 									</Tooltip>
 								</TooltipProvider>
+
+								{/* Preferences panel */}
+								{showPreferences && (
+									<div className="absolute bottom-12 left-0 z-50">
+										<ImagePreferences
+											imageCount={imageCount}
+											aspectRatio={aspectRatio}
+											onImageCountChange={setImageCount}
+											onAspectRatioChange={setAspectRatio}
+											currentProvider={currentProvider}
+											currentModel={currentModel}
+											onClose={() => setShowPreferences(false)}
+										/>
+									</div>
+								)}
 							</div>
 
 							{/* Right side - Action buttons */}

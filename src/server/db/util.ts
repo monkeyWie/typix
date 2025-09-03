@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import { text } from "drizzle-orm/sqlite-core";
 import { customAlphabet } from "nanoid/non-secure";
 

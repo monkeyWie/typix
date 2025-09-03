@@ -24,6 +24,10 @@ export const CreateChatSchema = createInsertSchema(chats)
 		 */
 		imageCount: z.number().int().min(1).max(10).default(1),
 		/**
+		 * Aspect ratio for image generation
+		 */
+		aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4"]).optional(),
+		/**
 		 * Attachments for the first message
 		 */
 		attachments: z
@@ -64,6 +68,7 @@ const createChat = async (req: CreateChat, ctx: RequestContext) => {
 				provider: req.provider,
 				model: req.model,
 				imageCount: req.imageCount, // Pass the image count
+				aspectRatio: req.aspectRatio, // Pass the aspect ratio
 				attachments: req.attachments,
 				images: req.images,
 			},
@@ -273,6 +278,10 @@ export const CreateMessageSchema = createInsertSchema(messages)
 		 */
 		imageCount: z.number().int().min(1).max(10).default(1),
 		/**
+		 * Aspect ratio for image generation
+		 */
+		aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4"]).optional(),
+		/**
 		 * base64-encoded image strings for attachments
 		 */
 		attachments: z
@@ -302,6 +311,7 @@ interface GenerationParams {
 	userId: string;
 	userImages?: string[];
 	imageCount?: number; // Number of images to generate
+	aspectRatio?: string; // Aspect ratio for image generation
 	messageId?: string; // For regeneration, exclude this message from reference search
 }
 
@@ -316,6 +326,7 @@ const executeImageGeneration = async (params: GenerationParams, ctx: RequestCont
 		userId,
 		userImages,
 		imageCount,
+		aspectRatio,
 		messageId,
 	} = params;
 
@@ -390,6 +401,7 @@ const executeImageGeneration = async (params: GenerationParams, ctx: RequestCont
 				prompt,
 				images: referImages,
 				n: imageCount || 1, // Pass the image count to provider
+				aspectRatio: aspectRatio as any, // Pass the aspect ratio to provider
 			},
 			settings,
 		);
@@ -536,6 +548,7 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 				userId,
 				userImages,
 				imageCount: req.imageCount, // Pass the image count
+				aspectRatio: req.aspectRatio, // Pass the aspect ratio
 				messageId: assistantMessage.id,
 			},
 			ctx,

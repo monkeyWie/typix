@@ -1,6 +1,5 @@
 import { fetchUrlToDataURI } from "@/server/lib/util";
 import { ApiError, fal } from "@fal-ai/client";
-import type { TypixGenerateRequest } from "../types/api";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
 import { type ProviderSettingsType, chooseAblility, doParseSettings, findModel } from "../types/provider";
 
@@ -14,6 +13,15 @@ const falSettingsSchema = [
 
 // Automatically generate type from schema
 export type FalSettings = ProviderSettingsType<typeof falSettingsSchema>;
+
+// square_hd, square, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9
+const qwenAspectRatioSizes = {
+	"1:1": "square_hd",
+	"16:9": "portrait_16_9",
+	"9:16": "landscape_16_9",
+	"4:3": "portrait_4_3",
+	"3:4": "landscape_4_3",
+};
 
 const Fal: AiProvider = {
 	id: "fal",
@@ -34,18 +42,21 @@ const Fal: AiProvider = {
 			name: "FLUX.1 Kontext [max]",
 			ability: "i2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 		{
 			id: "fal-ai/flux-pro/kontext",
 			name: "FLUX.1 Kontext [pro]",
 			ability: "i2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 		{
 			id: "fal-ai/qwen-image",
 			name: "Qwen Image",
 			ability: "i2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 	],
 	parseSettings: <FalSettings>(settings: ApiProviderSettings) => {
@@ -94,6 +105,14 @@ const Fal: AiProvider = {
 			// Add num_images parameter for multiple image generation
 			if (request.n && request.n > 1) {
 				input.num_images = request.n;
+			}
+
+			if (request.aspectRatio) {
+				if (request.modelId === "fal-ai/qwen-image") {
+					input.image_size = qwenAspectRatioSizes[request.aspectRatio];
+				} else {
+					input.aspect_ratio = request.aspectRatio;
+				}
 			}
 
 			if (genType === "i2i") {

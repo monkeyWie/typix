@@ -1,19 +1,38 @@
 import { inCfWorker } from "@/server/lib/env";
-import { base64ToDataURI, readableStreamToDataURI } from "@/server/lib/util";
+import { base64ToDataURI, dataURItoBase64, readableStreamToDataURI } from "@/server/lib/util";
 import { getContext } from "@/server/service/context";
-import type { TypixGenerateRequest } from "../types/api";
+import { type TypixGenerateRequest, commonAspectRatioSizes } from "../types/api";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
-import { type ProviderSettingsType, doParseSettings, getProviderSettingsSchema } from "../types/provider";
+import {
+	type ProviderSettingsType,
+	chooseAblility,
+	doParseSettings,
+	findModel,
+	getProviderSettingsSchema,
+} from "../types/provider";
 
 // Single image generation helper function
 const generateSingle = async (request: TypixGenerateRequest, settings: ApiProviderSettings): Promise<string[]> => {
 	const AI = getContext().AI;
 	const { builtin, apiKey, accountId } = Cloudflare.parseSettings<CloudflareSettings>(settings);
 
+	const model = findModel(Cloudflare, request.modelId);
+	const genType = chooseAblility(request, model.ability);
+
+	const params = {
+		prompt: request.prompt,
+	} as any;
+	if (request.aspectRatio) {
+		const size = commonAspectRatioSizes[request.aspectRatio];
+		params.width = size?.width;
+		params.height = size?.height;
+	}
+	if (genType === "i2i") {
+		params.image_b64 = dataURItoBase64(request.images![0]!);
+	}
+
 	if (inCfWorker && AI && builtin === true) {
-		const resp = await AI.run(request.modelId as unknown as any, {
-			prompt: request.prompt,
-		});
+		const resp = await AI.run(request.modelId as unknown as any, params);
 
 		if (resp instanceof ReadableStream) {
 			return [await readableStreamToDataURI(resp)];
@@ -27,9 +46,7 @@ const generateSingle = async (request: TypixGenerateRequest, settings: ApiProvid
 		headers: {
 			Authorization: `Bearer ${apiKey}`,
 		},
-		body: JSON.stringify({
-			prompt: request.prompt,
-		}),
+		body: JSON.stringify(params),
 	});
 
 	if (!resp.ok) {
@@ -97,9 +114,10 @@ const Cloudflare: AiProvider = {
 	models: [
 		{
 			id: "@cf/leonardo/lucid-origin",
-			name: "lucid-origin",
+			name: "Lucid Origin",
 			ability: "t2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 		{
 			id: "@cf/black-forest-labs/flux-1-schnell",
@@ -112,12 +130,14 @@ const Cloudflare: AiProvider = {
 			name: "DreamShaper 8 LCM",
 			ability: "t2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 		{
 			id: "@cf/bytedance/stable-diffusion-xl-lightning",
 			name: "Stable Diffusion XL Lightning",
 			ability: "t2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 		// {
 		// 	id: "@cf/runwayml/stable-diffusion-v1-5-img2img",
@@ -130,6 +150,7 @@ const Cloudflare: AiProvider = {
 			name: "Stable Diffusion XL Base 1.0",
 			ability: "t2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 	],
 	parseSettings: <CloudflareSettings>(settings: ApiProviderSettings) => {

@@ -93,14 +93,14 @@ const Google: AiProvider = {
 			id: "gemini-2.5-flash-image-preview",
 			name: "Nano Banana",
 			ability: "i2i",
-			maxInputImages: 5,
+			maxInputImages: 4,
 			enabledByDefault: true,
 		},
 		{
 			id: "gemini-2.0-flash-preview-image-generation",
 			name: "Gemini 2.0 Flash Image Generation",
 			ability: "i2i",
-			maxInputImages: 5,
+			maxInputImages: 4,
 			enabledByDefault: true,
 		},
 		{

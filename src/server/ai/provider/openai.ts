@@ -54,6 +54,14 @@ const openAISettingsSchema = [
 // Automatically generate type from schema
 export type OpenAISettings = ProviderSettingsType<typeof openAISettingsSchema>;
 
+const aspectRatioSizes = {
+	"1:1": "1024x1024",
+	"16:9": "1792x1024",
+	"9:16": "1024x1792",
+	"4:3": "1536x1024",
+	"3:4": "1024x1536",
+};
+
 const OpenAI: AiProvider = {
 	id: "openai",
 	name: "OpenAI",
@@ -67,6 +75,7 @@ const OpenAI: AiProvider = {
 			ability: "i2i",
 			maxInputImages: 3,
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 	],
 	parseSettings: <OpenAISettings>(settings: ApiProviderSettings) => {
@@ -78,6 +87,10 @@ const OpenAI: AiProvider = {
 		const client = new openai.OpenAI({ baseURL, apiKey, dangerouslyAllowBrowser: true });
 
 		let generateResult: openai.ImagesResponse;
+		let size: any = null;
+		if (request.aspectRatio) {
+			size = aspectRatioSizes[request.aspectRatio];
+		}
 		try {
 			switch (chooseAblility(request, findModel(OpenAI, request.modelId).ability)) {
 				case "t2i":
@@ -86,6 +99,7 @@ const OpenAI: AiProvider = {
 						model,
 						prompt: request.prompt,
 						n: request.n || 1,
+						size,
 					});
 					break;
 				default:
@@ -95,6 +109,7 @@ const OpenAI: AiProvider = {
 						image: createImageStreamFromDataUri(request.images![0]!),
 						prompt: request.prompt,
 						n: request.n || 1,
+						size,
 					});
 					break;
 			}

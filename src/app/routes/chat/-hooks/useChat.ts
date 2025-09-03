@@ -1,6 +1,7 @@
 import { useAuth } from "@/app/hooks/useAuth";
 import { useAiService } from "@/app/hooks/useService";
 import { useChatService } from "@/app/hooks/useService";
+import type { AspectRatio } from "@/server/ai/types/api";
 import type { chatService } from "@/server/service/chat";
 import { localUserId } from "@/server/service/context";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -235,6 +236,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 			imageFiles?: File[],
 			targetChatId?: string,
 			imageCount?: number,
+			aspectRatio?: AspectRatio,
 		): Promise<string | null> => {
 			const chatId = targetChatId || currentChatId;
 
@@ -293,6 +295,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 						attachments,
 						images, // Keep for backward compatibility
 						imageCount: imageCount || 1, // Pass the image count
+						aspectRatio, // Pass the aspect ratio
 					});
 
 					if (!result?.id) {
@@ -410,6 +413,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 					attachments,
 					images, // Keep for backward compatibility
 					imageCount: imageCount || 1, // Pass the image count
+					aspectRatio, // Pass the aspect ratio
 				});
 
 				// Use returned messages to update the chat data instead of revalidating
