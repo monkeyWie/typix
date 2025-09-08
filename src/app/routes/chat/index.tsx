@@ -7,6 +7,7 @@ import { ChatInput } from "@/app/routes/chat/-components/chat/ChatInput";
 import { ChatSidebar } from "@/app/routes/chat/-components/sidebar/ChatSidebar";
 import { useChat } from "@/app/routes/chat/-hooks/useChat";
 import { ChatSidebarProvider, useSidebar } from "@/app/routes/chat/-hooks/useChatSidebar";
+import type { AspectRatio } from "@/server/ai/types/api";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -145,10 +146,15 @@ function ChatPageContent() {
 			});
 		}
 	};
-	const handleSendMessage = async (content: string, imageFiles?: File[]) => {
+	const handleSendMessage = async (
+		content: string,
+		imageFiles?: File[],
+		imageCount?: number,
+		aspectRatio?: AspectRatio,
+	) => {
 		try {
 			// Execute sendMessage and wait for completion
-			await sendMessage(content, imageFiles);
+			await sendMessage(content, imageFiles, undefined, imageCount, aspectRatio);
 		} catch (error) {
 			console.error("Error sending message:", error);
 

@@ -1,6 +1,12 @@
 # Typix - 输入即图像
 
-简体中文 | [English](README_en-US.md)
+<p align="center">
+  <a href="https://github.com/monkeyWie/typix/releases"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version"></a>
+  <a href="https://hub.docker.com/r/liwei2633/typix"><img src="https://img.shields.io/docker/v/liwei2633/typix?label=Docker&color=blue" alt="Docker"></a>
+  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg" alt="License"></a>
+</p>
+
+<p align="center">简体中文 | <a href="README_en-US.md">English</a></p>
 
 Typix 是一款现代化、开源、易用、隐私安全的 AI 工具，专注于媒体内容生成领域，为广大 AI 创作者提供一站式的生成体验。
 

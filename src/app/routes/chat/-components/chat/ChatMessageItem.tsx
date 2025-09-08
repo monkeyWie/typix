@@ -220,38 +220,57 @@ export function ChatMessageItem({
 					{/* User attachments - displayed above the text message */}
 					{isUser && userAttachments.length > 0 && (
 						<div className={cn("mb-2", isUser ? "flex justify-end" : "flex justify-start")}>
-							<div
-								className={cn(
-									"max-w-2xl",
-									userAttachments.length === 1
-										? "flex justify-start"
-										: "grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3",
+							<div className="w-full max-w-2xl">
+								{userAttachments.length === 1 ? (
+									<div className="flex justify-center">
+										<button
+											type="button"
+											className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+											onClick={() => {
+												if (userAttachments[0]?.url && allImages.length > 0) {
+													const imageIndex = allImages.findIndex((img) => img.src === userAttachments[0]?.url);
+													setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
+													setIsLightboxOpen(true);
+												}
+											}}
+											aria-label={t("chat.clickToEnlarge")}
+											disabled={!userAttachments[0]?.url}
+										>
+											<img
+												src={userAttachments[0]?.url || ""}
+												alt={t("chat.userImage")}
+												className="h-auto w-full max-w-sm rounded-xl object-cover shadow-lg sm:max-w-md md:max-w-lg"
+												loading="lazy"
+											/>
+										</button>
+									</div>
+								) : (
+									<div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
+										{userAttachments.map((attachment, index) => (
+											<button
+												key={`${message.id}-attachment-${attachment.id}`}
+												type="button"
+												className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+												onClick={() => {
+													if (attachment.url && allImages.length > 0) {
+														const imageIndex = allImages.findIndex((img) => img.src === attachment.url);
+														setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
+														setIsLightboxOpen(true);
+													}
+												}}
+												aria-label={t("chat.clickToEnlarge")}
+												disabled={!attachment.url}
+											>
+												<img
+													src={attachment.url || ""}
+													alt={t("chat.userImage")}
+													className="aspect-square h-auto w-full rounded-xl object-cover shadow-lg"
+													loading="lazy"
+												/>
+											</button>
+										))}
+									</div>
 								)}
-							>
-								{userAttachments.map((attachment, index) => (
-									<button
-										key={`${message.id}-attachment-${attachment.id}`}
-										type="button"
-										className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-										onClick={() => {
-											if (attachment.url && allImages.length > 0) {
-												// Find the index of this specific image in allImages
-												const imageIndex = allImages.findIndex((img) => img.src === attachment.url);
-												setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
-												setIsLightboxOpen(true);
-											}
-										}}
-										aria-label={t("chat.clickToEnlarge")}
-										disabled={!attachment.url}
-									>
-										<img
-											src={attachment.url || ""}
-											alt={t("chat.userImage")}
-											className="h-auto max-h-64 max-w-80 rounded-xl object-cover shadow-lg"
-											loading="lazy"
-										/>
-									</button>
-								))}
 							</div>
 						</div>
 					)}
@@ -274,7 +293,10 @@ export function ChatMessageItem({
 									onDelete={onDelete}
 									className={cn(
 										"absolute top-1 z-10",
-										isUser ? "-left-2 -translate-x-full" : "-right-2 translate-x-full",
+										// Desktop positioning
+										isUser ? "sm:-left-2 sm:-translate-x-full" : "sm:-right-2 sm:translate-x-full",
+										// Mobile positioning - show inside content area
+										isUser ? "right-2 sm:right-auto" : "left-2 sm:left-auto",
 									)}
 								/>
 							)}
@@ -337,17 +359,53 @@ export function ChatMessageItem({
 					{/* Display AI generated images - no background/border wrapper, same as attachments */}
 					{message.type === "image" && currentMessageImageUrls.length > 0 && (
 						<div className={cn("mt-2", isUser ? "flex justify-end" : "flex justify-start")}>
-							<div
-								className={cn(
-									"max-w-2xl",
-									currentMessageImageUrls.length === 1
-										? "flex justify-start"
-										: "grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3",
-								)}
-							>
-								{currentMessageImageUrls.map((imageUrl, index) => (
-									<div key={`${message.id}-${imageUrl}`} className="relative">
-										{/* Message Actions for images */}
+							<div className="w-full max-w-2xl">
+								{currentMessageImageUrls.length === 1 ? (
+									<div className="flex justify-center">
+										<div className="relative">
+											{/* Message Actions for single image */}
+											{isHovered && (
+												<MessageActions
+													messageId={message.id}
+													messageType={message.type}
+													content={message.content}
+													imageUrls={currentMessageImageUrls}
+													isUser={isUser}
+													onDelete={onDelete}
+													className={cn(
+														"absolute top-1 z-10",
+														// Desktop positioning
+														isUser ? "sm:-left-2 sm:-translate-x-full" : "sm:-right-2 sm:translate-x-full",
+														// Mobile positioning - show inside content area
+														isUser ? "right-2 sm:right-auto" : "left-2 sm:left-auto",
+													)}
+												/>
+											)}
+											<button
+												type="button"
+												className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+												onClick={() => {
+													if (isCurrentImageSuccessful && allImages.length > 0) {
+														const imageIndex = allImages.findIndex((img) => img.src === currentMessageImageUrls[0]);
+														setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
+														setIsLightboxOpen(true);
+													}
+												}}
+												aria-label={t("chat.clickToEnlarge")}
+												disabled={!isCurrentImageSuccessful}
+											>
+												<img
+													src={currentMessageImageUrls[0]}
+													alt={t("chat.generatedOrUploaded")}
+													className="h-auto w-full max-w-sm rounded-xl object-cover shadow-lg sm:max-w-md md:max-w-lg"
+													loading="lazy"
+												/>
+											</button>
+										</div>
+									</div>
+								) : (
+									<div className="relative">
+										{/* Message Actions for multiple images */}
 										{isHovered && (
 											<MessageActions
 												messageId={message.id}
@@ -357,35 +415,41 @@ export function ChatMessageItem({
 												isUser={isUser}
 												onDelete={onDelete}
 												className={cn(
-													"absolute top-1 z-10",
-													isUser ? "-left-2 -translate-x-full" : "-right-2 translate-x-full",
+													"-top-2 absolute z-10",
+													// Desktop positioning
+													isUser ? "sm:-left-2 sm:-translate-x-full" : "sm:-right-2 sm:translate-x-full",
+													// Mobile positioning - show inside content area
+													isUser ? "right-2 sm:right-auto" : "left-2 sm:left-auto",
 												)}
 											/>
 										)}
-										<button
-											type="button"
-											className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-											onClick={() => {
-												// Only open preview if current image is successful
-												if (isCurrentImageSuccessful && allImages.length > 0) {
-													// Find the index of this specific image in allImages
-													const imageIndex = allImages.findIndex((img) => img.src === imageUrl);
-													setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
-													setIsLightboxOpen(true);
-												}
-											}}
-											aria-label={t("chat.clickToEnlarge")}
-											disabled={!isCurrentImageSuccessful}
-										>
-											<img
-												src={imageUrl}
-												alt={t("chat.generatedOrUploaded")}
-												className="h-auto max-h-64 max-w-80 rounded-xl object-cover shadow-lg"
-												loading="lazy"
-											/>
-										</button>
+										<div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
+											{currentMessageImageUrls.map((imageUrl, index) => (
+												<button
+													key={`${message.id}-${imageUrl}-${index}`}
+													type="button"
+													className="block rounded-xl transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+													onClick={() => {
+														if (isCurrentImageSuccessful && allImages.length > 0) {
+															const imageIndex = allImages.findIndex((img) => img.src === imageUrl);
+															setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
+															setIsLightboxOpen(true);
+														}
+													}}
+													aria-label={t("chat.clickToEnlarge")}
+													disabled={!isCurrentImageSuccessful}
+												>
+													<img
+														src={imageUrl}
+														alt={t("chat.generatedOrUploaded")}
+														className="aspect-square h-auto w-full rounded-xl object-cover shadow-lg"
+														loading="lazy"
+													/>
+												</button>
+											))}
+										</div>
 									</div>
-								))}
+								)}
 							</div>
 						</div>
 					)}

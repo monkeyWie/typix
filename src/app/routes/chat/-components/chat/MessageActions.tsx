@@ -1,5 +1,6 @@
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
+import JSZip from "jszip";
 import { Check, Copy, Download, Loader2, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -64,11 +65,19 @@ export function MessageActions({
 	const handleDownload = async () => {
 		if (!imageUrls || imageUrls.length === 0) return;
 
+		// For single image, download directly
+		if (imageUrls.length === 1) {
+			await downloadSingleImage(imageUrls[0]!, 0);
+		} else {
+			// For multiple images, download as ZIP
+			await downloadAllAsZip();
+		}
+	};
+
+	const downloadSingleImage = async (imageUrl: string, index: number) => {
 		setDownloadState("loading");
 
 		try {
-			const imageUrl = imageUrls[0]!; // Only download the first image
-
 			// Create a temporary link element
 			const link = document.createElement("a");
 			link.href = imageUrl;
@@ -76,7 +85,7 @@ export function MessageActions({
 			link.target = "_blank";
 			link.rel = "noopener noreferrer";
 
-			// Generate filename with timestamp
+			// Generate filename with timestamp and index
 			const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
 			let extension = "jpg"; // default extension
 
@@ -122,7 +131,13 @@ export function MessageActions({
 				}
 			}
 
-			link.download = `typix-image-${timestamp}.${extension}`;
+			// Set filename: single image doesn't need index, multiple images include index
+			const filename =
+				imageUrls?.length === 1
+					? `typix-image-${timestamp}.${extension}`
+					: `typix-image-${timestamp}-${index + 1}.${extension}`;
+
+			link.download = filename;
 
 			// Add to DOM, click, and remove
 			document.body.appendChild(link);
@@ -136,7 +151,6 @@ export function MessageActions({
 
 			// Fallback: open image in new tab
 			try {
-				const imageUrl = imageUrls[0]!;
 				window.open(imageUrl, "_blank", "noopener,noreferrer");
 				setDownloadState("success");
 				resetStateAfterDelay(setDownloadState);
@@ -145,6 +159,93 @@ export function MessageActions({
 				setDownloadState("error");
 				resetStateAfterDelay(setDownloadState);
 			}
+		}
+	};
+
+	const downloadAllAsZip = async () => {
+		if (!imageUrls || imageUrls.length === 0) return;
+
+		setDownloadState("loading");
+
+		try {
+			const zip = new JSZip();
+			const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "");
+
+			// Download all images and add to zip
+			const downloadPromises = imageUrls.map(async (imageUrl, index) => {
+				try {
+					const response = await fetch(imageUrl);
+					if (!response.ok) {
+						throw new Error(`Failed to fetch image ${index + 1}`);
+					}
+					const blob = await response.blob();
+
+					// Determine file extension
+					let extension = "jpg";
+					if (imageUrl.startsWith("data:")) {
+						const mimeType = imageUrl.split(":")[1]?.split(";")[0]?.split("/")[1];
+						if (mimeType) {
+							switch (mimeType.toLowerCase()) {
+								case "jpeg":
+									extension = "jpg";
+									break;
+								case "png":
+									extension = "png";
+									break;
+								case "gif":
+									extension = "gif";
+									break;
+								case "webp":
+									extension = "webp";
+									break;
+								default:
+									extension = mimeType;
+							}
+						}
+					} else {
+						try {
+							const urlPath = new URL(imageUrl).pathname;
+							const urlExtension = urlPath.split(".").pop()?.toLowerCase();
+							if (urlExtension && /^(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(urlExtension)) {
+								extension = urlExtension;
+							}
+						} catch {
+							// Keep default extension
+						}
+					}
+
+					const filename = `image-${index + 1}.${extension}`;
+					zip.file(filename, blob);
+				} catch (error) {
+					console.error(`Failed to download image ${index + 1}:`, error);
+					// Continue with other images even if one fails
+				}
+			});
+
+			await Promise.all(downloadPromises);
+
+			// Generate and download the ZIP file
+			const zipBlob = await zip.generateAsync({ type: "blob" });
+			const zipUrl = URL.createObjectURL(zipBlob);
+
+			const link = document.createElement("a");
+			link.href = zipUrl;
+			link.download = `typix-images-${timestamp}.zip`;
+			link.style.display = "none";
+
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+
+			// Clean up blob URL
+			setTimeout(() => URL.revokeObjectURL(zipUrl), 100);
+
+			setDownloadState("success");
+			resetStateAfterDelay(setDownloadState);
+		} catch (error) {
+			console.error("Failed to download images as ZIP:", error);
+			setDownloadState("error");
+			resetStateAfterDelay(setDownloadState);
 		}
 	};
 

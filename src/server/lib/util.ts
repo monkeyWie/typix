@@ -2,6 +2,10 @@ export function base64ToDataURI(base64: string, fmt = "png") {
 	return `data:image/${fmt};base64,${base64}`;
 }
 
+export function dataURItoBase64(dataURI: string) {
+	return dataURI.split(",")[1];
+}
+
 export async function readableStreamToDataURI(stream: ReadableStream<Uint8Array>, fmt = "png") {
 	const reader = stream.getReader();
 	const chunks: Uint8Array[] = [];
