@@ -1,4 +1,4 @@
-import '@bprogress/core/css';
+import "@bprogress/core/css";
 import { BProgress } from "@bprogress/core";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode } from "react";
@@ -15,7 +15,7 @@ import "./index.css";
 
 BProgress.configure({
 	showSpinner: false,
-})
+});
 
 // Create a new router instance
 const router = createRouter({ routeTree });

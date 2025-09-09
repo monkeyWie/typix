@@ -1,8 +1,72 @@
 import { inCfWorker } from "@/server/lib/env";
-import { base64ToDataURI, readableStreamToDataURI } from "@/server/lib/util";
+import { base64ToDataURI, dataURItoBase64, readableStreamToDataURI } from "@/server/lib/util";
 import { getContext } from "@/server/service/context";
+import { type TypixGenerateRequest, commonAspectRatioSizes } from "../types/api";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
-import { type ProviderSettingsType, doParseSettings, getProviderSettingsSchema } from "../types/provider";
+import {
+	type ProviderSettingsType,
+	chooseAblility,
+	doParseSettings,
+	findModel,
+	getProviderSettingsSchema,
+} from "../types/provider";
+
+// Single image generation helper function
+const generateSingle = async (request: TypixGenerateRequest, settings: ApiProviderSettings): Promise<string[]> => {
+	const AI = getContext().AI;
+	const { builtin, apiKey, accountId } = Cloudflare.parseSettings<CloudflareSettings>(settings);
+
+	const model = findModel(Cloudflare, request.modelId);
+	const genType = chooseAblility(request, model.ability);
+
+	const params = {
+		prompt: request.prompt,
+	} as any;
+	if (request.aspectRatio) {
+		const size = commonAspectRatioSizes[request.aspectRatio];
+		params.width = size?.width;
+		params.height = size?.height;
+	}
+	if (genType === "i2i") {
+		params.image_b64 = dataURItoBase64(request.images![0]!);
+	}
+
+	if (inCfWorker && AI && builtin === true) {
+		const resp = await AI.run(request.modelId as unknown as any, params);
+
+		if (resp instanceof ReadableStream) {
+			return [await readableStreamToDataURI(resp)];
+		}
+
+		return [base64ToDataURI(resp.image)];
+	}
+
+	const resp = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${request.modelId}`, {
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${apiKey}`,
+		},
+		body: JSON.stringify(params),
+	});
+
+	if (!resp.ok) {
+		if (resp.status === 401 || resp.status === 404) {
+			throw new Error("CONFIG_ERROR");
+		}
+
+		const errorText = await resp.text();
+		throw new Error(`Cloudflare API error: ${resp.status} ${resp.statusText} - ${errorText}`);
+	}
+
+	const contentType = resp.headers.get("Content-Type");
+	if (contentType?.includes("image/png") === true) {
+		const imageBuffer = await resp.arrayBuffer();
+		return [base64ToDataURI(Buffer.from(imageBuffer).toString("base64"))];
+	}
+
+	const result = (await resp.json()) as unknown as any;
+	return [base64ToDataURI(result.result.image)];
+};
 
 const cloudflareSettingsNotBuiltInSchema = [
 	{
@@ -49,6 +113,13 @@ const Cloudflare: AiProvider = {
 	enabledByDefault: true,
 	models: [
 		{
+			id: "@cf/leonardo/lucid-origin",
+			name: "Lucid Origin",
+			ability: "t2i",
+			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+		},
+		{
 			id: "@cf/black-forest-labs/flux-1-schnell",
 			name: "FLUX.1-schnell",
 			ability: "t2i",
@@ -59,12 +130,14 @@ const Cloudflare: AiProvider = {
 			name: "DreamShaper 8 LCM",
 			ability: "t2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 		{
 			id: "@cf/bytedance/stable-diffusion-xl-lightning",
 			name: "Stable Diffusion XL Lightning",
 			ability: "t2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 		// {
 		// 	id: "@cf/runwayml/stable-diffusion-v1-5-img2img",
@@ -77,6 +150,7 @@ const Cloudflare: AiProvider = {
 			name: "Stable Diffusion XL Base 1.0",
 			ability: "t2i",
 			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
 		},
 	],
 	parseSettings: <CloudflareSettings>(settings: ApiProviderSettings) => {
@@ -84,59 +158,27 @@ const Cloudflare: AiProvider = {
 		return doParseSettings(settings, settingsSchema!) as CloudflareSettings;
 	},
 	generate: async (request, settings) => {
-		const AI = getContext().AI;
-		const { builtin, apiKey, accountId } = Cloudflare.parseSettings<CloudflareSettings>(settings);
+		try {
+			const imageCount = request.n || 1;
 
-		if (inCfWorker && AI && builtin === true) {
-			const resp = await AI.run(request.modelId as unknown as any, {
-				prompt: request.prompt,
-			});
+			// Generate images in parallel using Promise.all
+			const generatePromises = Array.from({ length: imageCount }, () => generateSingle(request, settings));
 
-			if (resp instanceof ReadableStream) {
-				return {
-					images: [await readableStreamToDataURI(resp)],
-				};
-			}
+			const results = await Promise.all(generatePromises);
+			const allImages = results.flat();
 
 			return {
-				images: [base64ToDataURI(resp.image)],
+				images: allImages,
 			};
-		}
-
-		const resp = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${request.modelId}`, {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-			},
-			body: JSON.stringify({
-				prompt: request.prompt,
-			}),
-		});
-
-		if (!resp.ok) {
-			if (resp.status === 401 || resp.status === 404) {
+		} catch (error: any) {
+			if (error.message === "CONFIG_ERROR") {
 				return {
 					errorReason: "CONFIG_ERROR",
 					images: [],
 				};
 			}
-
-			const errorText = await resp.text();
-			throw new Error(`Cloudflare API error: ${resp.status} ${resp.statusText} - ${errorText}`);
+			throw error;
 		}
-
-		const contentType = resp.headers.get("Content-Type");
-		if (contentType?.includes("image/png") === true) {
-			const imageBuffer = await resp.arrayBuffer();
-			return {
-				images: [base64ToDataURI(Buffer.from(imageBuffer).toString("base64"))],
-			};
-		}
-
-		const result = (await resp.json()) as unknown as any;
-		return {
-			images: [base64ToDataURI(result.result.image)],
-		};
 	},
 };
 

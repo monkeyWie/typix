@@ -1,6 +1,7 @@
 import { useAuth } from "@/app/hooks/useAuth";
 import { useAiService } from "@/app/hooks/useService";
 import { useChatService } from "@/app/hooks/useService";
+import type { AspectRatio } from "@/server/ai/types/api";
 import type { chatService } from "@/server/service/chat";
 import { localUserId } from "@/server/service/context";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -174,6 +175,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 				title: t("chat.newChatTitle"),
 				provider,
 				model,
+				imageCount: 1, // Default image count for new chat
 			});
 
 			if (result?.id) {
@@ -229,7 +231,13 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 	);
 
 	const sendMessage = useCallback(
-		async (content: string, imageFiles?: File[], targetChatId?: string): Promise<string | null> => {
+		async (
+			content: string,
+			imageFiles?: File[],
+			targetChatId?: string,
+			imageCount?: number,
+			aspectRatio?: AspectRatio,
+		): Promise<string | null> => {
 			const chatId = targetChatId || currentChatId;
 
 			// Convert image files to attachments with base64 data
@@ -286,6 +294,8 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 						content,
 						attachments,
 						images, // Keep for backward compatibility
+						imageCount: imageCount || 1, // Pass the image count
+						aspectRatio, // Pass the aspect ratio
 					});
 
 					if (!result?.id) {
@@ -402,6 +412,8 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 					type: "text",
 					attachments,
 					images, // Keep for backward compatibility
+					imageCount: imageCount || 1, // Pass the image count
+					aspectRatio, // Pass the aspect ratio
 				});
 
 				// Use returned messages to update the chat data instead of revalidating
