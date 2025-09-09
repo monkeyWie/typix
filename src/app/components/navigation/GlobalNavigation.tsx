@@ -66,7 +66,7 @@ export function GlobalNavigation({ className }: GlobalNavigationProps) {
 					target="_blank"
 					className="mb-2 flex h-14 w-14 items-center justify-center transition-all duration-200 hover:scale-105"
 				>
-					<img src="/logo.svg" alt="Logo" className="h-12 w-12" />
+					<img src="/logo.png" alt="Logo" className="h-12 w-12" />
 				</a>
 
 				{/* Navigation items */}

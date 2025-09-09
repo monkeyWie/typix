@@ -199,7 +199,7 @@ export function ChatMessageItem({
 						</>
 					) : (
 						<>
-							<AvatarImage src="/logo.svg" alt={t("chat.ai")} />
+							<AvatarImage src="/logo.png" alt={t("chat.ai")} />
 							<AvatarFallback className="bg-gradient-to-br from-muted-foreground to-muted-foreground/80 text-background">
 								<span className="font-bold text-sm">{t("chat.ai")}</span>
 							</AvatarFallback>

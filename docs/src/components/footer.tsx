@@ -39,7 +39,7 @@ export function Footer() {
 						<div className="group mb-6 flex cursor-pointer items-center space-x-4">
 							<div className="relative">
 								<img
-									src="logo.svg"
+									src="logo.png"
 									alt="Logo"
 									className="glow shimmer h-12 w-12 rounded-2xl transition-transform duration-300 group-hover:scale-110"
 								/>
