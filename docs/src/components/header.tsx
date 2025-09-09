@@ -61,7 +61,7 @@ export function Header() {
 				<div className="flex items-center justify-between">
 					{/* Logo */}
 					<div className="flex items-center space-x-4">
-						<img src="logo.svg" alt="Logo" className="h-14 w-14" />
+						<img src="logo.png" alt="Logo" className="h-14 w-14" />
 						<div className="flex flex-col">
 							<span className="bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 bg-clip-text font-bold text-2xl text-transparent">
 								Typix
