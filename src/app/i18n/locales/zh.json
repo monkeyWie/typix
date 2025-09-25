@@ -10,7 +10,8 @@
 		"success": "成功",
 		"unknown": "未知",
 		"yesterday": "昨天",
-		"daysAgo": "天前"
+		"daysAgo": "天前",
+		"comingSoon": "即将上线"
 	},
 	"app": {
 		"initializing": "初始化中",
@@ -173,6 +174,100 @@
 		"signOut": "注销",
 		"online": "在线",
 		"defaultName": "用户"
+	},
+	"subscription": {
+		"title": "订阅方案",
+		"description": "选择适合您的订阅计划",
+		"subtitle": "选择最适合您需求的套餐计划",
+		"popular": "热门",
+		"save": "省",
+		"quotaUnit": "张/月",
+		"perImage": "张",
+		"subscribe": "订阅",
+		"buyNow": "立即购买",
+		"sections": {
+			"plan": "订阅方案",
+			"usage": "使用明细",
+			"billing": "订单历史"
+		},
+		"tiers": {
+			"basic": "基础版",
+			"advanced": "进阶版",
+			"professional": "专业版"
+		},
+		"descriptions": {
+			"basic": "基础档套餐，包含基本功能",
+			"advanced": "进阶档套餐，包含更多功能",
+			"professional": "专业档套餐，包含所有高级功能"
+		},
+		"types": {
+			"subscription": "订阅制",
+			"oneTime": "一次性购买",
+			"subscriptionDescription": "按月/季/年自动续费，可随时取消",
+			"oneTimeDescription": "一次性购买，无需续费"
+		},
+		"intervals": {
+			"month": "月付",
+			"quarter": "季付",
+			"year": "年付"
+		},
+		"features": {
+			"allModels": "主流生图模型支持",
+			"batchGeneration": "批量图片生成",
+			"imageEditing": "图像编辑",
+			"basicSupport": "邮件和社区论坛",
+			"prioritySupport": "优先邮件支持",
+			"premiumSupport": "优先聊天和邮件支持"
+		},
+		"faq": {
+			"title": "常见问题",
+			"questions": {
+				"q1": {
+					"question": "订阅和一次性购买有什么区别？",
+					"answer": "订阅制会自动续费，享受持续服务；一次性购买无需续费，额度用完即止。"
+				},
+				"q2": {
+					"question": "可以随时取消订阅吗？",
+					"answer": "是的，您可以随时在账户设置中取消订阅，取消后当前周期结束前仍可正常使用。"
+				},
+				"q3": {
+					"question": "套餐额度可以累积吗？",
+					"answer": "订阅制额度每月刷新，不可累积；一次性购买的额度永久有效。"
+				},
+				"q4": {
+					"question": "支持哪些付款方式？",
+					"answer": "我们支持信用卡、PayPal、支付宝、微信支付等多种付款方式。"
+				},
+				"q5": {
+					"question": "支持哪些模型？",
+					"answer": {
+						"beforeLink": "我们支持所有前沿的生图模型，包括 Nano Banano、Flux Kontext、Qwen-Image、GPT-4o 等，完整的模型列表可在",
+						"linkText": "此处",
+						"afterLink": "找到。"
+					}
+				},
+				"q6": {
+					"question": "生成的图片可以商用吗？",
+					"answer": "是的，通过我们平台生成的图片您拥有完全的商业使用权。但请注意，如果您的图片内容涉及版权人物、商标或受保护的知识产权，您需要自行确保合规使用。"
+				}
+			}
+		},
+		"support": {
+			"title": "需要帮助？",
+			"description": "选择最适合您的联系方式",
+			"community": {
+				"title": "社区论坛"
+			},
+			"email": {
+				"title": "邮件支持"
+			}
+		},
+		"loading": "处理中...",
+		"error": {
+			"title": "购买失败",
+			"noCheckoutUrl": "无法获取购买链接，请稍后重试",
+			"createCheckoutFailed": "创建购买订单失败，请稍后重试"
+		}
 	},
 	"theme": {
 		"auto": "自动",

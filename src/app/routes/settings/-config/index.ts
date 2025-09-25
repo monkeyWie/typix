@@ -1,5 +1,7 @@
+import type { NavigationSection } from "@/app/components/navigation/NavigationSidebar";
 import { Bot, Settings2 } from "lucide-react";
-import type { SettingsSection } from "../-components/SettingsNavigation";
+
+export interface SettingsSection extends NavigationSection {}
 
 /**
  * Settings navigation sections configuration

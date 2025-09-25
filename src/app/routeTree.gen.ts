@@ -11,16 +11,27 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SubscriptionRouteImport } from './routes/subscription/route'
 import { Route as SettingsRouteImport } from './routes/settings/route'
 import { Route as IndexImport } from './routes/index'
+import { Route as SubscriptionIndexImport } from './routes/subscription/index'
 import { Route as SettingsIndexImport } from './routes/settings/index'
 import { Route as ChatIndexImport } from './routes/chat/index'
+import { Route as SubscriptionUsageImport } from './routes/subscription/usage'
+import { Route as SubscriptionPlanImport } from './routes/subscription/plan'
+import { Route as SubscriptionBillingImport } from './routes/subscription/billing'
 import { Route as SettingsCommonImport } from './routes/settings/common'
 import { Route as SettingsProviderRouteImport } from './routes/settings/provider/route'
 import { Route as SettingsProviderIndexImport } from './routes/settings/provider/index'
 import { Route as SettingsProviderProviderIdImport } from './routes/settings/provider/$providerId'
 
 // Create/Update Routes
+
+const SubscriptionRouteRoute = SubscriptionRouteImport.update({
+  id: '/subscription',
+  path: '/subscription',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const SettingsRouteRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -34,6 +45,12 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const SubscriptionIndexRoute = SubscriptionIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SubscriptionRouteRoute,
+} as any)
+
 const SettingsIndexRoute = SettingsIndexImport.update({
   id: '/',
   path: '/',
@@ -44,6 +61,24 @@ const ChatIndexRoute = ChatIndexImport.update({
   id: '/chat/',
   path: '/chat/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const SubscriptionUsageRoute = SubscriptionUsageImport.update({
+  id: '/usage',
+  path: '/usage',
+  getParentRoute: () => SubscriptionRouteRoute,
+} as any)
+
+const SubscriptionPlanRoute = SubscriptionPlanImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => SubscriptionRouteRoute,
+} as any)
+
+const SubscriptionBillingRoute = SubscriptionBillingImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => SubscriptionRouteRoute,
 } as any)
 
 const SettingsCommonRoute = SettingsCommonImport.update({
@@ -90,6 +125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRoute
     }
+    '/subscription': {
+      id: '/subscription'
+      path: '/subscription'
+      fullPath: '/subscription'
+      preLoaderRoute: typeof SubscriptionRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/settings/provider': {
       id: '/settings/provider'
       path: '/provider'
@@ -104,6 +146,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsCommonImport
       parentRoute: typeof SettingsRouteImport
     }
+    '/subscription/billing': {
+      id: '/subscription/billing'
+      path: '/billing'
+      fullPath: '/subscription/billing'
+      preLoaderRoute: typeof SubscriptionBillingImport
+      parentRoute: typeof SubscriptionRouteImport
+    }
+    '/subscription/plan': {
+      id: '/subscription/plan'
+      path: '/plan'
+      fullPath: '/subscription/plan'
+      preLoaderRoute: typeof SubscriptionPlanImport
+      parentRoute: typeof SubscriptionRouteImport
+    }
+    '/subscription/usage': {
+      id: '/subscription/usage'
+      path: '/usage'
+      fullPath: '/subscription/usage'
+      preLoaderRoute: typeof SubscriptionUsageImport
+      parentRoute: typeof SubscriptionRouteImport
+    }
     '/chat/': {
       id: '/chat/'
       path: '/chat'
@@ -117,6 +180,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/'
       preLoaderRoute: typeof SettingsIndexImport
       parentRoute: typeof SettingsRouteImport
+    }
+    '/subscription/': {
+      id: '/subscription/'
+      path: '/'
+      fullPath: '/subscription/'
+      preLoaderRoute: typeof SubscriptionIndexImport
+      parentRoute: typeof SubscriptionRouteImport
     }
     '/settings/provider/$providerId': {
       id: '/settings/provider/$providerId'
@@ -168,13 +238,35 @@ const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
   SettingsRouteRouteChildren,
 )
 
+interface SubscriptionRouteRouteChildren {
+  SubscriptionBillingRoute: typeof SubscriptionBillingRoute
+  SubscriptionPlanRoute: typeof SubscriptionPlanRoute
+  SubscriptionUsageRoute: typeof SubscriptionUsageRoute
+  SubscriptionIndexRoute: typeof SubscriptionIndexRoute
+}
+
+const SubscriptionRouteRouteChildren: SubscriptionRouteRouteChildren = {
+  SubscriptionBillingRoute: SubscriptionBillingRoute,
+  SubscriptionPlanRoute: SubscriptionPlanRoute,
+  SubscriptionUsageRoute: SubscriptionUsageRoute,
+  SubscriptionIndexRoute: SubscriptionIndexRoute,
+}
+
+const SubscriptionRouteRouteWithChildren =
+  SubscriptionRouteRoute._addFileChildren(SubscriptionRouteRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteRouteWithChildren
+  '/subscription': typeof SubscriptionRouteRouteWithChildren
   '/settings/provider': typeof SettingsProviderRouteRouteWithChildren
   '/settings/common': typeof SettingsCommonRoute
+  '/subscription/billing': typeof SubscriptionBillingRoute
+  '/subscription/plan': typeof SubscriptionPlanRoute
+  '/subscription/usage': typeof SubscriptionUsageRoute
   '/chat': typeof ChatIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/subscription/': typeof SubscriptionIndexRoute
   '/settings/provider/$providerId': typeof SettingsProviderProviderIdRoute
   '/settings/provider/': typeof SettingsProviderIndexRoute
 }
@@ -182,8 +274,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/settings/common': typeof SettingsCommonRoute
+  '/subscription/billing': typeof SubscriptionBillingRoute
+  '/subscription/plan': typeof SubscriptionPlanRoute
+  '/subscription/usage': typeof SubscriptionUsageRoute
   '/chat': typeof ChatIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/subscription': typeof SubscriptionIndexRoute
   '/settings/provider/$providerId': typeof SettingsProviderProviderIdRoute
   '/settings/provider': typeof SettingsProviderIndexRoute
 }
@@ -192,10 +288,15 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteRouteWithChildren
+  '/subscription': typeof SubscriptionRouteRouteWithChildren
   '/settings/provider': typeof SettingsProviderRouteRouteWithChildren
   '/settings/common': typeof SettingsCommonRoute
+  '/subscription/billing': typeof SubscriptionBillingRoute
+  '/subscription/plan': typeof SubscriptionPlanRoute
+  '/subscription/usage': typeof SubscriptionUsageRoute
   '/chat/': typeof ChatIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/subscription/': typeof SubscriptionIndexRoute
   '/settings/provider/$providerId': typeof SettingsProviderProviderIdRoute
   '/settings/provider/': typeof SettingsProviderIndexRoute
 }
@@ -205,28 +306,42 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/settings'
+    | '/subscription'
     | '/settings/provider'
     | '/settings/common'
+    | '/subscription/billing'
+    | '/subscription/plan'
+    | '/subscription/usage'
     | '/chat'
     | '/settings/'
+    | '/subscription/'
     | '/settings/provider/$providerId'
     | '/settings/provider/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/settings/common'
+    | '/subscription/billing'
+    | '/subscription/plan'
+    | '/subscription/usage'
     | '/chat'
     | '/settings'
+    | '/subscription'
     | '/settings/provider/$providerId'
     | '/settings/provider'
   id:
     | '__root__'
     | '/'
     | '/settings'
+    | '/subscription'
     | '/settings/provider'
     | '/settings/common'
+    | '/subscription/billing'
+    | '/subscription/plan'
+    | '/subscription/usage'
     | '/chat/'
     | '/settings/'
+    | '/subscription/'
     | '/settings/provider/$providerId'
     | '/settings/provider/'
   fileRoutesById: FileRoutesById
@@ -235,12 +350,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
+  SubscriptionRouteRoute: typeof SubscriptionRouteRouteWithChildren
   ChatIndexRoute: typeof ChatIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
+  SubscriptionRouteRoute: SubscriptionRouteRouteWithChildren,
   ChatIndexRoute: ChatIndexRoute,
 }
 
@@ -256,6 +373,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/settings",
+        "/subscription",
         "/chat/"
       ]
     },
@@ -270,6 +388,15 @@ export const routeTree = rootRoute
         "/settings/"
       ]
     },
+    "/subscription": {
+      "filePath": "subscription/route.tsx",
+      "children": [
+        "/subscription/billing",
+        "/subscription/plan",
+        "/subscription/usage",
+        "/subscription/"
+      ]
+    },
     "/settings/provider": {
       "filePath": "settings/provider/route.tsx",
       "parent": "/settings",
@@ -282,12 +409,28 @@ export const routeTree = rootRoute
       "filePath": "settings/common.tsx",
       "parent": "/settings"
     },
+    "/subscription/billing": {
+      "filePath": "subscription/billing.tsx",
+      "parent": "/subscription"
+    },
+    "/subscription/plan": {
+      "filePath": "subscription/plan.tsx",
+      "parent": "/subscription"
+    },
+    "/subscription/usage": {
+      "filePath": "subscription/usage.tsx",
+      "parent": "/subscription"
+    },
     "/chat/": {
       "filePath": "chat/index.tsx"
     },
     "/settings/": {
       "filePath": "settings/index.tsx",
       "parent": "/settings"
+    },
+    "/subscription/": {
+      "filePath": "subscription/index.tsx",
+      "parent": "/subscription"
     },
     "/settings/provider/$providerId": {
       "filePath": "settings/provider/$providerId.tsx",

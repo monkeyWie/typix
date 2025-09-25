@@ -11,7 +11,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { cn } from "@/app/lib/utils";
 import { useUIStore } from "@/app/stores";
 import { useNavigate } from "@tanstack/react-router";
-import { LogOut, Settings, User } from "lucide-react";
+import { CreditCard, LogOut, Settings, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface UserMenuProps {
@@ -30,7 +30,7 @@ export function UserMenu({ className, showLoginButton = true }: UserMenuProps) {
 		return (
 			<Button
 				variant="ghost"
-				onClick={openLoginModal}
+				onClick={() => openLoginModal()}
 				className={cn("h-auto w-full justify-start gap-3 p-3 transition-colors hover:bg-accent/50", className)}
 			>
 				<div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
@@ -68,6 +68,10 @@ export function UserMenu({ className, showLoginButton = true }: UserMenuProps) {
 		navigate({ to: "/settings", search: {} });
 	};
 
+	const handleSubscription = () => {
+		navigate({ to: "/subscription/plan" });
+	};
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -100,6 +104,10 @@ export function UserMenu({ className, showLoginButton = true }: UserMenuProps) {
 					</div>
 				</div>
 				<DropdownMenuSeparator />
+				<DropdownMenuItem onClick={handleSubscription}>
+					<CreditCard className="mr-2 h-4 w-4" />
+					{t("subscription.title")}
+				</DropdownMenuItem>
 				<DropdownMenuItem onClick={handleSettings}>
 					<Settings className="mr-2 h-4 w-4" />
 					{t("settings.title")}

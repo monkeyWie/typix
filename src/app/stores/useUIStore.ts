@@ -17,7 +17,8 @@ interface UIState {
 	setLanguage: (language: string) => void;
 	// Auth UI state
 	isLoginModalOpen: boolean;
-	openLoginModal: () => void;
+	loginRedirectUrl?: string;
+	openLoginModal: (redirectUrl?: string) => void;
 	closeLoginModal: () => void;
 }
 
@@ -39,8 +40,9 @@ export const useUIStore = create<UIState>()(
 				setLanguage: (language) => set({ language }),
 				// Auth UI state
 				isLoginModalOpen: false,
-				openLoginModal: () => set({ isLoginModalOpen: true }),
-				closeLoginModal: () => set({ isLoginModalOpen: false }),
+				loginRedirectUrl: undefined,
+				openLoginModal: (redirectUrl) => set({ isLoginModalOpen: true, loginRedirectUrl: redirectUrl }),
+				closeLoginModal: () => set({ isLoginModalOpen: false, loginRedirectUrl: undefined }),
 			}),
 			{
 				name: "ui-store", // unique name for the store

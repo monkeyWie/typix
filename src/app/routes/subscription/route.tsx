@@ -1,16 +1,20 @@
 import { NavigationSidebar } from "@/app/components/navigation/NavigationSidebar";
 import { useIsMobile } from "@/app/hooks/useMobile";
-import { findSectionById, getDefaultSection, isValidSectionId, settingsSections } from "@/app/routes/settings/-config";
+import {
+	findSectionById,
+	getDefaultSection,
+	isValidSectionId,
+	subscriptionSections,
+} from "@/app/routes/subscription/-config";
 import { Outlet, createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import { LucideSettings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export const Route = createFileRoute("/settings")({
-	component: SettingsLayoutComponent,
+export const Route = createFileRoute("/subscription")({
+	component: SubscriptionLayoutComponent,
 });
 
-function SettingsLayoutComponent() {
+function SubscriptionLayoutComponent() {
 	const isMobile = useIsMobile();
 	const navigate = useNavigate();
 	const router = useRouter();
@@ -19,12 +23,12 @@ function SettingsLayoutComponent() {
 	// Get current active section from the current route
 	const currentPath = router.state.location.pathname;
 	const getActiveSectionFromPath = (path: string): string => {
-		// Extract the last segment of the path after /settings/
+		// Extract the last segment of the path after /subscription/
 		const pathSegments = path.split("/").filter(Boolean);
-		const settingsIndex = pathSegments.indexOf("settings");
+		const subscriptionIndex = pathSegments.indexOf("subscription");
 
-		if (settingsIndex !== -1 && settingsIndex < pathSegments.length - 1) {
-			const sectionId = pathSegments[settingsIndex + 1];
+		if (subscriptionIndex !== -1 && subscriptionIndex < pathSegments.length - 1) {
+			const sectionId = pathSegments[subscriptionIndex + 1];
 			// Validate that the section exists in our defined sections
 			return sectionId && isValidSectionId(sectionId) ? sectionId : getDefaultSection().id;
 		}
@@ -38,7 +42,7 @@ function SettingsLayoutComponent() {
 	useEffect(() => {
 		const newActiveSection = getActiveSectionFromPath(currentPath);
 		setActiveSection(newActiveSection);
-	}, [currentPath, settingsSections]);
+	}, [currentPath, subscriptionSections]);
 
 	// Navigate to a section
 	const navigateToSection = (sectionId: string) => {
@@ -53,9 +57,13 @@ function SettingsLayoutComponent() {
 		setActiveSection(sectionId);
 	};
 
-	// Mobile: Show specific settings page content (handled by child routes)
+	// Mobile: Show specific subscription page content (handled by child routes)
 	if (isMobile) {
-		return <Outlet />;
+		return (
+			<div className="min-h-screen overflow-y-auto">
+				<Outlet />
+			</div>
+		);
 	}
 
 	// Desktop: Side-by-side layout with navigation + content
@@ -67,8 +75,8 @@ function SettingsLayoutComponent() {
 				<div className="p-6">
 					<div className="flex items-center gap-3">
 						<div>
-							<h1 className="font-semibold text-2xl">{t("settings.title")}</h1>
-							<p className="text-muted-foreground text-sm">{t("settings.description")}</p>
+							<h1 className="font-semibold text-2xl">{t("subscription.title")}</h1>
+							<p className="text-muted-foreground text-sm">{t("subscription.description")}</p>
 						</div>
 					</div>
 				</div>
@@ -76,7 +84,7 @@ function SettingsLayoutComponent() {
 				{/* Navigation Menu */}
 				<div className="flex-1 p-4">
 					<NavigationSidebar
-						sections={settingsSections}
+						sections={subscriptionSections}
 						activeSection={activeSection}
 						onSectionChange={navigateToSection}
 						className="h-full"
@@ -89,7 +97,7 @@ function SettingsLayoutComponent() {
 			<div className="w-[0.5px] bg-border/60" />
 
 			{/* Desktop Content Area */}
-			<div className="min-w-0 flex-1 bg-muted/20">
+			<div className="min-w-0 flex-1 overflow-y-auto bg-muted/20">
 				<Outlet />
 			</div>
 		</div>

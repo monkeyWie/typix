@@ -11,6 +11,7 @@ import aiRouter from "./routes/ai";
 import chatsRouter from "./routes/chat";
 import fileRouter from "./routes/file";
 import userRouter from "./routes/settings";
+import subscriptionRouter from "./routes/subscription";
 import type { ApiResult, Env } from "./util";
 
 const factory = createFactory<Env>({
@@ -44,6 +45,7 @@ const factory = createFactory<Env>({
 			c.set("auth", createAuth(db, authConfig));
 			initContext({
 				db,
+				appURL: env(c).APP_URL || "http://localhost:5173",
 				AI: c.env.AI,
 				resend: authConfig.email.verification
 					? {
@@ -52,6 +54,7 @@ const factory = createFactory<Env>({
 						}
 					: undefined,
 				providerCloudflareBuiltin: c.env.PROVIDER_CLOUDFLARE_BUILTIN === "true" || false,
+				creemApiKey: env(c).CREEM_APIKEY,
 			});
 			await next();
 		});
@@ -124,7 +127,8 @@ const route = app
 	.route("/", chatsRouter)
 	.route("/", userRouter)
 	.route("/", aiRouter)
-	.route("/", fileRouter);
+	.route("/", fileRouter)
+	.route("/", subscriptionRouter);
 
 export type AppType = typeof route;
 export default app;

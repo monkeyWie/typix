@@ -4,12 +4,14 @@ import type { DrizzleDb } from "../db";
 
 interface ServiceContext {
 	db: DrizzleDb;
+	appURL: string;
 	AI?: Ai;
 	resend?: {
 		instance: Resend;
 		from: string;
 	};
 	providerCloudflareBuiltin?: boolean;
+	creemApiKey?: string;
 }
 
 let serviceContext: ServiceContext | null = null;
@@ -30,5 +32,6 @@ export function getContext(): ServiceContext {
 
 export interface RequestContext {
 	userId: string;
+	userEmail?: string;
 	executionCtx?: ExecutionContext;
 }

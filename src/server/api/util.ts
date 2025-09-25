@@ -10,6 +10,7 @@ export type Env = {
 	Bindings: {
 		DB: D1Database;
 		AI: Ai;
+		APP_URL: string;
 		EMAIL: string;
 		RESEND_APIKEY: string;
 		PROVIDER_CLOUDFLARE_BUILTIN?: "true" | "false";
@@ -22,6 +23,7 @@ export type Env = {
 		AUTH_SOCIAL_GITHUB_ENABLED?: "true" | "false";
 		AUTH_SOCIAL_GITHUB_CLIENT_ID?: string;
 		AUTH_SOCIAL_GITHUB_CLIENT_SECRET?: string;
+		CREEM_APIKEY?: string;
 	};
 	Variables: {
 		db: DrizzleDb;

@@ -17,7 +17,7 @@ import { SocialLoginButtons } from "./SocialLoginButtons";
 type AuthModalState = "login" | "register" | "otp";
 
 export function LoginModal() {
-	const { isLoginModalOpen, closeLoginModal } = useUIStore();
+	const { isLoginModalOpen, loginRedirectUrl, closeLoginModal } = useUIStore();
 	const { signIn, signUp, isLogin, user } = useAuth();
 	const { t } = useTranslation();
 
@@ -36,6 +36,15 @@ export function LoginModal() {
 
 	// Check if email verification is enabled via environment variable
 	const isEmailVerificationEnabled = import.meta.env.AUTH_EMAIL_VERIFICATION_ENABLED === "true";
+
+	// Handle successful login and redirect
+	const handleLoginSuccess = () => {
+		if (loginRedirectUrl) {
+			window.location.href = loginRedirectUrl;
+		} else {
+			window.location.reload();
+		}
+	};
 
 	const resetAllState = () => {
 		setFormData({ name: "", email: "", password: "" });
@@ -131,7 +140,7 @@ export function LoginModal() {
 					return;
 				}
 
-				window.location.reload();
+				handleLoginSuccess();
 				return;
 			}
 
@@ -173,7 +182,7 @@ export function LoginModal() {
 				return; // Don't close modal, wait for OTP verification
 			}
 
-			window.location.reload();
+			handleLoginSuccess();
 		} catch (error: any) {
 			console.error("Authentication error:", error);
 			setError(error.message || t("auth.networkError"));
@@ -193,8 +202,6 @@ export function LoginModal() {
 				email: pendingEmail,
 				otp: code,
 			});
-
-			console.log("verificationResponse.error?.code", verificationResponse.error?.code);
 
 			if (verificationResponse.error) {
 				const errorCode = verificationResponse.error.code;
@@ -232,7 +239,7 @@ export function LoginModal() {
 				return;
 			}
 
-			window.location.reload();
+			handleLoginSuccess();
 		} catch (error: any) {
 			console.error("OTP verification error:", error);
 			setError(error.message || t("auth.otpVerificationError"));
@@ -459,7 +466,7 @@ export function LoginModal() {
 
 					{modalState !== "otp" && (
 						<>
-							<SocialLoginButtons isLoading={isLoading} onError={setError} />
+							<SocialLoginButtons isLoading={isLoading} onError={setError} redirectUrl={loginRedirectUrl} />
 
 							<div className="relative">
 								<div className="absolute inset-0 flex items-center">

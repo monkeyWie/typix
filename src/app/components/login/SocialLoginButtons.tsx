@@ -6,9 +6,10 @@ import { useTranslation } from "react-i18next";
 interface SocialLoginButtonsProps {
 	isLoading?: boolean;
 	onError?: (error: string) => void;
+	redirectUrl?: string;
 }
 
-export function SocialLoginButtons({ isLoading = false, onError }: SocialLoginButtonsProps) {
+export function SocialLoginButtons({ isLoading = false, onError, redirectUrl }: SocialLoginButtonsProps) {
 	const { t } = useTranslation();
 	const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
 
@@ -44,7 +45,7 @@ export function SocialLoginButtons({ isLoading = false, onError }: SocialLoginBu
 
 			const response = await authClient.signIn.social({
 				provider,
-				// callbackURL: "/", // Redirect to home page after successful login
+				callbackURL: redirectUrl || "/", // Use redirectUrl if provided, otherwise default to home
 			});
 
 			if (response.error) {

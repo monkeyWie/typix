@@ -173,6 +173,7 @@ function RootComponent() {
 				if (db) {
 					initContext({
 						db: db,
+						appURL: window.location.origin,
 						providerCloudflareBuiltin: import.meta.env.PROVIDER_CLOUDFLARE_BUILTIN === "true",
 					});
 					await initSettings();

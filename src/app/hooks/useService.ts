@@ -4,6 +4,7 @@ import { aiService } from "@/server/service/ai";
 import { chatService } from "@/server/service/chat";
 import { type RequestContext, localUserId } from "@/server/service/context";
 import { settingsService } from "@/server/service/settings";
+import { subscriptionService } from "@/server/service/subscription";
 import { useMemo } from "react";
 import useSWR from "swr";
 import type { SWRResponse } from "swr";
@@ -209,4 +210,9 @@ export function useSettingsService() {
 export function useAiService() {
 	const apiService = useMemo(() => createApiServiceProxy<typeof aiService>(apiClient.api.ai), []);
 	return useService(aiService, apiService);
+}
+
+export function useSubscriptionService() {
+	const apiService = useMemo(() => createApiServiceProxy<typeof subscriptionService>(apiClient.api.subscription), []);
+	return useService(subscriptionService, apiService);
 }

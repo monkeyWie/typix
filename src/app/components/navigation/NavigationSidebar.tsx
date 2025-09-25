@@ -4,28 +4,28 @@ import { cn } from "@/app/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-export interface SettingsSection {
+export interface NavigationSection {
 	id: string;
 	title: string;
 	icon: React.ComponentType<{ className?: string }>;
 	path: string;
 }
 
-interface SettingsNavigationProps {
-	sections: SettingsSection[];
+interface NavigationSidebarProps {
+	sections: NavigationSection[];
 	activeSection: string;
 	onSectionChange: (sectionId: string) => void;
 	className?: string;
 	isMobile?: boolean;
 }
 
-export function SettingsNavigation({
+export function NavigationSidebar({
 	sections,
 	activeSection,
 	onSectionChange,
 	className,
 	isMobile = false,
-}: SettingsNavigationProps) {
+}: NavigationSidebarProps) {
 	const { t } = useTranslation();
 
 	return (
