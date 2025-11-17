@@ -14,6 +14,9 @@ categories:
   - title: "🔧 Performance Improvements"
     labels:
       - "perf"
+  - title: "🎨 Style"
+    labels:
+      - "style"
   - title: "🧪 Tests"
     label: "test"
   - title: "🧰 Maintenance"
