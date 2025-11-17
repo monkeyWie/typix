@@ -1,7 +1,7 @@
 # Typix - 输入即图像
 
 <p align="center">
-  <a href="https://github.com/monkeyWie/typix/releases"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version"></a>
+  <a href="https://github.com/monkeyWie/typix/releases"><img src="https://img.shields.io/github/release/monkeyWie/typix.svg" alt="Version"></a>
   <a href="https://hub.docker.com/r/liwei2633/typix"><img src="https://img.shields.io/docker/v/liwei2633/typix?label=Docker&color=blue" alt="Docker"></a>
   <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg" alt="License"></a>
 </p>
