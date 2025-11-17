@@ -75,12 +75,14 @@ export default defineConfig(({ mode }) => {
 				"@": path.resolve(__dirname, "./src"),
 			},
 		},
+		// Only define environment variables that are needed on the client side
 		define: {
 			"import.meta.env.RUNTIME": getEnv("RUNTIME"),
 			"import.meta.env.MODE": getEnv("MODE"),
 			"import.meta.env.AUTH_EMAIL_VERIFICATION_ENABLED": getEnv("AUTH_EMAIL_VERIFICATION_ENABLED"),
 			"import.meta.env.AUTH_SOCIAL_GOOGLE_ENABLED": getEnv("AUTH_SOCIAL_GOOGLE_ENABLED"),
 			"import.meta.env.AUTH_SOCIAL_GITHUB_ENABLED": getEnv("AUTH_SOCIAL_GITHUB_ENABLED"),
+			"import.meta.env.GOOGLE_ANALYTICS_ID": getEnv("GOOGLE_ANALYTICS_ID"),
 			"import.meta.env.PROVIDER_CLOUDFLARE_BUILTIN": getEnv("PROVIDER_CLOUDFLARE_BUILTIN"),
 		},
 	};
