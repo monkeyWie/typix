@@ -24,6 +24,7 @@ const config = {
 		override: {
 			vars: {
 				MODE: "mixed",
+				GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID,
 				AUTH_EMAIL_VERIFICATION_ENABLED: "true",
 				AUTH_EMAIL_RESEND_API_KEY: process.env.AUTH_EMAIL_RESEND_API_KEY,
 				AUTH_EMAIL_RESEND_FROM: "Typix <hi@typix.art>",

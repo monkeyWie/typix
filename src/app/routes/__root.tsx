@@ -29,6 +29,32 @@ function RootComponent() {
 	// Apply theme and theme color with automatic system theme detection
 	useThemeManager(theme, themeColor, setTheme);
 
+	// Conditionally load Google Analytics when an ID is provided
+	useEffect(() => {
+		const gaId = import.meta.env.GOOGLE_ANALYTICS_ID as string | undefined;
+		if (!gaId || gaId.trim() === "") return;
+
+		if (!document.getElementById("ga-gtag")) {
+			const script = document.createElement("script");
+			script.id = "ga-gtag";
+			script.async = true;
+			script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`;
+			document.head.appendChild(script);
+		}
+
+		if (!document.getElementById("ga-inline")) {
+			const inline = document.createElement("script");
+			inline.id = "ga-inline";
+			inline.innerHTML = `
+				window.dataLayer = window.dataLayer || [];
+				function gtag(){dataLayer.push(arguments);}
+				gtag('js', new Date());
+				gtag('config', '${gaId}');
+			`;
+			document.head.appendChild(inline);
+		}
+	}, []);
+
 	// Update loading title when initialization starts
 	useEffect(() => {
 		if (hasAuthResolved && !isInitialized && !initError && i18n.isInitialized) {
