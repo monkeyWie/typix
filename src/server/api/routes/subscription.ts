@@ -1,3 +1,4 @@
+import { getContext } from "@/server/service/context";
 import { CreateCheckoutSchema, subscriptionService } from "@/server/service/subscription";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
@@ -11,6 +12,12 @@ const app = new Hono<Env>()
 		const req = c.req.valid("json");
 
 		return c.json(ok(await subscriptionService.createCheckout(req, { userId: user.id, userEmail: user.email })));
+	})
+	.post("/no-auth/webhooks", async (c) => {
+		const payload = await c.req.text();
+		const signature = c.req.header("creem-signature") || "";
+
+		return c.json(ok(await subscriptionService.handleWebhook({ payload, signature })));
 	});
 
 export default app;

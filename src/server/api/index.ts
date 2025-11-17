@@ -54,7 +54,8 @@ const factory = createFactory<Env>({
 						}
 					: undefined,
 				providerCloudflareBuiltin: c.env.PROVIDER_CLOUDFLARE_BUILTIN === "true" || false,
-				creemApiKey: env(c).CREEM_APIKEY,
+				creemApiKey: env(c).CREEM_API_KEY,
+				creemWebhookSecret: env(c).CREEM_WEBHOOK_SECRET,
 			});
 			await next();
 		});

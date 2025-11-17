@@ -12,6 +12,7 @@ interface ServiceContext {
 	};
 	providerCloudflareBuiltin?: boolean;
 	creemApiKey?: string;
+	creemWebhookSecret?: string;
 }
 
 let serviceContext: ServiceContext | null = null;

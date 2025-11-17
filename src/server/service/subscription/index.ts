@@ -1,3 +1,4 @@
+import * as crypto from "node:crypto";
 import { ServiceException } from "@/server/lib/exception";
 import { Creem } from "creem";
 import z from "zod/v4";
@@ -208,8 +209,38 @@ const createCheckout = async (req: CreateCheckout, ctx: RequestContext) => {
 	};
 };
 
+export const HandleWebhookSchema = z.object({
+	payload: z.string(),
+	signature: z.string(),
+});
+export type HandleWebhook = z.infer<typeof HandleWebhookSchema>;
+const handleWebhook = async (req: HandleWebhook) => {
+	const payloadObj = JSON.parse(req.payload);
+	if (payloadObj.event !== "checkout.completed") {
+		// Only handle checkout.completed event
+		return;
+	}
+
+	const { creemApiKey, creemWebhookSecret } = getContext();
+	if (!creemApiKey || !creemWebhookSecret) {
+		throw new ServiceException("error", "Creem API key or webhook secret is not configured");
+	}
+
+	// Verify signature
+	const expectedSignature = generateSignature(req.payload, creemWebhookSecret);
+	if (req.signature !== expectedSignature) {
+		throw new ServiceException("invalid_parameter", "Invalid webhook signature");
+	}
+};
+
+function generateSignature(payload: string, secret: string): string {
+	const computedSignature = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+	return computedSignature;
+}
+
 class SubscriptionService {
 	createCheckout = createCheckout;
+	handleWebhook = handleWebhook;
 }
 
 export const subscriptionService = new SubscriptionService();

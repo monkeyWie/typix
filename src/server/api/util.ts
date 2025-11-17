@@ -23,7 +23,8 @@ export type Env = {
 		AUTH_SOCIAL_GITHUB_ENABLED?: "true" | "false";
 		AUTH_SOCIAL_GITHUB_CLIENT_ID?: string;
 		AUTH_SOCIAL_GITHUB_CLIENT_SECRET?: string;
-		CREEM_APIKEY?: string;
+		CREEM_API_KEY?: string;
+		CREEM_WEBHOOK_SECRET?: string;
 	};
 	Variables: {
 		db: DrizzleDb;
