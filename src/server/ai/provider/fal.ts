@@ -31,6 +31,13 @@ const Fal: AiProvider = {
 	settings: falSettingsSchema,
 	models: [
 		{
+			id: "fal-ai/nano-banana-pro",
+			name: "Nano Banana 2",
+			ability: "i2i",
+			maxInputImages: 4,
+			enabledByDefault: true,
+		},
+		{
 			id: "fal-ai/gemini-25-flash-image",
 			name: "Nano Banana",
 			ability: "i2i",
@@ -70,6 +77,7 @@ const Fal: AiProvider = {
 			const genType = chooseAblility(request, model.ability);
 			let endpoint = "";
 			switch (request.modelId) {
+				case "fal-ai/nano-banana-pro":
 				case "fal-ai/gemini-25-flash-image":
 					if (genType === "i2i") {
 						endpoint = "/edit";
