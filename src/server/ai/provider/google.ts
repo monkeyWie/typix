@@ -90,6 +90,13 @@ const Google: AiProvider = {
 	settings: googleSettingsSchema,
 	models: [
 		{
+			id: "gemini-3-pro-image-preview",
+			name: "Nano Banana 2",
+			ability: "i2i",
+			maxInputImages: 4,
+			enabledByDefault: true,
+		},
+		{
 			id: "gemini-2.5-flash-image-preview",
 			name: "Nano Banana",
 			ability: "i2i",
