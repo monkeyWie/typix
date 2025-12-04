@@ -45,6 +45,14 @@ export function GenerationErrorItem({ errorReason, provider, onRetry, className 
 					buttonIcon: RefreshCw,
 					buttonAction: "retry" as const,
 				};
+			case "TOO_MANY_REQUESTS":
+				return {
+					title: t("chat.generation.tooManyRequests"),
+					description: t("chat.generation.tooManyRequestsDesc"),
+					buttonText: t("chat.generation.retry"),
+					buttonIcon: RefreshCw,
+					buttonAction: "retry" as const,
+				};
 			default:
 				return {
 					title: t("chat.generation.unknownError"),

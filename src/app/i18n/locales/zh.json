@@ -67,6 +67,8 @@
 			"apiErrorDesc": "服务暂时不可用，请稍后重试",
 			"timeoutError": "请求超时",
 			"timeoutErrorDesc": "请求时间过长，请重试",
+			"tooManyRequests": "请求过于频繁",
+			"tooManyRequestsDesc": "您的请求次数过多，请稍后再试",
 			"unknownError": "未知错误",
 			"unknownErrorDesc": "发生了意外错误，请重试",
 			"goToSettings": "前往设置",
@@ -206,6 +208,9 @@
 				}
 			},
 			"models": {
+				"@cf/black-forest-labs/flux-2-dev": {
+					"description": "FLUX.2 [dev] 是 Black Forest Labs 的图像模型，您可以生成高度逼真且细节丰富的图像，并支持多参考图像。"
+				},
 				"@cf/leonardo/lucid-origin": {
 					"description": "Lucid Origin from Leonardo.AI 是Leonardo.AI团队最新发布的最适配和最响应的模型。"
 				},
@@ -264,6 +269,9 @@
 				}
 			},
 			"models": {
+				"fal-ai/nano-banana-pro": {
+					"description": "Nano Banana Pro 是 Google 最新的图像生成和编辑模型，一致性和提示遵循能力显著提升。"
+				},
 				"fal-ai/flux-pro/kontext/max": {
 					"description": "FLUX.1 Kontext [max] 是一个具有极大改进的提示遵循和排版生成的模型，提供卓越的一致性以供编辑，同时不牺牲速度。"
 				},
@@ -315,6 +323,9 @@
 				}
 			},
 			"models": {
+				"gemini-3-pro-image-preview": {
+					"description": "Nano Banana Pro 是 Google 最新的图像生成和编辑模型，一致性和提示遵循能力显著提升。"
+				},
 				"gemini-2.5-flash-image-preview": {
 					"description": "Nano Banana[Gemini 2.5 Flash Image] 是 Google 的最先进的图像生成和编辑模型。"
 				},
