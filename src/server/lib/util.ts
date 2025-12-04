@@ -1,5 +1,3 @@
-import { base64 } from "node_modules/zod/dist/types/v4/classic/external";
-
 export function base64ToDataURI(base64: string, fmt = "png") {
 	return `data:image/${fmt};base64,${base64}`;
 }
