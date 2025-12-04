@@ -1,5 +1,17 @@
+import { base64 } from "node_modules/zod/dist/types/v4/classic/external";
+
 export function base64ToDataURI(base64: string, fmt = "png") {
 	return `data:image/${fmt};base64,${base64}`;
+}
+
+export function base64ToBlob(base64: string, mimeType = "image/png") {
+	const byteString = atob(base64);
+	const arrayBuffer = new ArrayBuffer(byteString.length);
+	const uint8Array = new Uint8Array(arrayBuffer);
+	for (let i = 0; i < byteString.length; i++) {
+		uint8Array[i] = byteString.charCodeAt(i);
+	}
+	return new Blob([arrayBuffer], { type: mimeType });
 }
 
 export function dataURItoBase64(dataURI: string) {

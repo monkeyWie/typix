@@ -1,7 +1,9 @@
 import { inCfWorker } from "@/server/lib/env";
-import { base64ToDataURI, dataURItoBase64, readableStreamToDataURI } from "@/server/lib/util";
+import type { ReplacePropertyType } from "@/server/lib/types";
+import { base64ToBlob, base64ToDataURI, dataURItoBase64, readableStreamToDataURI } from "@/server/lib/util";
 import { getContext } from "@/server/service/context";
 import { type TypixGenerateRequest, commonAspectRatioSizes } from "../types/api";
+import type { AiModel } from "../types/model";
 import type { AiProvider, ApiProviderSettings, ApiProviderSettingsItem } from "../types/provider";
 import {
 	type ProviderSettingsType,
@@ -11,49 +13,37 @@ import {
 	getProviderSettingsSchema,
 } from "../types/provider";
 
-// Single image generation helper function
-const generateSingle = async (request: TypixGenerateRequest, settings: ApiProviderSettings): Promise<string[]> => {
-	const AI = getContext().AI;
-	const { builtin, apiKey, accountId } = Cloudflare.parseSettings<CloudflareSettings>(settings);
+// Helper function to create FormData from params
+const createFormData = (params: any, model: CloudflareAiModel, request: TypixGenerateRequest): FormData => {
+	const form = new FormData();
+	form.append("prompt", params.prompt);
+	if (params.width) form.append("width", String(params.width));
+	if (params.height) form.append("height", String(params.height));
 
-	const model = findModel(Cloudflare, request.modelId);
-	const genType = chooseAblility(request, model.ability);
+	// Handle image editing (i2i) with multiple input images
+	if (request.images) {
+		const maxInputImages = model.maxInputImages || 1;
+		const images = request.images;
 
-	const params = {
-		prompt: request.prompt,
-	} as any;
-	if (request.aspectRatio) {
-		const size = commonAspectRatioSizes[request.aspectRatio];
-		params.width = size?.width;
-		params.height = size?.height;
-	}
-	if (genType === "i2i") {
-		params.image_b64 = dataURItoBase64(request.images![0]!);
-	}
-
-	if (inCfWorker && AI && builtin === true) {
-		const resp = await AI.run(request.modelId as unknown as any, params);
-
-		if (resp instanceof ReadableStream) {
-			return [await readableStreamToDataURI(resp)];
+		// Append images with numbered parameter names
+		for (let i = 0; i < Math.min(images.length, maxInputImages); i++) {
+			const imageBlob = base64ToBlob(images[i]!);
+			form.append(`input_image_${i}`, imageBlob);
 		}
-
-		return [base64ToDataURI(resp.image)];
 	}
 
-	const resp = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${request.modelId}`, {
-		method: "POST",
-		headers: {
-			Authorization: `Bearer ${apiKey}`,
-		},
-		body: JSON.stringify(params),
-	});
+	return form;
+};
 
+// Helper function to handle API response
+const handleApiResponse = async (resp: Response): Promise<string[]> => {
 	if (!resp.ok) {
 		if (resp.status === 401 || resp.status === 404) {
 			throw new Error("CONFIG_ERROR");
 		}
-
+		if (resp.status === 429) {
+			throw new Error("TOO_MANY_REQUESTS");
+		}
 		const errorText = await resp.text();
 		throw new Error(`Cloudflare API error: ${resp.status} ${resp.statusText} - ${errorText}`);
 	}
@@ -66,6 +56,79 @@ const generateSingle = async (request: TypixGenerateRequest, settings: ApiProvid
 
 	const result = (await resp.json()) as unknown as any;
 	return [base64ToDataURI(result.result.image)];
+};
+
+// Single image generation helper function
+const generateSingle = async (request: TypixGenerateRequest, settings: ApiProviderSettings): Promise<string[]> => {
+	const AI = getContext().AI;
+	const { builtin, apiKey, accountId } = Cloudflare.parseSettings<CloudflareSettings>(settings);
+
+	const model = findModel(Cloudflare, request.modelId) as CloudflareAiModel;
+	const genType = chooseAblility(request, model.ability);
+	const inputType = model.inputType || "JSON";
+
+	const params = {
+		prompt: request.prompt,
+	} as any;
+	if (request.aspectRatio) {
+		const size = commonAspectRatioSizes[request.aspectRatio];
+		params.width = size?.width;
+		params.height = size?.height;
+	}
+	if (genType === "i2i") {
+		params.image_b64 = request.images![0]!;
+	}
+
+	// Built-in Cloudflare Worker AI
+	if (inCfWorker && AI && builtin === true) {
+		if (inputType === "FormData") {
+			const form = createFormData(params, model, request);
+			const formRequest = new Request("http://dummy", {
+				method: "POST",
+				body: form,
+			});
+
+			const resp = await AI.run(request.modelId as unknown as any, {
+				multipart: {
+					body: formRequest.body,
+					contentType: formRequest.headers.get("content-type") || "multipart/form-data",
+				},
+			});
+
+			if (resp instanceof ReadableStream) {
+				return [await readableStreamToDataURI(resp)];
+			}
+			return [base64ToDataURI(resp.image)];
+		}
+
+		// Default JSON format
+		const resp = await AI.run(request.modelId as unknown as any, params);
+		if (resp instanceof ReadableStream) {
+			return [await readableStreamToDataURI(resp)];
+		}
+		return [base64ToDataURI(resp.image)];
+	}
+
+	// External API call
+	const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${request.modelId}`;
+	const headers = { Authorization: `Bearer ${apiKey}` };
+
+	if (inputType === "FormData") {
+		const resp = await fetch(url, {
+			method: "POST",
+			headers,
+			body: createFormData(params, model, request),
+		});
+		return handleApiResponse(resp);
+	}
+
+	// Default JSON format
+	const resp = await fetch(url, {
+		method: "POST",
+		headers,
+		body: JSON.stringify(params),
+	});
+	return handleApiResponse(resp);
 };
 
 const cloudflareSettingsNotBuiltInSchema = [
@@ -102,7 +165,13 @@ const cloudflareSettingsBuiltinSchema = [
 // Automatically generate type from schema
 export type CloudflareSettings = ProviderSettingsType<typeof cloudflareSettingsBuiltinSchema>;
 
-const Cloudflare: AiProvider = {
+type CloudflareAiModel = AiModel & {
+	inputType?: "JSON" | "FormData";
+};
+
+type CloudflareProvider = ReplacePropertyType<AiProvider, "models", CloudflareAiModel[]>;
+
+const Cloudflare: CloudflareProvider = {
 	id: "cloudflare",
 	name: "Cloudflare AI",
 	settings: () => {
@@ -112,6 +181,15 @@ const Cloudflare: AiProvider = {
 	},
 	enabledByDefault: true,
 	models: [
+		{
+			id: "@cf/black-forest-labs/flux-2-dev",
+			name: "FLUX.2-dev",
+			ability: "i2i",
+			maxInputImages: 4,
+			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+			inputType: "FormData",
+		},
 		{
 			id: "@cf/leonardo/lucid-origin",
 			name: "Lucid Origin",
@@ -174,6 +252,12 @@ const Cloudflare: AiProvider = {
 			if (error.message === "CONFIG_ERROR") {
 				return {
 					errorReason: "CONFIG_ERROR",
+					images: [],
+				};
+			}
+			if (error.message === "TOO_MANY_REQUESTS") {
+				return {
+					errorReason: "TOO_MANY_REQUESTS",
 					images: [],
 				};
 			}

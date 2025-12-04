@@ -32,7 +32,7 @@ const Fal: AiProvider = {
 	models: [
 		{
 			id: "fal-ai/nano-banana-pro",
-			name: "Nano Banana 2",
+			name: "Nano Banana Pro",
 			ability: "i2i",
 			maxInputImages: 4,
 			enabledByDefault: true,

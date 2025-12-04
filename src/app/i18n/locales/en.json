@@ -67,6 +67,8 @@
 			"apiErrorDesc": "The service is temporarily unavailable, please try again later",
 			"timeoutError": "Request timeout",
 			"timeoutErrorDesc": "The request took too long, please try again",
+			"tooManyRequests": "Too many requests",
+			"tooManyRequestsDesc": "You have made too many requests, please try again later",
 			"unknownError": "Unknown error",
 			"unknownErrorDesc": "An unexpected error occurred, please try again",
 			"goToSettings": "Go to Settings",
@@ -206,6 +208,9 @@
 				}
 			},
 			"models": {
+				"@cf/black-forest-labs/flux-2-dev": {
+					"description": "FLUX.2 [dev] is an image model from Black Forest Labs where you can generate highly realistic and detailed images, with multi-reference support."
+				},
 				"@cf/leonardo/lucid-origin": {
 					"description": "Lucid Origin from Leonardo.AI is their most adaptable and prompt-responsive model to date."
 				},
@@ -264,6 +269,9 @@
 				}
 			},
 			"models": {
+				"fal-ai/nano-banana-pro": {
+					"description": "Nano Banana Pro is Google's latest image generation and editing model with significantly improved consistency and prompt adherence."
+				},
 				"fal-ai/flux-pro/kontext/max": {
 					"description": "FLUX.1 Kontext [max] is a model with greatly improved prompt adherence and typography generation meet premium consistency for editing without compromise on speed."
 				},
@@ -315,6 +323,9 @@
 				}
 			},
 			"models": {
+				"gemini-3-pro-image-preview": {
+					"description": "Nano Banana Pro is Google's latest image generation and editing model with advanced multimodal capabilities."
+				},
 				"gemini-2.5-flash-image-preview": {
 					"description": "Nano Banana[Gemini 2.5 Flash Image] is Google's state-of-the-art image generation and editing model."
 				},
