@@ -27,7 +27,7 @@ const createFormData = (params: any, model: CloudflareAiModel, request: TypixGen
 
 		// Append images with numbered parameter names
 		for (let i = 0; i < Math.min(images.length, maxInputImages); i++) {
-			const imageBlob = base64ToBlob(images[i]!);
+			const imageBlob = base64ToBlob(dataURItoBase64(images[i]!));
 			form.append(`input_image_${i}`, imageBlob);
 		}
 	}
@@ -76,7 +76,7 @@ const generateSingle = async (request: TypixGenerateRequest, settings: ApiProvid
 		params.height = size?.height;
 	}
 	if (genType === "i2i") {
-		params.image_b64 = request.images![0]!;
+		params.image_b64 = dataURItoBase64(request.images![0]!);
 	}
 
 	// Built-in Cloudflare Worker AI

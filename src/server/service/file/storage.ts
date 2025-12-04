@@ -1,6 +1,6 @@
 import { type Storage, files } from "@/server/db/schemas";
 import { inBrowser } from "@/server/lib/env";
-import { fetchUrlToDataURI } from "@/server/lib/util";
+import { base64ToDataURI, fetchUrlToDataURI } from "@/server/lib/util";
 import { and, eq } from "drizzle-orm";
 import { getContext } from "../context";
 
@@ -120,7 +120,7 @@ export const getFileMetadata = async (fileId: string, userId: string) => {
 };
 
 /**
- * Get file base64-encoded string
+ * Get file base64 data URL
  * @param fileId File ID to get data for
  * @param userId User ID to check access
  * @param redirect
@@ -138,10 +138,11 @@ export const getFileData = async (fileId: string, userId: string) => {
 
 	switch (metadata.protocol) {
 		case "data:":
-			return metadata.accessUrl.split(",")[1]!; // Return base64 part only
+			return metadata.accessUrl;
 		case "file:": {
 			const fs = await import("node:fs/promises");
-			return await fs.readFile(metadata.accessUrl, "base64");
+			const fileSuffix = metadata.accessUrl.split(".").pop();
+			return base64ToDataURI(await fs.readFile(metadata.accessUrl, "base64"), fileSuffix);
 		}
 		default:
 			return await fetchUrlToDataURI(metadata.accessUrl);
