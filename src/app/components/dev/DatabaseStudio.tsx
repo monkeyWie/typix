@@ -1,9 +1,6 @@
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/app/components/ui/dialog";
-import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { Separator } from "@/app/components/ui/separator";
 import { Textarea } from "@/app/components/ui/textarea";
 import { getDb } from "@/app/lib/db-client";
 import { Database } from "lucide-react";
@@ -106,85 +103,6 @@ export function DatabaseStudio() {
 		setIsOpen(false);
 	};
 
-	const renderTable = () => {
-		if (!result?.columns || !result?.rows) return null;
-
-		return (
-			<div className="rounded-md border">
-				<ScrollArea className="h-[400px]">
-					<table className="w-full text-sm">
-						<thead className="border-b bg-muted/50">
-							<tr>
-								{result.columns.map((column) => (
-									<th key={column} className="p-2 text-left font-medium">
-										{column}
-									</th>
-								))}
-							</tr>
-						</thead>
-						<tbody>
-							{result.rows.map((row, rowIndex) => (
-								<tr key={`row-${JSON.stringify(row)}-${rowIndex}`} className="border-b hover:bg-muted/50">
-									{result.columns!.map((column) => (
-										<td key={`${rowIndex}-${column}`} className="p-2">
-											{row[column] !== null && row[column] !== undefined ? (
-												String(row[column])
-											) : (
-												<span className="text-muted-foreground italic">NULL</span>
-											)}
-										</td>
-									))}
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</ScrollArea>
-			</div>
-		);
-	};
-
-	const renderResult = () => {
-		if (!result) return null;
-
-		return (
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between">
-					<CardTitle className="text-lg">Query Results</CardTitle>
-					<div className="flex items-center gap-2">
-						{result.executionTime && <Badge variant="secondary">{result.executionTime.toFixed(2)}ms</Badge>}
-						<Button variant="outline" size="sm" onClick={clearResult}>
-							Clear
-						</Button>
-					</div>
-				</CardHeader>
-				<CardContent>
-					{result.error ? (
-						<div className="rounded-md border border-destructive/20 bg-destructive/10 p-4">
-							<p className="font-medium text-destructive">Error:</p>
-							<p className="mt-1 text-destructive/80 text-sm">{result.error}</p>
-						</div>
-					) : result.columns && result.rows ? (
-						<div>
-							<div className="mb-4 flex items-center gap-4">
-								<Badge variant="outline">{result.rows.length} rows</Badge>
-								<Badge variant="outline">{result.columns.length} columns</Badge>
-							</div>
-							{renderTable()}
-						</div>
-					) : (
-						<div>
-							<div className="flex items-center gap-4">
-								{typeof result.changes === "number" && <Badge variant="outline">Affected rows: {result.changes}</Badge>}
-								{result.lastInsertRowid && <Badge variant="outline">Insert ID: {String(result.lastInsertRowid)}</Badge>}
-							</div>
-							<p className="mt-2 text-muted-foreground">Query execution completed</p>
-						</div>
-					)}
-				</CardContent>
-			</Card>
-		);
-	};
-
 	return (
 		<>
 			{/* Floating Button */}
@@ -207,7 +125,7 @@ export function DatabaseStudio() {
 						</DialogTitle>
 					</DialogHeader>
 
-					<div className="flex h-[calc(100vh-80px)] flex-col">
+					<div className="flex h-[calc(100vh-80px)] flex-col overflow-y-auto pb-6">
 						{/* SQL Input Area */}
 						<div className="flex-shrink-0 border-b p-6">
 							<p className="mb-4 text-muted-foreground text-sm">
@@ -254,7 +172,7 @@ export function DatabaseStudio() {
 
 						{/* Results Display Area - Fill remaining space */}
 						{result ? (
-							<div className="flex flex-1 flex-col overflow-hidden">
+							<div className="flex flex-1 flex-col">
 								{/* Results Header */}
 								<div className="flex-shrink-0 border-b p-4">
 									<div className="flex items-center justify-between">
@@ -269,7 +187,7 @@ export function DatabaseStudio() {
 								</div>
 
 								{/* Results Content - Fill remaining space */}
-								<div className="flex-1 overflow-hidden">
+								<div className="flex-1">
 									{result.error ? (
 										<div className="p-6">
 											<div className="rounded-md border border-destructive/20 bg-destructive/10 p-4">
@@ -289,7 +207,7 @@ export function DatabaseStudio() {
 
 											{/* Table - Fill remaining space */}
 											<div className="w-full flex-1 overflow-hidden">
-												<ScrollArea className="h-full w-full">
+												<div className="w-full overflow-x-auto pb-2">
 													<table className="w-full text-sm" style={{ tableLayout: "auto", minWidth: "100%" }}>
 														<thead className="sticky top-0 border-b bg-muted/50">
 															<tr>
@@ -335,8 +253,7 @@ export function DatabaseStudio() {
 															))}
 														</tbody>
 													</table>
-													<div className="h-6" />
-												</ScrollArea>
+												</div>
 											</div>
 										</div>
 									) : (

@@ -30,7 +30,7 @@ binding = "AI"
 #         Authenticated users benefit from cross-device data sync and server-side data persistence.
 #         Provides the best of both worlds: instant local access with optional cloud features.
 MODE = "client"
-GOOGLE_ANALYTICS_ID = "G-0T65G1J5DT"
+# GOOGLE_ANALYTICS_ID = "G-0T65G1J5DT"
 
 # Authentication configuration, only for mixed mode
 #

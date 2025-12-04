@@ -13,7 +13,7 @@ export function base64ToBlob(base64: string, mimeType = "image/png") {
 }
 
 export function dataURItoBase64(dataURI: string) {
-	return dataURI.split(",")[1];
+	return dataURI.split(",")[1]!;
 }
 
 export async function readableStreamToDataURI(stream: ReadableStream<Uint8Array>, fmt = "png") {
