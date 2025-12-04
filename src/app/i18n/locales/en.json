@@ -181,10 +181,12 @@
 		"subtitle": "Choose the perfect plan for your needs",
 		"popular": "Popular",
 		"save": "Save",
+		"creditsUnit": "credits",
 		"quotaUnit": "images/month",
 		"perImage": "image",
 		"subscribe": "Subscribe",
 		"buyNow": "Buy Now",
+		"currentPlan": "Current Plan",
 		"sections": {
 			"plan": "Subscription Plans",
 			"usage": "Usage Details",

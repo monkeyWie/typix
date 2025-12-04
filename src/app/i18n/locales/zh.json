@@ -181,10 +181,12 @@
 		"subtitle": "选择最适合您需求的套餐计划",
 		"popular": "热门",
 		"save": "省",
+		"creditsUnit": "积分",
 		"quotaUnit": "张/月",
 		"perImage": "张",
 		"subscribe": "订阅",
 		"buyNow": "立即购买",
+		"currentPlan": "当前方案",
 		"sections": {
 			"plan": "订阅方案",
 			"usage": "使用明细",

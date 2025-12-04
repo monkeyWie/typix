@@ -4,26 +4,47 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { useSubscriptionService } from "@/app/hooks/useService";
 import { useToast } from "@/app/hooks/useToast";
+import { apiClient } from "@/app/lib/api-client";
 import { useUIStore } from "@/app/stores";
 import { ServiceException } from "@/server/lib/exception";
 import type { BillingInterval, BillingType, Product } from "@/server/service/subscription";
 import { PRODUCTS } from "@/server/service/subscription";
 import { Check, Crown, Mail, Shield, Star, Users, Zap } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+
+interface CurrentSubscription {
+	totalCredits: number;
+	usedCredits: number;
+	remainingCredits: number;
+	currentPeriodStart?: string;
+	currentPeriodEnd?: string;
+	tier?: string;
+	billingInterval?: BillingInterval;
+	autoRenew?: boolean;
+}
 
 interface PlanCardProps {
 	product: Product;
 	isPopular?: boolean;
 	billingType: BillingType;
 	billingCycle: BillingInterval;
+	currentSubscription?: CurrentSubscription;
 }
 
-function PlanCard({ product, isPopular, billingType, billingCycle }: PlanCardProps) {
+function PlanCard({ product, isPopular, billingType, billingCycle, currentSubscription }: PlanCardProps) {
 	const { t } = useTranslation();
 	const subscriptionService = useSubscriptionService();
 	const { openLoginModal } = useUIStore();
 	const { toast } = useToast();
+
+	// Check if this is the current plan
+	const plan = product.plans.find((p) => p.charged === billingType && p.interval === billingCycle);
+	const isCurrentPlan =
+		currentSubscription?.tier === product.tier &&
+		currentSubscription?.billingInterval === billingCycle &&
+		((billingType === "subscription" && currentSubscription?.autoRenew === true) ||
+			(billingType === "one_time" && currentSubscription?.autoRenew === false));
 
 	const { trigger: createCheckout, isMutating: isLoading } = subscriptionService.createCheckout.swrMutation(
 		"createCheckout",
@@ -54,9 +75,6 @@ function PlanCard({ product, isPopular, billingType, billingCycle }: PlanCardPro
 		},
 	);
 
-	// Find the plan that matches the selected billing type and cycle
-	const plan = product.plans.find((p) => p.charged === billingType && p.interval === billingCycle);
-
 	if (!plan) {
 		return null;
 	}
@@ -76,8 +94,8 @@ function PlanCard({ product, isPopular, billingType, billingCycle }: PlanCardPro
 	};
 
 	const months = getMonths(billingCycle);
-	const totalQuota = product.quota * months;
-	const costPerImage = plan.price / totalQuota;
+	const totalCredits = product.credits * months;
+	const costPerImage = plan.price / totalCredits;
 
 	const tierIcons = {
 		basic: Shield,
@@ -136,20 +154,26 @@ function PlanCard({ product, isPopular, billingType, billingCycle }: PlanCardPro
 				</div>
 
 				<div className="mb-6">
-					<Button className="w-full" variant="default" onClick={handleSubscribe} disabled={isLoading || !plan}>
-						{isLoading
-							? t("subscription.loading")
-							: billingType === "subscription"
-								? t("subscription.subscribe")
-								: t("subscription.buyNow")}
-					</Button>
+					{isCurrentPlan ? (
+						<Button className="w-full" variant="secondary" disabled>
+							{t("subscription.currentPlan")}
+						</Button>
+					) : (
+						<Button className="w-full" variant="default" onClick={handleSubscribe} disabled={isLoading || !plan}>
+							{isLoading
+								? t("subscription.loading")
+								: billingType === "subscription"
+									? t("subscription.subscribe")
+									: t("subscription.buyNow")}
+						</Button>
+					)}
 				</div>
 
 				<ul className="space-y-2 text-left text-sm">
 					<li className="flex items-center gap-2">
 						<Check className="h-4 w-4 text-green-600" />
 						<span>
-							{product.quota} {t("subscription.quotaUnit")}
+							{product.credits} {t("subscription.creditsUnit")}
 							<span className="ml-1 text-muted-foreground">
 								(${costPerImage.toFixed(3)}/{t("subscription.perImage")})
 							</span>
@@ -183,10 +207,60 @@ export function SubscriptionPlanPage() {
 	const { t } = useTranslation();
 	const [billingType, setBillingType] = useState<BillingType>("subscription");
 	const [billingCycle, setBillingCycle] = useState<BillingInterval>("month");
+	const [currentSubscription, setCurrentSubscription] = useState<CurrentSubscription | null>(null);
+
+	useEffect(() => {
+		apiClient.api.subscription.usage
+			.$post({})
+			.then((res) => res.json())
+			.then((res) => {
+				if (res.code === "ok" && res.data) {
+					setCurrentSubscription(res.data as CurrentSubscription);
+				}
+			})
+			.catch(() => {
+				// Ignore errors - user might not be logged in
+			});
+	}, []);
 
 	return (
 		<div className="min-h-screen p-4 md:p-6">
 			<div className="mx-auto max-w-6xl">
+				{/* Current Subscription Banner */}
+				{currentSubscription && currentSubscription.totalCredits > 0 && (
+					<Card className="mb-6 bg-primary/5 md:mb-8">
+						<CardContent className="flex flex-col items-center justify-between gap-4 p-6 sm:flex-row">
+							<div className="flex items-center gap-3">
+								<div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+									<Star className="h-5 w-5 text-primary" />
+								</div>
+								<div>
+									<div className="font-semibold">
+										{currentSubscription.tier ? (
+											<>当前订阅：{t(`subscription.tiers.${currentSubscription.tier}`)}</>
+										) : (
+											"当前额度"
+										)}
+									</div>
+									{currentSubscription.currentPeriodEnd ? (
+										<div className="text-muted-foreground text-sm">
+											到期时间：{new Date(currentSubscription.currentPeriodEnd).toLocaleDateString("zh-CN")}
+										</div>
+									) : (
+										<div className="text-muted-foreground text-sm">无有效期限制</div>
+									)}
+								</div>
+							</div>
+							<div className="flex items-center gap-4">
+								<div className="text-center">
+									<div className="text-muted-foreground text-xs">剩余积分</div>
+									<div className="font-bold text-xl">{currentSubscription.remainingCredits}</div>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				)}
+
 				{/* Header */}
 				<div className="mb-6 text-center md:mb-8">
 					<h1 className="mb-4 font-bold text-3xl md:text-4xl">{t("subscription.title")}</h1>
@@ -245,6 +319,7 @@ export function SubscriptionPlanPage() {
 							isPopular={index === 1} // Make "advanced" tier popular
 							billingType={billingType}
 							billingCycle={billingCycle}
+							currentSubscription={currentSubscription || undefined}
 						/>
 					))}
 				</div>

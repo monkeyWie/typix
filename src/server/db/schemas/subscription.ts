@@ -8,7 +8,7 @@ export const billingIntervals = ["month", "quarter", "year"] as const;
 export const billingTypes = ["subscription", "one_time"] as const;
 export const orderStatuses = ["pending", "paid", "failed", "cancelled", "refunded"] as const;
 export const subscriptionStatuses = ["active", "cancelled", "expired", "pending"] as const;
-export const quotaSources = ["registration", "order", "gift", "promotion", "refund"] as const;
+export const creditSources = ["registration", "order", "gift", "promotion", "refund"] as const;
 
 // 用户订单表 - 记录所有的购买行为
 export const userOrders = sqliteTable("user_orders", {
@@ -43,7 +43,7 @@ export const userOrders = sqliteTable("user_orders", {
 	refundedDate: text(), // 退款时间
 
 	// 商品内容
-	quotaAmount: integer().notNull(), // 购买的额度数量
+	creditsAmount: integer().notNull(), // 购买的额度数量
 	validityDays: integer(), // 有效期天数（一次性购买为null，订阅制有值）
 
 	// 其他信息
@@ -94,68 +94,69 @@ export const userSubscriptions = sqliteTable(
 	(t) => [unique().on(t.userId, t.tier)], // 一个用户同一套餐只能有一个活跃订阅
 );
 
-// 用户额度表
-export const userQuotas = sqliteTable("user_quotas", {
+// 用户积分表
+export const userCredits = sqliteTable("user_credits", {
 	id: text().$defaultFn(generateId).primaryKey(),
 	userId: text()
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 
-	// 额度信息
-	totalQuota: integer().default(0).notNull(), // 总额度
-	usedQuota: integer().default(0).notNull(), // 已使用额度
-	remainingQuota: integer().default(0).notNull(), // 剩余额度
+	// 积分信息
+	totalCredits: integer().default(0).notNull(), // 总积分
+	usedCredits: integer().default(0).notNull(), // 已使用积分
+	remainingCredits: integer().default(0).notNull(), // 剩余积分
 
-	// 额度来源统计
-	registrationQuota: integer().default(0).notNull(), // 注册赠送
-	orderQuota: integer().default(0).notNull(), // 订单获得
-	giftQuota: integer().default(0).notNull(), // 礼品额度
-	promotionQuota: integer().default(0).notNull(), // 活动奖励
+	// 积分来源统计
+	registrationCredits: integer().default(0).notNull(), // 注册赠送
+	orderCredits: integer().default(0).notNull(), // 订单获得
+	giftCredits: integer().default(0).notNull(), // 礼品积分
+	promotionCredits: integer().default(0).notNull(), // 活动奖励
 
 	...metaFields,
 });
 
-// 用户额度变更记录表
-export const userQuotaHistory = sqliteTable("user_quota_history", {
+// 用户积分变更记录表
+export const userCreditHistory = sqliteTable("user_credit_history", {
 	id: text().$defaultFn(generateId).primaryKey(),
 	userId: text()
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 
 	// 变更信息
-	source: text({ enum: quotaSources }).notNull(),
+	source: text({ enum: creditSources }).notNull(),
 	changeAmount: integer().notNull(), // 正数为增加，负数为减少
-	beforeQuota: integer().notNull(),
-	afterQuota: integer().notNull(),
+	beforeCredits: integer().notNull(),
+	afterCredits: integer().notNull(),
 
 	// 关联信息
 	orderId: text().references(() => userOrders.id, { onDelete: "set null" }),
 	subscriptionId: text().references(() => userSubscriptions.id, { onDelete: "set null" }),
-	imageGenerationId: text().references(() => userImageGenerations.id, { onDelete: "set null" }),
+	generationId: text().references(() => userGenerations.id, { onDelete: "set null" }),
 
-	// 描述信息
-	description: text(),
 	metadata: text({ mode: "json" }),
 
 	...metaFields,
 });
 
-// 用户生图记录表
-export const userImageGenerations = sqliteTable("user_image_generations", {
+// 用户生成记录表（图片、视频等）
+export const userGenerations = sqliteTable("user_generations", {
 	id: text().$defaultFn(generateId).primaryKey(),
 	userId: text()
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 
-	// 生图信息
+	// 生成信息
+	generationType: text({ enum: ["image", "video"] })
+		.notNull()
+		.default("image"), // 生成类型
 	modelId: text().notNull(),
 	status: text({ enum: ["pending", "processing", "completed", "failed"] }).notNull(),
-	quotaUsed: integer().default(1).notNull(),
+	creditsUsed: integer().default(1).notNull(),
 	errorMessage: text(),
 
 	// 输入参数
 	prompt: text(),
-	imageUrl: text(), // 生成的图片URL
+	resultUrl: text(), // 生成的内容URL（图片或视频）
 
 	...metaFields,
 });

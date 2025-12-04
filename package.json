@@ -12,11 +12,11 @@
 		"fmt": "biome format --write .",
 		"lint": "eslint .",
 		"preview": "vite preview",
+		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:migrate:dev:worker": "wrangler d1 migrations apply --local typix",
 		"db:migrate:worker": "wrangler d1 migrations apply --remote typix",
-		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"deploy": "npm run db:migrate:worker && wrangler deploy",
 		"deploy:no-migrate": "wrangler deploy"
