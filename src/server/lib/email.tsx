@@ -1,12 +1,14 @@
+import { render } from "@react-email/render";
 import { getContext } from "../service/context";
 
 export async function sendEmail(to: string, code: string) {
 	const { resend } = getContext();
+	const html = await render(VerificationCodeTemplate({ code }));
 	await resend!.instance.emails.send({
 		from: resend!.from,
 		to,
 		subject: "Typix - Verification Code",
-		react: VerificationCodeTemplate({ code }),
+		html,
 	});
 }
 
