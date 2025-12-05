@@ -41,7 +41,7 @@
 		"@radix-ui/react-slot": "^1.2.3",
 		"@radix-ui/react-switch": "^1.2.5",
 		"@radix-ui/react-tooltip": "^1.2.7",
-		"@react-email/render": "^1.2.0",
+		"@react-email/render": "^1.4.0",
 		"@tailwindcss/vite": "^4.1.7",
 		"@tanstack/react-router": "^1.120.10",
 		"@tanstack/react-router-devtools": "^1.120.10",
