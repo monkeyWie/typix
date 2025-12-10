@@ -4,6 +4,9 @@ main = "src/server/worker.ts"
 compatibility_flags = ["nodejs_compat"]
 compatibility_date = "2025-05-25"
 
+[limits]
+cpu_ms = 120000 # 2 minutes
+
 [assets]
 directory = "dist"
 not_found_handling = "single-page-application"

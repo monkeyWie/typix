@@ -11,18 +11,29 @@ const app = new Hono<Env>()
 		const user = c.var.user!;
 		const fileId = c.req.param("id");
 
-		const etag = btoa(`"${user.id}-${fileId}"`);
-		c.header("ETag", etag);
-		if (c.req.header("If-None-Match") === etag) {
-			return new Response(null, {
-				status: 304,
-				statusText: "Not Modified",
-			});
-		}
-
 		const metadata = await getFileMetadata(fileId, user.id);
 		if (!metadata) {
 			return c.json({ error: "File not found" }, 404);
+		}
+
+		// Determine content type based on protocol
+		let contentType = "image/png";
+		if (metadata.protocol === "data:") {
+			const base64Header = metadata.accessUrl.split(",")[0];
+			contentType = base64Header?.split(";")[0]?.split(":")[1] || "image/png";
+		} else if (metadata.protocol === "file:") {
+			const suffix = metadata.accessUrl.split(".").pop();
+			contentType = `image/${suffix}`;
+		}
+
+		// Set ETag and check cache
+		const etag = btoa(`"${user.id}-${fileId}"`);
+		c.header("ETag", etag);
+		c.header("Content-Type", contentType);
+		c.header("Cache-Control", "private, max-age=31536000");
+
+		if (c.req.header("If-None-Match") === etag) {
+			return c.body(null, 304);
 		}
 
 		switch (metadata.protocol) {
@@ -31,18 +42,13 @@ const app = new Hono<Env>()
 				if (!base64Header || !base64Data) {
 					return c.json({ error: "Invalid file data" }, 500);
 				}
-				// Set the content type based on the header
-				const contentType = base64Header.split(";")[0]?.split(":")[1] || "image/png";
-				c.header("Content-Type", contentType);
 				return stream(c, async (stream) => {
 					const buffer = Buffer.from(base64Data, "base64");
 					await stream.write(buffer);
 				});
 			}
 			case "file:": {
-				const suffix = metadata.accessUrl.split(".").pop();
 				const fileBuffer = await fs.readFile(metadata.accessUrl);
-				c.header("Content-Type", `image/${suffix}`);
 				return stream(c, async (stream) => {
 					await stream.write(fileBuffer);
 				});
