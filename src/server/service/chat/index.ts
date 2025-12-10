@@ -397,6 +397,7 @@ const executeImageGeneration = async (params: GenerationParams, ctx: RequestCont
 			referImages = await lastMessageImage();
 		}
 
+		const now = new Date();
 		const result = await providerInstance.generate(
 			{
 				providerId,
@@ -414,12 +415,12 @@ const executeImageGeneration = async (params: GenerationParams, ctx: RequestCont
 				.set({
 					status: "failed",
 					errorReason: result.errorReason,
+					updatedAt: now.toISOString(),
 				})
 				.where(eq(messageGenerations.id, generationId));
 			return;
 		}
 
-		const now = new Date();
 		// Save generated files to database
 		const fileIds = await saveFiles(result.images, userId);
 		// Update generation with result URLs
@@ -439,6 +440,7 @@ const executeImageGeneration = async (params: GenerationParams, ctx: RequestCont
 			.set({
 				status: "failed",
 				errorReason: error instanceof ConfigInvalidError ? "CONFIG_INVALID" : "UNKNOWN",
+				updatedAt: new Date().toISOString(),
 			})
 			.where(eq(messageGenerations.id, generationId));
 		return;
@@ -574,9 +576,9 @@ const getGenerationStatus = async (req: GetGenerationStatus, ctx: RequestContext
 
 	// Check if generation is still pending/generating but has exceeded 5 minutes
 	if (generation.status === "pending" || generation.status === "generating") {
-		const createdAt = new Date(generation.createdAt);
+		const lastGenTime = new Date(generation.updatedAt);
 		const now = new Date();
-		const elapsedMinutes = (now.getTime() - createdAt.getTime()) / 1000 / 60;
+		const elapsedMinutes = (now.getTime() - lastGenTime.getTime()) / 1000 / 60;
 
 		if (elapsedMinutes > 5) {
 			// Mark as failed due to timeout
