@@ -25,7 +25,7 @@ const app = new Hono<Env>()
 		const user = c.var.user!;
 		const req = c.req.valid("json");
 
-		return c.json(ok(await chatService.createChat(req, { userId: user.id })));
+		return c.json(ok(await chatService.createChat(req, { userId: user.id, executionCtx: c.executionCtx })));
 	})
 	.post("/getChatById", zValidator("json", GetChatByIdSchema), async (c) => {
 		const user = c.var.user!;
