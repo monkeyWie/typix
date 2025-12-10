@@ -8,7 +8,7 @@
 
 <p align="center"><a href="README.md">简体中文</a> | English</p>
 
-Typix is a modern, open-source, user-friendly, and privacy-secure AI tool focused on media content generation, providing creators with a one-stop generation experience.
+Typix is a modern, open-source, user-friendly, and privacy-secure AI tool focused on media content generation, providing creators with a one-stop generation experience, supporting one-click deployment to Cloudflare Workers and free use of Cloudflare Workers AI models.
 
 ![](docs/public/images/demo/preview.png)
 
