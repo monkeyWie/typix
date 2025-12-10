@@ -40,6 +40,7 @@ export function ChatMessageItem({
 	const chatService = useChatService();
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	const skipPoll = useRef<boolean>(false);
+	const pollingGenerationIdRef = useRef<string | null>(null); // Track which generation is being polled
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [isHovered, setIsHovered] = useState(false);
@@ -122,6 +123,20 @@ export function ChatMessageItem({
 		const generationId = message.generationId || message.generation?.id;
 
 		if (isMessageGenerating && generationId && onMessageUpdate) {
+			// If we're already polling this exact generation, don't restart
+			if (intervalRef.current && pollingGenerationIdRef.current === generationId) {
+				return;
+			}
+
+			// Clear any existing interval for a different generation
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+				intervalRef.current = null;
+			}
+
+			// Mark this generation as being polled
+			pollingGenerationIdRef.current = generationId;
+
 			const pollStatus = async () => {
 				try {
 					if (skipPoll.current) {
@@ -143,6 +158,7 @@ export function ChatMessageItem({
 							if (intervalRef.current) {
 								clearInterval(intervalRef.current);
 								intervalRef.current = null;
+								pollingGenerationIdRef.current = null;
 							}
 						}
 					}
@@ -151,21 +167,34 @@ export function ChatMessageItem({
 				}
 			};
 
-			// Start polling every 3 seconds
-			intervalRef.current = setInterval(pollStatus, 3000);
-
-			// Also poll immediately (unless skipFirstPoll is set)
-			pollStatus();
+			// Start polling every 3 seconds after initial 3 second delay
+			const timeoutId = setTimeout(() => {
+				if (isMessageGenerating && pollingGenerationIdRef.current === generationId) {
+					pollStatus();
+					// Start interval polling after first poll completes
+					intervalRef.current = setInterval(pollStatus, 3000);
+				}
+			}, 3000);
 
 			// Cleanup on unmount or when generation is no longer pending
 			return () => {
+				clearTimeout(timeoutId);
 				if (intervalRef.current) {
 					clearInterval(intervalRef.current);
 					intervalRef.current = null;
+					pollingGenerationIdRef.current = null;
 				}
 			};
 		}
-	}, [isMessageGenerating, message.generationId, message.generation?.id, message.id, onMessageUpdate, chatService]);
+
+		// If message is no longer generating, clear the interval
+		if (!isMessageGenerating && intervalRef.current) {
+			clearInterval(intervalRef.current);
+			intervalRef.current = null;
+			pollingGenerationIdRef.current = null;
+		}
+	}, [isMessageGenerating, message.generationId, message.id, onMessageUpdate, chatService]);
+	// Note: Removed message.generation?.id from dependencies to avoid unnecessary re-runs
 
 	// Cleanup interval on unmount
 	useEffect(() => {

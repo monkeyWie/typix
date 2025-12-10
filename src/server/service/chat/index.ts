@@ -60,7 +60,7 @@ const createChat = async (req: CreateChat, ctx: RequestContext) => {
 		.returning();
 
 	if (req.content) {
-		await createMessage(
+		const messageResult = await createMessage(
 			{
 				chatId: chat!.id,
 				content: req.content,
@@ -74,6 +74,9 @@ const createChat = async (req: CreateChat, ctx: RequestContext) => {
 			},
 			ctx,
 		);
+
+		// Return chat id and messages for frontend to trigger generation
+		return { id: chat!.id, messages: messageResult.messages };
 	}
 
 	return { id: chat!.id };
@@ -514,6 +517,10 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 			model: req.model,
 			type: "image",
 			status: "pending",
+			parameters: {
+				imageCount: req.imageCount,
+				aspectRatio: req.aspectRatio,
+			} as any,
 		})
 		.returning();
 
@@ -533,33 +540,8 @@ const createMessage = async (req: CreateMessage, ctx: RequestContext) => {
 		throw new ServiceException("error", "Failed to create assistant message");
 	}
 
-	// Execute image generation using common logic
-	// Use attachments data or fallback to legacy images param
-	const userImages = req.attachments?.map((att) => att.data) || req.images;
-
-	const generateImage = () =>
-		executeImageGeneration(
-			{
-				generationId: generation!.id,
-				prompt: req.content,
-				provider: req.provider,
-				model: req.model,
-				chatId: req.chatId,
-				userId,
-				userImages,
-				imageCount: req.imageCount, // Pass the image count
-				aspectRatio: req.aspectRatio, // Pass the aspect ratio
-				messageId: assistantMessage.id,
-			},
-			ctx,
-		);
-
-	if (!inBrowser && inCfWorker) {
-		// Run generation in background for Cloudflare Workers
-		ctx.executionCtx!.waitUntil(generateImage());
-	} else {
-		generateImage();
-	}
+	// Don't execute image generation here - client will call createMessageGenerate
+	// This avoids CF Worker 30-second timeout limitation
 
 	return {
 		messages: [
@@ -590,6 +572,30 @@ const getGenerationStatus = async (req: GetGenerationStatus, ctx: RequestContext
 		return null;
 	}
 
+	// Check if generation is still pending/generating but has exceeded 5 minutes
+	if (generation.status === "pending" || generation.status === "generating") {
+		const createdAt = new Date(generation.createdAt);
+		const now = new Date();
+		const elapsedMinutes = (now.getTime() - createdAt.getTime()) / 1000 / 60;
+
+		if (elapsedMinutes > 5) {
+			// Mark as failed due to timeout
+			type UpdateGeneration = Pick<typeof generation, "status" | "errorReason" | "updatedAt">;
+			const updateData = {
+				status: "failed",
+				errorReason: "TIMEOUT",
+				updatedAt: now.toISOString(),
+			} as UpdateGeneration;
+			await db.update(messageGenerations).set(updateData).where(eq(messageGenerations.id, req.generationId));
+
+			return {
+				...generation,
+				...updateData,
+				resultUrls: undefined,
+			};
+		}
+	}
+
 	return {
 		...generation,
 		resultUrls: generation.fileIds
@@ -600,6 +606,82 @@ const getGenerationStatus = async (req: GetGenerationStatus, ctx: RequestContext
 				)
 			: undefined,
 	};
+};
+
+export const CreateMessageGenerateSchema = z.object({
+	generationId: z.string(),
+});
+export type CreateMessageGenerate = z.infer<typeof CreateMessageGenerateSchema>;
+const createMessageGenerate = async (req: CreateMessageGenerate, ctx: RequestContext) => {
+	const { db } = getContext();
+	const { userId } = ctx;
+
+	// Find the generation record
+	const generation = await db.query.messageGenerations.findFirst({
+		where: eq(messageGenerations.id, req.generationId),
+	});
+
+	if (!generation || generation.userId !== userId) {
+		throw new ServiceException("not_found", "Generation not found");
+	}
+
+	// Find the message associated with this generation
+	const message = await db.query.messages.findFirst({
+		where: eq(messages.generationId, req.generationId),
+		with: {
+			chat: true,
+			attachments: {
+				with: {
+					file: true,
+				},
+			},
+		},
+	});
+
+	if (!message || message.userId !== userId) {
+		throw new ServiceException("not_found", "Message not found");
+	}
+
+	// Get user images from the parent user message (previous message in chat)
+	const userMessage = await db.query.messages.findFirst({
+		where: and(eq(messages.chatId, message.chatId), eq(messages.role, "user"), eq(messages.type, "text")),
+		orderBy: [desc(messages.createdAt)],
+		with: {
+			attachments: {
+				with: {
+					file: true,
+				},
+			},
+		},
+	});
+
+	const userImages = userMessage?.attachments.length
+		? await Promise.all(userMessage.attachments.map(async (att) => await getFileData(att.fileId, userId)))
+		: undefined;
+
+	// Extract parameters from generation record
+	const params = generation.parameters as any;
+	const imageCount = params?.imageCount || 1;
+	const aspectRatio = params?.aspectRatio;
+
+	// Execute image generation
+	await executeImageGeneration(
+		{
+			generationId: generation.id,
+			prompt: generation.prompt,
+			provider: generation.provider,
+			model: generation.model,
+			chatId: message.chatId,
+			userId,
+			userImages: userImages?.filter(Boolean) as string[] | undefined,
+			imageCount,
+			aspectRatio,
+			messageId: message.id,
+		},
+		ctx,
+	);
+
+	return { success: true };
 };
 
 export const RegenerateMessageSchema = z.object({
@@ -657,30 +739,8 @@ const regenerateMessage = async (req: RegenerateMessage, ctx: RequestContext) =>
 	// Update chat timestamp
 	await db.update(chats).set({ updatedAt: new Date().toISOString() }).where(eq(chats.id, chat.id));
 
-	// Execute image generation using common logic
-	const generateImage = () =>
-		executeImageGeneration(
-			{
-				generationId: originalGeneration.id, // Use existing generation ID
-				prompt: originalGeneration.prompt,
-				provider: originalGeneration.provider,
-				model: originalGeneration.model,
-				chatId: chat.id,
-				userId,
-				// For regeneration, we can infer imageCount from existing fileIds count
-				// or fallback to 1 if no previous results
-				imageCount: Array.isArray(originalGeneration.fileIds) ? originalGeneration.fileIds.length : 1,
-				messageId: req.messageId, // Exclude this message from reference search
-			},
-			ctx,
-		);
-
-	if (!inBrowser && inCfWorker) {
-		// Run generation in background for Cloudflare Workers
-		ctx.executionCtx!.waitUntil(generateImage());
-	} else {
-		generateImage();
-	}
+	// Don't execute image generation here - client will call createMessageGenerate
+	// This avoids CF Worker 30-second timeout limitation
 
 	return {
 		messageId: req.messageId,
@@ -697,6 +757,7 @@ class ChatService {
 	createMessage = createMessage;
 	deleteMessage = deleteMessage;
 	getGenerationStatus = getGenerationStatus;
+	createMessageGenerate = createMessageGenerate;
 	regenerateMessage = regenerateMessage;
 }
 

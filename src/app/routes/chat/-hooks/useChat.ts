@@ -309,6 +309,20 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 					setCurrentChatId(result.id);
 					setIsChatIdValidated(true);
 
+					// Trigger image generation if messages were created
+					if (result.messages) {
+						const assistantMessage = result.messages.find((msg: any) => msg.role === "assistant");
+						if (assistantMessage?.generation?.id) {
+							// Mark as generating before triggering
+							assistantMessage.generation.status = "generating";
+
+							// Fire and forget - don't await, let it run in background
+							chatService.createMessageGenerate({ generationId: assistantMessage.generation.id }).catch((error) => {
+								console.error("Error triggering image generation:", error);
+							});
+						}
+					}
+
 					// Return the chat ID - no need to send another message since createChat already handled it
 					return result.id;
 				} catch (error) {
@@ -418,6 +432,11 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 
 				// Use returned messages to update the chat data instead of revalidating
 				if (result?.messages) {
+					// Trigger image generation in browser first (not blocked by CF Worker timeout)
+					const assistantMessage = result.messages.find((msg) => msg.role === "assistant");
+					const shouldTriggerGeneration = assistantMessage?.generation?.id;
+
+					// Update UI - mark generation as "generating" to avoid immediate polling
 					currentChatMutate((currentData) => {
 						if (!currentData) return currentData;
 
@@ -426,13 +445,35 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 						const existingMessages =
 							currentData.messages?.filter((msg: any) => msg.id !== optimisticUserMessage.id) || [];
 
-						// Append new messages from server
+						// Append new messages from server, but mark as "generating" if we're about to trigger
+						const newMessages = shouldTriggerGeneration
+							? result.messages.map((msg: any) => {
+									if (msg.role === "assistant" && msg.generation) {
+										return {
+											...msg,
+											generation: {
+												...msg.generation,
+												status: "generating" as const,
+											},
+										};
+									}
+									return msg;
+								})
+							: result.messages;
+
 						return {
 							...currentData,
-							messages: [...existingMessages, ...result.messages],
+							messages: [...existingMessages, ...newMessages],
 							updatedAt: new Date().toISOString(),
 						};
 					}, false);
+
+					if (shouldTriggerGeneration) {
+						// Fire and forget - don't await, let it run in background
+						chatService.createMessageGenerate({ generationId: assistantMessage!.generation!.id }).catch((error) => {
+							console.error("Error triggering image generation:", error);
+						});
+					}
 				} else {
 					// Fallback: revalidate if no messages returned
 					await currentChatMutate();
@@ -546,7 +587,7 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 									...msg,
 									generation: {
 										...msg.generation,
-										status: "pending" as const,
+										status: "generating" as const,
 										fileIds: null,
 										errorReason: null,
 									},
@@ -558,7 +599,15 @@ export const useChat = (initialChatId?: string, selectedProvider?: string, selec
 				}, false);
 
 				// Call the API
-				await chatService.regenerateMessage({ messageId });
+				const result = await chatService.regenerateMessage({ messageId });
+
+				// Trigger image generation in browser (not blocked by CF Worker timeout)
+				if (result?.generationId) {
+					// Fire and forget - don't await, let it run in background
+					chatService.createMessageGenerate({ generationId: result.generationId }).catch((error) => {
+						console.error("Error triggering image generation:", error);
+					});
+				}
 
 				// The polling mechanism in ChatMessageItem will handle updating the UI
 			} catch (error) {
