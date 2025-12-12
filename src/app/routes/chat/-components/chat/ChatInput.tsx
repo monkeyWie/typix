@@ -7,7 +7,7 @@ import { cn } from "@/app/lib/utils";
 import { getModelById } from "@/server/ai/provider";
 import type { AspectRatio } from "@/server/ai/types/api";
 import { Image, Send, SlidersHorizontal, X, ZoomIn } from "lucide-react";
-import { type KeyboardEvent, useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ImagePreferences } from "./ImagePreferences";
 
@@ -32,6 +32,7 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 	const [showPreferences, setShowPreferences] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const isComposingRef = useRef(false);
 
 	// Get current model capability and max images
 	const { currentModelCapability, maxImages } = (() => {
@@ -97,11 +98,20 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 	};
 
 	const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-		if (e.key === "Enter" && !e.shiftKey) {
+		// Ignore Enter key during IME composition (e.g., Chinese input method)
+		if (e.key === "Enter" && !e.shiftKey && !isComposingRef.current) {
 			e.preventDefault();
 			handleSend();
 		}
 	};
+
+	const handleCompositionStart = useCallback(() => {
+		isComposingRef.current = true;
+	}, []);
+
+	const handleCompositionEnd = useCallback(() => {
+		isComposingRef.current = false;
+	}, []);
 
 	const handleUploadClick = () => {
 		fileInputRef.current?.click();
@@ -237,6 +247,8 @@ export function ChatInput({ onSendMessage, disabled, currentProvider, currentMod
 							value={message}
 							onChange={(e) => setMessage(e.target.value)}
 							onKeyDown={handleKeyDown}
+							onCompositionStart={handleCompositionStart}
+							onCompositionEnd={handleCompositionEnd}
 							placeholder={t("chat.typeMessage")}
 							disabled={disabled}
 							className={cn(
