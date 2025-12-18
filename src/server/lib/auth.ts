@@ -36,7 +36,8 @@ export const createAuth = (db: any, config?: AuthConfig) =>
 		...(config?.cookieDomain
 			? {
 					advanced: {
-						defaultCookieAttributes: {
+						crossSubDomainCookies: {
+							enabled: true,
 							domain: config.cookieDomain,
 						},
 					},
