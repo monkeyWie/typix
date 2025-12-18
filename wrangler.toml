@@ -46,6 +46,9 @@ MODE = "client"
 # AUTH_SOCIAL_GITHUB_CLIENT_ID = ""
 # AUTH_SOCIAL_GITHUB_CLIENT_SECRET = ""
 
+# Cookie domain for cross-subdomain sharing (e.g., .xxx.com)
+# COOKIE_DOMAIN = ""
+
 # Enable Cloudflare built-in AI binding
 # When set to true, uses Cloudflare Workers AI for image generation without requiring additional API keys
 PROVIDER_CLOUDFLARE_BUILTIN = "true"

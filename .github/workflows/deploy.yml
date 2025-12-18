@@ -47,6 +47,7 @@ jobs:
           AUTH_SOCIAL_GOOGLE_CLIENT_SECRET: ${{ secrets.AUTH_SOCIAL_GOOGLE_CLIENT_SECRET }}
           AUTH_SOCIAL_GITHUB_CLIENT_ID: ${{ secrets.AUTH_SOCIAL_GITHUB_CLIENT_ID }}
           AUTH_SOCIAL_GITHUB_CLIENT_SECRET: ${{ secrets.AUTH_SOCIAL_GITHUB_CLIENT_SECRET }}
+          COOKIE_DOMAIN: ${{ secrets.COOKIE_DOMAIN }}
         run: |
           # build application
           sed -i "s/DATABASE_ID/${{ secrets.CLOUDFLARE_DATABASE_ID }}/g" wrangler.toml

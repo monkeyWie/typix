@@ -24,6 +24,8 @@ export interface AuthConfig {
 			clientSecret: string;
 		};
 	};
+	// Cookie domain for cross-subdomain sharing (e.g., .xxx.com)
+	cookieDomain?: string;
 }
 
 export const createAuth = (db: any, config?: AuthConfig) =>
@@ -31,6 +33,15 @@ export const createAuth = (db: any, config?: AuthConfig) =>
 		database: drizzleAdapter(db, {
 			provider: "sqlite",
 		}),
+		...(config?.cookieDomain
+			? {
+					advanced: {
+						defaultCookieAttributes: {
+							domain: config.cookieDomain,
+						},
+					},
+				}
+			: {}),
 		emailAndPassword: {
 			enabled: true,
 			requireEmailVerification: config?.email?.verification === true,
