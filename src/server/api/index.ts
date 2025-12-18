@@ -38,6 +38,7 @@ const factory = createFactory<Env>({
 						clientSecret: env(c).AUTH_SOCIAL_GITHUB_CLIENT_SECRET || "",
 					},
 				},
+				cookieDomain: env(c).COOKIE_DOMAIN ? String(env(c).COOKIE_DOMAIN) : undefined,
 			};
 
 			c.set("db", db);
