@@ -1,5 +1,5 @@
 import { inCfWorker } from "@/server/lib/env";
-import type { ReplacePropertyType } from "@/server/lib/types";
+import { GenError, type ReplacePropertyType } from "@/server/lib/types";
 import { base64ToBlob, base64ToDataURI, dataURItoBase64, readableStreamToDataURI } from "@/server/lib/util";
 import { getContext } from "@/server/service/context";
 import { type TypixGenerateRequest, commonAspectRatioSizes } from "../types/api";
@@ -38,13 +38,27 @@ const createFormData = (params: any, model: CloudflareAiModel, request: TypixGen
 // Helper function to handle API response
 const handleApiResponse = async (resp: Response): Promise<string[]> => {
 	if (!resp.ok) {
+		const errorText = await resp.text();
 		if (resp.status === 401 || resp.status === 404) {
-			throw new Error("CONFIG_ERROR");
+			throw new GenError("CONFIG_ERROR");
 		}
 		if (resp.status === 429) {
-			throw new Error("TOO_MANY_REQUESTS");
+			throw new GenError("TOO_MANY_REQUESTS");
 		}
-		const errorText = await resp.text();
+		if (resp.status === 400) {
+			const errorResp = JSON.parse(errorText);
+			if (errorResp.errors && Array.isArray(errorResp.errors)) {
+				const firstErr = errorResp.errors.find((err: any) => err.code === 3030);
+				if (firstErr) {
+					if (firstErr.message.includes("prompt")) {
+						throw new GenError("PROMPT_FLAGGED");
+					}
+					if (firstErr.message.includes("Input image")) {
+						throw new GenError("INPUT_IMAGE_FLAGGED");
+					}
+				}
+			}
+		}
 		throw new Error(`Cloudflare API error: ${resp.status} ${resp.statusText} - ${errorText}`);
 	}
 
@@ -258,15 +272,9 @@ const Cloudflare: CloudflareProvider = {
 				images: allImages,
 			};
 		} catch (error: any) {
-			if (error.message === "CONFIG_ERROR") {
+			if (error instanceof GenError) {
 				return {
-					errorReason: "CONFIG_ERROR",
-					images: [],
-				};
-			}
-			if (error.message === "TOO_MANY_REQUESTS") {
-				return {
-					errorReason: "TOO_MANY_REQUESTS",
+					errorReason: error.reason,
 					images: [],
 				};
 			}

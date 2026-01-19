@@ -53,6 +53,22 @@ export function GenerationErrorItem({ errorReason, provider, onRetry, className 
 					buttonIcon: RefreshCw,
 					buttonAction: "retry" as const,
 				};
+			case "PROMPT_FLAGGED":
+				return {
+					title: t("chat.generation.promptFlagged"),
+					description: t("chat.generation.promptFlaggedDesc"),
+					buttonText: t("chat.generation.retry"),
+					buttonIcon: RefreshCw,
+					buttonAction: "retry" as const,
+				};
+			case "INPUT_IMAGE_FLAGGED":
+				return {
+					title: t("chat.generation.inputImageFlagged"),
+					description: t("chat.generation.inputImageFlaggedDesc"),
+					buttonText: t("chat.generation.retry"),
+					buttonIcon: RefreshCw,
+					buttonAction: "retry" as const,
+				};
 			default:
 				return {
 					title: t("chat.generation.unknownError"),

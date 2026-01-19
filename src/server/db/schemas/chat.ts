@@ -49,7 +49,16 @@ export const messageAttachments = sqliteTable("message_attachments", {
 	...metaFields,
 });
 
-const errorReason = ["CONFIG_INVALID", "CONFIG_ERROR", "API_ERROR", "TOO_MANY_REQUESTS", "TIMEOUT", "UNKNOWN"] as const;
+const errorReason = [
+	"CONFIG_INVALID",
+	"CONFIG_ERROR",
+	"API_ERROR",
+	"TOO_MANY_REQUESTS",
+	"TIMEOUT",
+	"PROMPT_FLAGGED",
+	"INPUT_IMAGE_FLAGGED",
+	"UNKNOWN",
+] as const;
 export type ErrorReason = (typeof errorReason)[number];
 
 // Generations table - stores AI generation requests and results (images, videos, etc.)
