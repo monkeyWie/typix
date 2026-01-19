@@ -45,6 +45,20 @@ const Fal: AiProvider = {
 			enabledByDefault: true,
 		},
 		{
+			id: "fal-ai/flux-2/klein/9b",
+			name: "FLUX.2 [Klein] - 9B",
+			ability: "i2i",
+			maxInputImages: 4,
+			enabledByDefault: true,
+		},
+		{
+			id: "fal-ai/flux-2/klein/4b",
+			name: "FLUX.2 [Klein] - 4B",
+			ability: "i2i",
+			maxInputImages: 4,
+			enabledByDefault: true,
+		},
+		{
 			id: "fal-ai/flux-pro/kontext/max",
 			name: "FLUX.1 Kontext [max]",
 			ability: "i2i",
@@ -79,6 +93,8 @@ const Fal: AiProvider = {
 			switch (request.modelId) {
 				case "fal-ai/nano-banana-pro":
 				case "fal-ai/gemini-25-flash-image":
+				case "fal-ai/flux-2/klein/9b":
+				case "fal-ai/flux-2/klein/4b":
 					if (genType === "i2i") {
 						endpoint = "/edit";
 					}
