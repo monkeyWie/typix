@@ -196,6 +196,15 @@ const Cloudflare: CloudflareProvider = {
 	enabledByDefault: true,
 	models: [
 		{
+			id: "@cf/black-forest-labs/flux-2-klein-9b",
+			name: "FLUX.2 [Klein] - 9B",
+			ability: "i2i",
+			maxInputImages: 4,
+			enabledByDefault: true,
+			supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+			inputType: "FormData",
+		},
+		{
 			id: "@cf/black-forest-labs/flux-2-klein-4b",
 			name: "FLUX.2 [Klein] - 4B",
 			ability: "i2i",
