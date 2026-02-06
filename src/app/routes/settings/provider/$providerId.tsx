@@ -47,7 +47,7 @@ function ProviderDetailPage() {
 	return (
 		<SettingsContent title={provider.name} isMobile={isMobile}>
 			<div className="space-y-16">
-				<ProviderSettingsForm provider={provider} onSave={handleSave} />
+				<ProviderSettingsForm key={provider.id} provider={provider} onSave={handleSave} />
 				<ModelList providerId={providerId} />
 			</div>
 		</SettingsContent>

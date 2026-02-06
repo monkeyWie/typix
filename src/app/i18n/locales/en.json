@@ -324,6 +324,11 @@
 					"title": "API Key",
 					"description": "Your Google AI API key for authentication",
 					"placeholder": "Enter your Google AI API key"
+				},
+				"baseURL": {
+					"title": "Base URL",
+					"description": "The base URL for Google AI API endpoint",
+					"placeholder": "Enter your Google AI API base URL"
 				}
 			},
 			"models": {
