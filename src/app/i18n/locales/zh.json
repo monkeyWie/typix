@@ -324,6 +324,11 @@
 					"title": "API密钥",
 					"description": "用于身份验证的Google AI API密钥",
 					"placeholder": "输入您的Google AI API密钥"
+				},
+				"baseURL": {
+					"title": "基础URL",
+					"description": "Google AI API端点的基础URL",
+					"placeholder": "请输入您的Google AI API基础URL"
 				}
 			},
 			"models": {

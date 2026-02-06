@@ -9,6 +9,11 @@ const googleSettingsSchema = [
 		type: "password",
 		required: true,
 	},
+	{
+		key: "baseURL",
+		type: "url",
+		required: false,
+	},
 ] as const satisfies ApiProviderSettingsItem[];
 
 // Automatically generate type from schema
@@ -16,9 +21,14 @@ export type GoogleSettings = ProviderSettingsType<typeof googleSettingsSchema>;
 
 // Single image generation helper function
 const generateSingle = async (request: TypixGenerateRequest, settings: ApiProviderSettings): Promise<string[]> => {
-	const { apiKey } = Google.parseSettings<GoogleSettings>(settings);
+	const { apiKey, baseURL } = Google.parseSettings<GoogleSettings>(settings);
 
-	const ai = new GoogleGenAI({ apiKey });
+	const ai = new GoogleGenAI({
+		apiKey,
+		httpOptions: {
+			baseUrl: baseURL,
+		},
+	});
 
 	const ability = chooseAblility(request, findModel(Google, request.modelId).ability);
 
